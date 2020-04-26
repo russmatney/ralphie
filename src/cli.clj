@@ -4,17 +4,21 @@
    [cli.help :as help]
    [cli.screenshot :as screenshot]
    [cli.command :as command]
+   [cli.rofi :as rofi]
    [clojure.test :as t :refer [is deftest]]
    [clojure.tools.cli :refer [parse-opts]]
    [clojure.set :as set]))
 
+
 (def CONFIG
-  {:commands [help/command screenshot/command]})
+  {:commands [help/command
+              screenshot/command
+              rofi/command]})
 
 (defn config->opts
-  "Converts config into bb's parse-opts expected form."
+  "Converts config into bb's parse-opt's expected form.
+  see `clojure.tools.cli/parse-opts`"
   [config]
-  ;; note, these are really commands, not opts....
   (into []
         (map
           (fn [{:keys [short long one-line-desc]}]
@@ -37,15 +41,20 @@
        first
        second))
 
-(deftest find-test
+(deftest find-command-test
   (let [cmd (find-command CONFIG #{"help"})]
-    (is (= "help" (:name cmd)))))
+    (is (= "help" (:name cmd))))
+
+  (is (= "screenshot" (:name (find-command CONFIG #{"screenshot"}))))
+  (is (= nil (:name (find-command CONFIG #{"not-found"})))))
 
 (defn call-command [config parsed]
   (let [command (find-command config (set (:arguments parsed)))
         handler (:handler command)]
+    (when-not command
+      (println "No command found for args" (:arguments parsed)))
     (when-not handler
-      (println "No :handler found for command:" command))
+      (println "No :handler found for command" command))
     (when handler
       (handler config parsed))))
 
@@ -60,18 +69,14 @@
       (prn "############")
       (println "*command-line-args*" *command-line-args*)
       (println "parsed input" (dissoc parsed :summary))
-      (prn "############"))
+      (println "############\n"))
     (call-command config parsed)
     (when debug
       (println "\nSummary:\n" (:summary parsed)))))
 
-;; (-main "screenshot")
-(-main "help")
-
 (comment
   (def -res
-    (-main '(screenshot)))
+    (-main "screenshot"))
 
   (:summary -res)
-  (-main '(-s -h))
   )
