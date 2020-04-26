@@ -1,0 +1,22 @@
+#+TITLE: Readme
+
+* cli-bindings
+
+A clojure cli tool that supports tools meant for keybindings
+
+** feats
+*** Screenshot
+*** Universal Focus Movement
+*** Open X, where x is
+- Workspace (with apps)
+- Emacs
+- Terminal
+- Browser
+
+* development
+
+#+BEGIN_SRC zsh
+bb --classpath src --main cli other args
+#+END_SRC
+
+#+RESULTS:
