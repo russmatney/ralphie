@@ -14,9 +14,14 @@ A clojure cli tool that supports tools meant for keybindings
 - Browser
 
 * development
+run it
 
 #+BEGIN_SRC zsh
-bb --classpath src --main cli other args
+bb --classpath src --main cli -- -h
 #+END_SRC
 
-#+RESULTS:
+run an nrepl server to connect to.
+
+#+BEGIN_SRC zsh
+rlwrap bb --nrepl-server 1667
+#+END_SRC
