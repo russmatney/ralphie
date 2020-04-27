@@ -57,7 +57,7 @@
 
 (def command
   {:name          "rofi"
-   :short         "-f"
+   :short         "-r"
    :long          "--rofi"
    :one-line-desc "Open Rofi"
    :description   ["Open Rofi for each command"]

@@ -1,3 +1,5 @@
+#!/usr/bin/env -S bb --classpath src -m cli
+
 (ns cli
   (:require
    [cli.dates :as dates]
@@ -8,7 +10,6 @@
    [clojure.test :as t :refer [is deftest]]
    [clojure.tools.cli :refer [parse-opts]]
    [clojure.set :as set]))
-
 
 (def CONFIG
   {:commands [help/command
@@ -49,21 +50,25 @@
   (is (= nil (:name (find-command CONFIG #{"not-found"})))))
 
 (defn call-command [config parsed]
-  (let [command (find-command config (set (:arguments parsed)))
-        handler (:handler command)]
-    (when-not command
-      (println "No command found for args" (:arguments parsed)))
-    (when-not handler
-      (println "No :handler found for command" command))
-    (when handler
-      (handler config parsed))))
+  (if-let [command
+           (find-command config
+                         (set (:arguments parsed)))]
+    (let [handler (:handler command)]
+      (if handler
+        (handler config parsed)
+        (do
+          (println "No handler for command" command)
+          ((:handler help/command) config parsed))))
+    (do
+      (println "No command found for args" (:arguments parsed))
+      ((:handler help/command) config parsed))))
 
 (defn -main [& args]
   (let [config      CONFIG ;; preprocess config for all handlers first?
         ;; might be fun to build families of commands
         merged-args (apply (partial conj *command-line-args*) args)
         parsed      (parse-opts merged-args (config->opts config))
-        debug       true]
+        debug       false]
     (println "\n\nNew Log running: " (dates/now))
     (when debug
       (prn "############")
