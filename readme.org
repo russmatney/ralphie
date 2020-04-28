@@ -45,8 +45,8 @@ Installs ~ralphie~ by symlinking ~src/ralphie/core.clj~ to
 ~~/.local/bin/ralphie~
 TODO expand to write bindings to i3/config.ralphie
 ** TODO
-*** Build docs
-Rebuilds this readme based on the ralphie config,
+*** Build readme
+Rebuilds the readme based on the ralphie config,
 which is a compilation of every command.
 *** Resize monitor resolution
 *** Restart i3

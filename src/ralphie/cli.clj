@@ -8,6 +8,7 @@
    [ralphie.util :as util]
    [ralphie.term :as term]
    [ralphie.install :as install]
+   [ralphie.readme :as readme]
    [ralphie.workspace :as workspace]
    [clojure.test :as t :refer [is deftest]]
    [clojure.tools.cli :refer [parse-opts]]))
@@ -19,8 +20,8 @@
               rofi/command
               term/open
               install/command
+              readme/build
               workspace/upsert]})
-
 
 (defn config->opts
   "Converts config into bb's parse-opt's expected form.
