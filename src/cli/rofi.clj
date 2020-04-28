@@ -9,7 +9,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn rofi
-  [{:keys [xs msg on-select command]}]
+  [{:keys [xs msg on-select]}]
   (let [labels (map :label xs)
 
         res
@@ -18,15 +18,12 @@
 
         selected-label (:out res)]
 
-    (if (empty? selected-label)
-      "Nothing selected."
+    (when (seq selected-label)
       (let [selected-x
             (->> xs
                  (filter #(= selected-label (:label %)))
                  first
                  )]
-        (when command
-          (command selected-x))
         (if on-select
           (on-select selected-x)
           selected-x)))))
@@ -47,13 +44,15 @@
 ;; cli/command
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn rofi-cmd [config parsed]
+(defn rofi-cmd
+  "Returns the selected xs if there is no handler."
+  [config parsed]
   (let [commands     (:commands config)
-        xs           (map command/->rofi-x commands)
-        selected-cmd (:x (rofi {:xs  xs
-                                :msg "All commands"}))]
-    ;; TODO may want to dry or use command/ns for this
-    ((:handler selected-cmd) config parsed)))
+        selected-cmd (rofi {:xs  (map #(assoc % :label (:name %)) commands)
+                            :msg "All commands"})]
+    (if selected-cmd
+      (command/call-handler selected-cmd config parsed)
+      (println "Selected:" selected-cmd))))
 
 (def command
   {:name          "rofi"

@@ -2,4 +2,5 @@
   (:require [cli.core :as cli]))
 
 (defn go []
-  (cli/-main "rofi"))
+  (cli/-main "rofi")
+  )

@@ -1,4 +1,4 @@
 {:paths ["src"]
  :deps  {}
- :alias
+ :aliases
  {:run {:main-opts "-m cli.core"}}}

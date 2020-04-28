@@ -1,4 +1,4 @@
-#!/usr/bin/env -S bb --classpath src -m cli
+#!/usr/bin/env -S bb --classpath src -m cli.core
 
 (ns cli.core
   (:require
@@ -7,6 +7,7 @@
    [cli.screenshot :as screenshot]
    [cli.command :as command]
    [cli.rofi :as rofi]
+   [clojure.string :as string]
    [clojure.test :as t :refer [is deftest]]
    [clojure.tools.cli :refer [parse-opts]]
    [clojure.set :as set]))
@@ -53,22 +54,24 @@
   (if-let [command
            (find-command config
                          (set (:arguments parsed)))]
-    (let [handler (:handler command)]
-      (if handler
-        (handler config parsed)
-        (do
-          (println "No handler for command" command)
-          ((:handler help/command) config parsed))))
+    (command/call-handler command config parsed)
     (do
       (println "No command found for args" (:arguments parsed))
-      ((:handler help/command) config parsed))))
+      (command/call-handler help/command config parsed))))
 
 (defn -main [& args]
-  (let [config      CONFIG ;; preprocess config for all handlers first?
+  (let [config CONFIG ;; preprocess config for all handlers first?
         ;; might be fun to build families of commands
-        merged-args (apply (partial conj *command-line-args*) args)
-        parsed      (parse-opts merged-args (config->opts config))
-        debug       false]
+        args   (if (= args *command-line-args*)
+                 args
+                 (apply (partial conj *command-line-args*) args))
+        args   (if (and (some? args)
+                        (string/ends-with? (first args) "core.clj"))
+                 (rest args)
+                 args)
+
+        parsed (parse-opts args (config->opts config))
+        debug  false]
     (println "\n\nNew Log running: " (dates/now))
     (when debug
       (prn "############")
@@ -84,4 +87,9 @@
     (-main "screenshot"))
 
   (:summary -res)
+
+  (println
+    *file*)
+
+
   )

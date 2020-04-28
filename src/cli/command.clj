@@ -1,6 +1,5 @@
 (ns cli.command)
 
-
 ;; {:command       "--screenshot"
 ;;  :short         "-s"
 ;;  :one-line-desc "Take Screenshot"
@@ -22,3 +21,9 @@
 (defn ->rofi-x [cmd]
   {:label (:name cmd)
    :x     cmd})
+
+(defn call-handler [cmd config parsed]
+  (let [handler (:handler cmd)]
+    (if handler
+      (handler config parsed)
+      (println "No handler for command" cmd))))
