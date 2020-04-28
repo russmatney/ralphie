@@ -5,8 +5,8 @@
    [ralphie.screenshot :as screenshot]
    [ralphie.command :as command]
    [ralphie.rofi :as rofi]
-   [ralphie.util :as util]
    [ralphie.term :as term]
+   [ralphie.git :as git]
    [ralphie.install :as install]
    [ralphie.readme :as readme]
    [ralphie.workspace :as workspace]
@@ -19,6 +19,7 @@
               screenshot/command
               rofi/command
               term/open
+              git/clone
               install/command
               readme/build
               workspace/upsert]})
@@ -33,32 +34,33 @@
             [short long one-line-desc])
           (:commands config))))
 
-(defn find-command [config search-keys]
+(defn find-command [config arg]
   (->> config
        :commands
-       (group-by command/->keys)
+       (group-by :name)
        (map (fn [[k v]] [k (first v)]))
        (into {})
-       (filter (fn [[ks v]]
-                 (when (util/matching-ks? ks search-keys) v)))
-       first
-       second))
+       (#(get % arg))))
 
 (deftest find-command-test
-  (let [cmd (find-command CONFIG #{"help"})]
+  (let [cmd (find-command CONFIG "help")]
+    (println cmd)
     (is (= "help" (:name cmd))))
 
-  (is (= "screenshot" (:name (find-command CONFIG #{"screenshot"}))))
-  (is (= nil (:name (find-command CONFIG #{"not-found"})))))
+  (is (= "screenshot" (:name (find-command CONFIG "screenshot"))))
+  (is (= nil (:name (find-command CONFIG "not-found")))))
 
 (defn call-command [config parsed]
-  (if-let [command
-           (find-command config
-                         (set (:arguments parsed)))]
-    (command/call-handler command config parsed)
-    (do
-      (println "No command found for args" (:arguments parsed))
-      (command/call-handler help/command config parsed))))
+  (let [args      (:arguments parsed)
+        first-arg (first args)
+        rest-args (rest args)
+        command   (find-command config first-arg)]
+    (if command
+      (command/call-handler command config
+                            (assoc parsed :arguments rest-args))
+      (do
+        (println "No command found for args" (:arguments parsed))
+        (command/call-handler help/command config parsed)))))
 
 (defn run [& args]
   (let [config CONFIG

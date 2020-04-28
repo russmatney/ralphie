@@ -1,5 +1,5 @@
 #!/bin/sh
-"cd" "russmatney/ralphie"
+"cd" "/home/russ/russmatney/ralphie"
 "exec" "bb" "--classpath" "src" "-m" "ralphie.core" "$@"
 
 (ns ralphie.core

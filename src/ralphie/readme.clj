@@ -20,23 +20,12 @@
     (command->sh-usage cmd)
     (command->i3-binding-usage cmd)))
 
-(comment
-  (command->feature-doc {:name          "name"
-                         :one-line-desc "just the name for the thing"
-                         :description   ["Names the thing."]}))
-
 (defn readme-feature-lines [config]
   (->> config
        :commands
        (map command->feature-doc)
        flatten
        (string/join "\n")))
-
-(comment
-  (readme-feature-lines
-    {:commands [{:name          "name"
-                 :one-line-desc "just the name for the thing"
-                 :description   ["Names the thing."]}]}))
 
 (defn build-readme-cmd [config _parsed]
   (let [feats (readme-feature-lines config)]
