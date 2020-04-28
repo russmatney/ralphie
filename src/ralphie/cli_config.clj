@@ -5,6 +5,7 @@
    [ralphie.screenshot :as screenshot]
    [ralphie.rofi :as rofi]
    [ralphie.term :as term]
+   [ralphie.emacs :as emacs]
    [ralphie.git :as git]
    [ralphie.doctor :as doctor]
    [ralphie.install :as install]
@@ -17,8 +18,9 @@
               screenshot/command
               rofi/command
               term/open
+              emacs/open-cmd
               git/clone-cmd
-              doctor/checkup
+              doctor/checkup-cmd
               install/command
               readme/build
               workspace/upsert]})

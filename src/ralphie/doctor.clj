@@ -38,7 +38,7 @@
   (missing-for-key {:commands [{:name "hi"}]} :hi)
   )
 
-(def checkup
+(def checkup-cmd
   {:name          "doctor-checkup"
    :one-line-desc "Debug helper for sanity-checking"
    :description   ["Runs a sanity check on your built config, and logs a report."]
