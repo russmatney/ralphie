@@ -8,3 +8,12 @@
         pattern     (java.time.format.DateTimeFormatter/ofPattern "HH:mm")]
     (str "Time in LA:"
          (.format LA-time pattern))))
+
+(defn date-cmd [_config _parsed]
+  (now))
+
+(def command
+  {:name          "date"
+   :short         "-d"
+   :one-line-desc "Prints the date"
+   :handler       date-cmd})
