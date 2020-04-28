@@ -1,9 +1,9 @@
-#!/usr/bin/env -S bb --classpath src -m cli.core
+#!/usr/bin/env -S bb --classpath src -m ralphie.core
 
-(ns cli.core
+(ns ralphie.core
   (:require
-   [cli.dates :as dates]
-   [cli.cli :as cli]
+   [ralphie.dates :as dates]
+   [ralphie.cli :as cli]
    [clojure.string :as string]))
 
 

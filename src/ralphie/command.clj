@@ -1,4 +1,4 @@
-(ns cli.command)
+(ns ralphie.command)
 
 ;; {:command       "--screenshot"
 ;;  :short         "-s"
@@ -8,6 +8,7 @@
 ;;  (fn screenshot [_config parsed]
 ;;    (prn "Hello from screenshot command!"
 ;;         (when parsed parsed)))}
+
 
 (defn mk-command
   [{:keys [command short one-line-des description

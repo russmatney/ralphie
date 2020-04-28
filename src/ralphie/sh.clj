@@ -1,4 +1,4 @@
-(ns cli.sh
+(ns ralphie.sh
   (:require
    [clojure.java.shell :as clj-sh]
    [clojure.string :as string]))

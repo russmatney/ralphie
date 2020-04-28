@@ -1,13 +1,14 @@
-(ns cli.cli
+(ns ralphie.cli
   (:require
-   [cli.dates :as dates]
-   [cli.help :as help]
-   [cli.screenshot :as screenshot]
-   [cli.command :as command]
-   [cli.rofi :as rofi]
-   [cli.util :as util]
+   [ralphie.dates :as dates]
+   [ralphie.help :as help]
+   [ralphie.screenshot :as screenshot]
+   [ralphie.command :as command]
+   [ralphie.rofi :as rofi]
+   [ralphie.util :as util]
    [clojure.test :as t :refer [is deftest]]
    [clojure.tools.cli :refer [parse-opts]]))
+
 
 (def CONFIG
   {:commands [dates/command

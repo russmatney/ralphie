@@ -1,4 +1,4 @@
-(ns cli.help)
+(ns ralphie.help)
 
 (def command
   {:name          "help"

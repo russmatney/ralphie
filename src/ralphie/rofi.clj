@@ -1,8 +1,8 @@
-(ns cli.rofi
+(ns ralphie.rofi
   (:require
-   [cli.sh :as sh]
+   [ralphie.sh :as sh]
    [clojure.string :as string]
-   [cli.command :as command]))
+   [ralphie.command :as command]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; rofi-general

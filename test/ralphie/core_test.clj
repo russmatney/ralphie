@@ -1,5 +1,5 @@
-(ns cli-test
-  (:require [cli :as sut]
+(ns ralphie.core-test
+  (:require [ralphie.core :as sut]
             [clojure.test :as t :refer [is testing deftest]]))
 
 (deftest example-test

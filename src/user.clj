@@ -1,6 +1,6 @@
 (ns user
-  (:require [cli.core :as cli]))
+  (:require [ralphie.core :as ralphie]))
 
 (defn go []
-  (cli/-main "rofi")
+  (ralphie/-main "rofi")
   )

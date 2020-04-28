@@ -1,23 +1,41 @@
-#+TITLE: Readme
+#+TITLE: Ralphie
 
-* cli-bindings
+A set of tools for cli and keybindings, written in
+Clojure/[[https://github.com/borkdude/babashka/][Babashka]].
 
-A clojure cli tool that supports tools meant for keybindings
+* Ralphie
 
-** feats
-*** Screenshot
-*** Universal Focus Movement
-*** Open X, where x is
-- Workspace (with apps)
-- Emacs
-- Terminal
-- Browser
+#+BEGIN_SRC A Christmas Story
+    Ralphie as Adult: [narrating] Meanwhile, I struggled for exactly the right
+    BB gun hint. It had to be firm, but subtle.
 
-* development
+    Ralphie: Flick says he saw some grizzly bears near Pulaski's candy store!
+
+    [Everyone stares at Ralphie]
+
+    Ralphie as Adult: [narrating] They looked at me as if I had lobsters
+    crawling out of my ears.
+#+END_SRC
+
+Maybe the bears are real, maybe not. Either way, Ralphie knew he wanted to shoot
+a BB gun, same as I knew I wanted to write a tool in Babashka.
+
+* Features (Status)
+** Resize monitor (TODO)
+** Restart i3 (TODO)
+** Git Clone (TODO)
+** Doctor scripts (TODO)
+** Take Screenshot with metadata (TODO)
+** Universal Focus Movement (TODO)
+** Open Tmux for current workspace (TODO)
+** Open Emacs for current workspace (TODO)
+** Toggle scratchpad for current workspace (TODO)
+** Toggle global scratchpad (TODO)
+* Development
 run it
 
 #+BEGIN_SRC zsh
-bb --classpath src --main cli.core -- -h
+bb --classpath src --main ralphie.core -- -h
 #+END_SRC
 
 run an nrepl server to connect to.

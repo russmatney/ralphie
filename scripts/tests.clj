@@ -2,7 +2,7 @@
 
 (ns tests
   (:require [clojure.test :as t]
-            [cli-test]))
+            [ralphie.core-test]))
 
-(let [{:keys [fail error]} (t/run-tests 'cli-test)]
+(let [{:keys [fail error]} (t/run-tests 'ralphie.core-test)]
   (System/exit (+ fail error)))

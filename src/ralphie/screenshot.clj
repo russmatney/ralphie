@@ -1,4 +1,4 @@
-(ns cli.screenshot)
+(ns ralphie.screenshot)
 
 (def command
   {:name          "screenshot"
