@@ -20,14 +20,19 @@ Clojure/[[https://github.com/borkdude/babashka/][Babashka]].
 Maybe the bears are real, maybe not. Either way, Ralphie knew he wanted to shoot
 a BB gun, same as I knew I wanted to write a tool in Babashka.
 
-* Features (Status)
+* Features
+** ~open-term~: open tmux for current workspace
+Opens alacritty+tmux in the current workspace,
+using the workspace name as the tmux session name.
+#+BEGIN_SRC sh
+./src/ralphie/core.clj open-term
+#+END_SRC
 ** Resize monitor (TODO)
 ** Restart i3 (TODO)
 ** Git Clone (TODO)
 ** Doctor scripts (TODO)
 ** Take Screenshot with metadata (TODO)
 ** Universal Focus Movement (TODO)
-** Open Tmux for current workspace (TODO)
 ** Open Emacs for current workspace (TODO)
 ** Toggle scratchpad for current workspace (TODO)
 ** Toggle global scratchpad (TODO)

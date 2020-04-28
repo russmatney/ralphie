@@ -6,15 +6,20 @@
    [ralphie.command :as command]
    [ralphie.rofi :as rofi]
    [ralphie.util :as util]
+   [ralphie.term :as term]
+   [ralphie.workspace :as workspace]
    [clojure.test :as t :refer [is deftest]]
    [clojure.tools.cli :refer [parse-opts]]))
-
 
 (def CONFIG
   {:commands [dates/command
               help/command
               screenshot/command
-              rofi/command]})
+              rofi/command
+              term/open
+              workspace/upsert
+              ]})
+
 
 (defn config->opts
   "Converts config into bb's parse-opt's expected form.
@@ -64,9 +69,4 @@
     (run "help"))
 
   (:summary -res)
-
-  (println
-    *file*)
-
-
-  )
+  (println *file*))
