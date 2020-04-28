@@ -7,6 +7,7 @@
    [ralphie.rofi :as rofi]
    [ralphie.util :as util]
    [ralphie.term :as term]
+   [ralphie.install :as install]
    [ralphie.workspace :as workspace]
    [clojure.test :as t :refer [is deftest]]
    [clojure.tools.cli :refer [parse-opts]]))
@@ -17,8 +18,8 @@
               screenshot/command
               rofi/command
               term/open
-              workspace/upsert
-              ]})
+              install/command
+              workspace/upsert]})
 
 
 (defn config->opts

@@ -12,6 +12,7 @@
          ["tmux" "-c"
           (str "alacritty -e tmux -v new-session -A -s " name " & disown")]
          ]
+
      (println args)
      (async/thread
        (apply sh/sh args)))))
@@ -21,8 +22,9 @@
   )
 
 (def open
-  {:name          "term"
+  {:name          "open-term"
    :short         "-t"
-   :one-line-desc "term"
+   :one-line-desc "Opens a terminal."
+   :description   ["Hardcoded to alacritty and tmux."
+                   "Opens tmux using the current i3 workspace name."]
    :handler       open-term})
-

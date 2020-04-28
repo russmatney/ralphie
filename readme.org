@@ -21,21 +21,42 @@ Maybe the bears are real, maybe not. Either way, Ralphie knew he wanted to shoot
 a BB gun, same as I knew I wanted to write a tool in Babashka.
 
 * Features
+** ~run-command~
+Opens rofi with all available commands. Runs the selected one.
+#+BEGIN_SRC sh
+ralphie rofi
+#+END_SRC
+
+#+BEGIN_SRC i3
+bindsym $mod+r exec --no-startup-id ralphie rofi
+#+END_SRC
 ** ~open-term~: open tmux for current workspace
 Opens alacritty+tmux in the current workspace,
 using the workspace name as the tmux session name.
 #+BEGIN_SRC sh
-./src/ralphie/core.clj open-term
+ralphie open-term
 #+END_SRC
-** Resize monitor (TODO)
-** Restart i3 (TODO)
-** Git Clone (TODO)
-** Doctor scripts (TODO)
-** Take Screenshot with metadata (TODO)
-** Universal Focus Movement (TODO)
-** Open Emacs for current workspace (TODO)
-** Toggle scratchpad for current workspace (TODO)
-** Toggle global scratchpad (TODO)
+
+#+BEGIN_SRC i3
+bindsym $mod+Return exec --no-startup-id ralphie open-term
+#+END_SRC
+** ~install~
+Installs ~ralphie~ by symlinking ~src/ralphie/core.clj~ to
+~~/.local/bin/ralphie~
+TODO expand to write bindings to i3/config.ralphie
+** TODO
+*** Build docs
+Rebuilds this readme based on the ralphie config,
+which is a compilation of every command.
+*** Resize monitor resolution
+*** Restart i3
+*** Git Clone
+*** Doctor scripts
+*** Take Screenshot with metadata
+*** Universal Focus Movement
+*** Open Emacs for current workspace
+*** Toggle scratchpad for current workspace
+*** Toggle global scratchpad
 * Development
 run it
 
@@ -46,5 +67,5 @@ bb --classpath src --main ralphie.core -- -h
 run an nrepl server to connect to.
 
 #+BEGIN_SRC zsh
-rlwrap bb --nrepl-server 1667
+rlwrap bb -cp src --nrepl-server 1667
 #+END_SRC
