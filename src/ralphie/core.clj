@@ -9,9 +9,10 @@
    [clojure.string :as string]))
 
 (defn debug-log [log]
-  (spit "/home/russ/russmatney/ralphie/log"
-        (str log "\n")
-        :append true))
+  (when false
+    (spit "/home/russ/russmatney/ralphie/log"
+          (str log "\n")
+          :append true)))
 
 (defn -main [& args]
   (let [args (if (= args *command-line-args*)
@@ -34,5 +35,4 @@
 
   (:summary -res)
 
-  (println *file*)
-  )
+  (println *file*))

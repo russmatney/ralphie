@@ -36,3 +36,16 @@
 
 (comment
   (sh "echo" "hi\nhi"))
+
+(defn bash [command]
+  (clj-sh/sh "bash" "-c" command))
+
+(defn zsh [& args]
+  (apply clj-sh/sh "zsh" "-c" args))
+
+
+(defn expand
+  [path]
+  (-> (str "echo -n " path)
+      (bash)
+      :out))

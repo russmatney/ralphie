@@ -1,28 +1,10 @@
 (ns ralphie.cli
   (:require
-   [ralphie.dates :as dates]
    [ralphie.help :as help]
-   [ralphie.screenshot :as screenshot]
    [ralphie.command :as command]
-   [ralphie.rofi :as rofi]
-   [ralphie.term :as term]
-   [ralphie.git :as git]
-   [ralphie.install :as install]
-   [ralphie.readme :as readme]
-   [ralphie.workspace :as workspace]
+   [ralphie.cli-config :refer [CONFIG]]
    [clojure.test :as t :refer [is deftest]]
    [clojure.tools.cli :refer [parse-opts]]))
-
-(def CONFIG
-  {:commands [dates/command
-              help/command
-              screenshot/command
-              rofi/command
-              term/open
-              git/clone
-              install/command
-              readme/build
-              workspace/upsert]})
 
 (defn config->opts
   "Converts config into bb's parse-opt's expected form.
@@ -50,23 +32,22 @@
   (is (= "screenshot" (:name (find-command CONFIG "screenshot"))))
   (is (= nil (:name (find-command CONFIG "not-found")))))
 
-(defn call-command [config parsed]
+(defn parse-command [config parsed]
   (let [args      (:arguments parsed)
         first-arg (first args)
-        rest-args (rest args)
         command   (find-command config first-arg)]
-    (if command
-      (command/call-handler command config
-                            (assoc parsed :arguments rest-args))
-      (do
-        (println "No command found for args" (:arguments parsed))
-        (command/call-handler help/command config parsed)))))
+    {:command command
+     :args    (rest args)}))
 
-(defn run [& args]
-  (let [config CONFIG
-        parsed (parse-opts args (config->opts config))]
+(defn run [& passed-args]
+  (let [config                 CONFIG
+        ;; TODO decorate the config with :config-handlers
+        parsed                 (parse-opts passed-args (config->opts config))
+        {:keys [command args]} (parse-command config parsed)]
+    (command/call-handler command config args)
 
-    (call-command config parsed)))
+    (when-not command
+      (command/call-handler help/command config passed-args))))
 
 (comment
   (def -res

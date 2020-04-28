@@ -1,15 +1,17 @@
 (ns ralphie.git
-  (:require [clojure.java.shell :as sh]))
+  (:require [clojure.java.shell :as sh]
+            [ralphie.config :refer [home-dir]]))
 
-(def home-dir "/home/russ")
+(defn clone [{:keys [repo-id]}]
+  (sh/sh "hub" "clone" repo-id (str (home-dir) "/" repo-id)))
 
-(defn clone-cmd [_config parsed]
-  (let [repo (first (:arguments parsed))]
-    (println repo)
-    (sh/sh "hub" "clone" repo (str home-dir "/" repo))))
+(defn clone-handler
+  [_config parsed]
+  (let [repo-id (first (:arguments parsed))]
+    (clone repo-id)))
 
-(def clone
+(def clone-cmd
   {:name          "clone"
    :short         "-"
    :one-line-desc "clone"
-   :handler       clone-cmd})
+   :handler       clone-handler})

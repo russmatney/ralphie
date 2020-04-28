@@ -23,8 +23,12 @@
   {:label (:name cmd)
    :x     cmd})
 
-(defn call-handler [cmd config parsed]
+(defn call-handler
+  ;; this warning/check should be enforced earlier, by the config
+  ;; TODO capture as doctor case
+  [cmd config parsed]
   (let [handler (:handler cmd)]
     (if handler
       (handler config parsed)
-      (println "No handler for command" cmd))))
+      (println "No handler for command:"
+               (some-> cmd :name)))))

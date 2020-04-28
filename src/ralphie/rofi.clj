@@ -48,11 +48,15 @@
   "Returns the selected xs if there is no handler."
   [config parsed]
   (let [commands     (:commands config)
-        selected-cmd (rofi {:xs  (map #(assoc % :label (:name %)) commands)
+        ;; TODO get a warning/doctor check for when a :name is missing
+        rofi-xs      (map #(assoc % :label (:name %))
+                          (filter (comp seq :name) commands))
+        selected-cmd (rofi {:xs  rofi-xs
                             :msg "All commands"})]
     (if selected-cmd
       (command/call-handler selected-cmd config parsed)
       (println "Selected:" selected-cmd))))
+
 
 (def command
   {:name          "rofi"
