@@ -1,5 +1,5 @@
 (ns user
-  (:require [cli :as cli]))
+  (:require [cli.core :as cli]))
 
 (defn go []
   (cli/-main "rofi"))

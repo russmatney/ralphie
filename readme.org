@@ -17,7 +17,7 @@ A clojure cli tool that supports tools meant for keybindings
 run it
 
 #+BEGIN_SRC zsh
-bb --classpath src --main cli -- -h
+bb --classpath src --main cli.core -- -h
 #+END_SRC
 
 run an nrepl server to connect to.

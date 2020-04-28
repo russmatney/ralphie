@@ -1,6 +1,6 @@
 #!/usr/bin/env -S bb --classpath src -m cli
 
-(ns cli
+(ns cli.core
   (:require
    [cli.dates :as dates]
    [cli.help :as help]
