@@ -11,7 +11,8 @@
 (def upsert
   {:name          "workspace-upsert"
    :one-line-desc "Updates a workspace to match the passed data"
-   :description   ["Supports :name"]
+   :description   ["Supports :name."
+                   "Not yet implemented."]
    :handler       upsert-cmd})
 
 (defn current

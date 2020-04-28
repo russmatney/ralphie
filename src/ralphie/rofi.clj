@@ -60,8 +60,8 @@
 
 (def command
   {:name          "rofi"
-   :short         "-r"
-   :long          "--rofi"
-   :one-line-desc "Open Rofi"
-   :description   ["Open Rofi for each command"]
+   :one-line-desc "Select a command to run via rofi."
+   :description   ["Open Rofi for each command."
+                   "Fires the selected command."
+                   "Expects rofi to exist on the path."]
    :handler       rofi-cmd})

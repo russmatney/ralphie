@@ -2,16 +2,14 @@
 
 (def command
   {:name          "help"
-   :short         "-h"
-   :long          "--help"
    :one-line-desc "Prints help"
-   :description   ["Takes a screenshot"]
+   :description   ["Prints the known commands and the parsed input."]
    :handler
    (fn help [config parsed]
-     (print "\n\nHelp Command Called\n\n")
-     (print "\n#######\nParsed\n#######\n\n")
+     (print "\nHelp Command Called\n")
+     (print "\n\n#######\nParsed\n#######\n\n")
      (doall (map println parsed))
-     (print "\n#######\nCommands\n#######\n\n")
+     (print "\n\n#######\nCommands\n#######\n\n")
      (doall (map (comp println
                        #(str "- " %)
                        :name) (:commands config))))})

@@ -1,7 +1,7 @@
 (ns ralphie.command)
 
-;; {:command       "--screenshot"
-;;  :short         "-s"
+;; command cheatsheet
+;; {:name       "--screenshot"
 ;;  :one-line-desc "Take Screenshot"
 ;;  :description   ["Takes a screenshot"]
 ;;  :handler

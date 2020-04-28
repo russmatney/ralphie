@@ -1,6 +1,7 @@
 #!/bin/sh
 "cd" "/home/russ/russmatney/ralphie"
-"exec" "bb" "--classpath" "src" "-m" "ralphie.core" "$@"
+"exec" "bb" "--classpath" "$(clojure -Spath)" "-m" "ralphie.core" "$@"
+;; TODO un-hardcode the dirname
 
 (ns ralphie.core
   (:require

@@ -6,6 +6,7 @@
    [ralphie.rofi :as rofi]
    [ralphie.term :as term]
    [ralphie.git :as git]
+   [ralphie.doctor :as doctor]
    [ralphie.install :as install]
    [ralphie.readme :as readme]
    [ralphie.workspace :as workspace]))
@@ -16,7 +17,8 @@
               screenshot/command
               rofi/command
               term/open
-              git/clone
+              git/clone-cmd
+              doctor/checkup
               install/command
               readme/build
               workspace/upsert]})

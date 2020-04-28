@@ -12,6 +12,9 @@
 
 (def clone-cmd
   {:name          "clone"
-   :short         "-"
-   :one-line-desc "clone"
+   :one-line-desc "Git clone the passed repo into a sane location"
+   :description
+   ["When passed a repo-id, copies it into ~/repo-id."
+    "Depends on `hub` on the command line."
+    "Does not support private repos."]
    :handler       clone-handler})

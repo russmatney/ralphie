@@ -91,7 +91,17 @@ ralphie workspace-upsert
 ```
 ```
 bindsym  exec --no-startup-id ralphie workspace-upsert
-```# Development
+```## TODO
+### Resize monitor resolution
+### Restart i3
+### Git Clone
+### Doctor scripts
+### Take Screenshot with metadata
+### Universal Focus Movement
+### Open Emacs for current workspace
+### Toggle scratchpad for current workspace
+### Toggle global scratchpad
+# Development
 
 Run it
 

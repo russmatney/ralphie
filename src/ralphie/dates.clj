@@ -15,6 +15,5 @@
 
 (def command
   {:name          "date"
-   :short         "-d"
    :one-line-desc "Prints the date"
    :handler       date-cmd})
