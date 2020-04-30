@@ -11,11 +11,14 @@
               "--eval"
               (str "(russ/open-workspace \"" workspace-name "\")")
               ]]
-    (println args)
-
     (apply sh/sh args)))
 
+(defn postit [name screenshot-id]
+  {:name          name
+   :screenshot-id screenshot-id})
+
 (comment
+  (println "cosmos")
   (open "cosmos"))
 
 (defn open-handler [_config _parsed]

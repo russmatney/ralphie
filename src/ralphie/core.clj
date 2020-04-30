@@ -32,7 +32,8 @@
 
 (comment
   (def -res
-    (-main "screenshot"))
+    (-main "rofi")
+    )
 
   (:summary -res)
 
