@@ -1,20 +1,12 @@
 (ns ralphie.term
   (:require
-   [ralphie.workspace :as workspace]
-   [clojure.core.async :as async]
-   [clojure.java.shell :as sh]))
+   [ralphie.tmux :as tmux]
+   [clojure.core.async :as async]))
 
 (defn open-term
   ([] (open-term nil nil))
   ([_config _parsed]
-   (let [{:keys [name]} (workspace/current)
-         args
-         ["tmux" "-c"
-          (str "alacritty -e tmux -v new-session -A -s " name " & disown")]
-         ]
-
-     (async/thread
-       (apply sh/sh args)))))
+   (async/thread (tmux/open))))
 
 (def open
   {:name          "open-term"

@@ -10,6 +10,7 @@
    [ralphie.git :as git]
    [ralphie.doctor :as doctor]
    [ralphie.install :as install]
+   [ralphie.update :as update]
    [ralphie.readme :as readme]
    [ralphie.workspace :as workspace]))
 
@@ -24,5 +25,6 @@
               git/clone-cmd
               doctor/checkup-cmd
               install/command
+              update/update-doom-cmd
               readme/build
               workspace/upsert]})
