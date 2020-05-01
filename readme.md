@@ -31,7 +31,7 @@ ralphie date
 bindsym  exec --no-startup-id ralphie date
 ```
 ## `help`: Prints help
-Takes a screenshot
+Prints the known commands and the parsed input.
 ```sh
 ralphie help
 ```
@@ -39,15 +39,18 @@ ralphie help
 bindsym  exec --no-startup-id ralphie help
 ```
 ## `screenshot`: Take Screenshot
-Takes a screenshot
+Takes a screenshot.
+Not yet implemented.
 ```sh
 ralphie screenshot
 ```
 ```
 bindsym  exec --no-startup-id ralphie screenshot
 ```
-## `rofi`: Open Rofi
-Open Rofi for each command
+## `rofi`: Select a command to run via rofi.
+Open Rofi for each command.
+Fires the selected command.
+Expects rofi to exist on the path.
 ```sh
 ralphie rofi
 ```
@@ -63,19 +66,56 @@ ralphie open-term
 ```
 bindsym  exec --no-startup-id ralphie open-term
 ```
-## ``
+## `open-emacs`: Opens emacs in the current workspace
 ```sh
-ralphie 
+ralphie open-emacs
 ```
 ```
-bindsym  exec --no-startup-id ralphie 
+bindsym  exec --no-startup-id ralphie open-emacs
 ```
-## `install`: Installs ralphie. Currently hard-coded :(
+## `story`: story
+Starts a story
+```sh
+ralphie story
+```
+```
+bindsym  exec --no-startup-id ralphie story
+```
+## `clone`: Clone from your Github Stars
+When passed a repo-id, copies it into ~/repo-id.
+Depends on `hub` on the command line.
+Does not support private repos.
+If no repo-id is passed, fetches stars from github.
+```sh
+ralphie clone
+```
+```
+bindsym  exec --no-startup-id ralphie clone
+```
+## `doctor-checkup`: Debug helper for sanity-checking
+Runs a sanity check on your built config, and logs a report.
+```sh
+ralphie doctor-checkup
+```
+```
+bindsym  exec --no-startup-id ralphie doctor-checkup
+```
+## `install`: Installs ralphie via symlink.
+Symlinks the project's src/ralphie.core.clj into ~/.local/bin/ralphie
 ```sh
 ralphie install
 ```
 ```
 bindsym  exec --no-startup-id ralphie install
+```
+## `update-doom`: Fetch and rebuild Doom
+Updates doom emacs to the bleeding-edge latest.
+Good luck out there, sport!
+```sh
+ralphie update-doom
+```
+```
+bindsym  exec --no-startup-id ralphie update-doom
 ```
 ## `build-readme`: build-readme
 ```sh
@@ -85,7 +125,8 @@ ralphie build-readme
 bindsym  exec --no-startup-id ralphie build-readme
 ```
 ## `workspace-upsert`: Updates a workspace to match the passed data
-Supports :name
+Supports :name.
+Not yet implemented.
 ```sh
 ralphie workspace-upsert
 ```
