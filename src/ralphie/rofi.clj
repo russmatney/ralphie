@@ -9,24 +9,26 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn rofi
-  [{:keys [xs msg on-select]}]
-  (let [labels (map :label xs)
+  ([opts] (rofi opts (:xs opts)))
+  ([{:keys [msg message on-select]} xs]
+   (let [labels (map :label xs)
+         msg    (or msg message)
 
-        res
-        (sh/sh "rofi" "-i" "-dmenu" "-mesg" msg "-sync" "-p" "*"
-               :in (string/join "\n" labels))
+         res
+         (sh/sh "rofi" "-i" "-dmenu" "-mesg" msg "-sync" "-p" "*"
+                :in (string/join "\n" labels))
 
-        selected-label (:out res)]
+         selected-label (:out res)]
 
-    (when (seq selected-label)
-      (let [selected-x
-            (->> xs
-                 (filter #(= selected-label (:label %)))
-                 first
-                 )]
-        (if on-select
-          (on-select selected-x)
-          selected-x)))))
+     (when (seq selected-label)
+       (let [selected-x
+             (->> xs
+                  (filter #(= selected-label (:label %)))
+                  first
+                  )]
+         (if on-select
+           (on-select selected-x)
+           selected-x))))))
 
 (comment
   (sh/sh
@@ -34,10 +36,12 @@
     :in "11  iiii\n22 IIIIII\n33 33333")
 
   (rofi
-    {:xs [{:label "iii" :url "urlllll"}
-          {:label "333" :url "something"}
-          {:label "jkjkjkjkjkjkjkjkjkjkjkjkjkjkjk" :url "w/e"}
-          {:label "xxxxxxxx" :url "--------------"}]}))
+    {:msg
+     "message"}
+    [{:label "iii" :url "urlllll"}
+     {:label "333" :url "something"}
+     {:label "jkjkjkjkjkjkjkjkjkjkjkjkjkjkjk" :url "w/e"}
+     {:label "xxxxxxxx" :url "--------------"}]))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
