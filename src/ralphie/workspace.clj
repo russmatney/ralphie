@@ -20,3 +20,20 @@
   []
   (let [name (i3/workspace-name)]
     {:name name}))
+
+(defn open-workspace? [name]
+  (i3/workspaces)
+  )
+(defn open-apps? [name]
+  (i3/workspaces)
+  )
+
+(defn open?
+  "Returns true if the specified workspace or app is open in the
+  current/specified workspace."
+  [{:keys [app apps name]}]
+  (if name
+    (i3/workspace-open? name)
+    (let [apps (or apps [app])
+          name (or name (:name (current)))]
+      (i3/open-apps? name apps))))

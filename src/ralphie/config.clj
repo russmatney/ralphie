@@ -8,3 +8,7 @@
 
 ;; TODO determine this at runtime
 (defn github-username [] "russmatney")
+
+;; TODO handle multiple monitors
+;; (defn monitor [] "eDP-1")
+(defn monitor [] "HDMI-0")
