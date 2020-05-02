@@ -15,18 +15,16 @@
                    "Not yet implemented."]
    :handler       upsert-cmd})
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; current workspace
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn current
   "Returns the current workspace."
   []
   (let [name (i3/workspace-name)]
+    (println name)
     {:name name}))
-
-(defn open-workspace? [name]
-  (i3/workspaces)
-  )
-(defn open-apps? [name]
-  (i3/workspaces)
-  )
 
 (defn open?
   "Returns true if the specified workspace or app is open in the
@@ -36,4 +34,4 @@
     (i3/workspace-open? name)
     (let [apps (or apps [app])
           name (or name (:name (current)))]
-      (i3/open-apps? name apps))))
+      (i3/apps-open? name apps))))

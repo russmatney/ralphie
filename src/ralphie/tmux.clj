@@ -4,7 +4,8 @@
    [clojure.java.shell :as sh]))
 
 (defn fire
-  "Aka send-keys"
+  "Aka send-keys
+  TODO create the named workspace/session if it doesn't exist"
   ([cmd-str]
    (fire cmd-str {}))
   ([cmd-str opts]
@@ -14,13 +15,11 @@
 (comment
   (fire "echo sup" {:workspace "dotfiles"}))
 
-(defn open []
+(defn new-window []
   (let [{:keys [name]} (workspace/current)
-        args
-        ["tmux" "-c"
-         (str "alacritty -e tmux -v new-session -A -s " name " & disown")]]
-
+        args           ["tmux" "-c"
+                        (str "alacritty -e tmux -v new-session -A -s " name " & disown")]]
     (apply sh/sh args)))
 
 (comment
-  (open))
+  (new-window))

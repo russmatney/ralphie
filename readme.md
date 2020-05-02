@@ -23,6 +23,15 @@ This mostly speaks to Ralphie knowing he wants to write something in Babashka,
 whether there are bears near Pulaski's or not.
 
 # Features
+## `autojump`: Sends `j <userinput>` to the current workspace's tmux.
+Uses j (autojump) to fuzzy-find a directory.
+Opens that directory in the workspace terminal.
+```sh
+ralphie autojump
+```
+```
+bindsym  exec --no-startup-id ralphie autojump
+```
 ## `date`: Prints the date
 ```sh
 ralphie date
@@ -99,6 +108,14 @@ ralphie doctor-checkup
 ```
 ```
 bindsym  exec --no-startup-id ralphie doctor-checkup
+```
+## `find-deps`: find-deps
+Looks up clojars libs for the passed str.
+```sh
+ralphie find-deps
+```
+```
+bindsym  exec --no-startup-id ralphie find-deps
 ```
 ## `install`: Installs ralphie via symlink.
 Symlinks the project's src/ralphie.core.clj into ~/.local/bin/ralphie

@@ -9,18 +9,18 @@
 ;; utils
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn msg [& args]
+(defn i3-msg [& args]
   ;; TODO maybe this goes to an i3 workspace
   ;; if it does, make sure the focus "stays" with the caller
   (apply sh/sh "i3-msg" args))
 
 (defn tree! []
-  (-> (msg "-t" "get_tree")
+  (-> (i3-msg "-t" "get_tree")
       :out
       (json/parse-string true)))
 
 (defn workspaces []
-  (-> (msg "-t" "get_workspaces")
+  (-> (i3-msg "-t" "get_workspaces")
       :out
       (json/parse-string true)))
 
@@ -63,14 +63,10 @@
 
 (comment
   (def --t (tree!))
-
-  ()
   )
 
 (defn focused-workspace []
-  (->> (tree!)
-       ()
-       ))
+  (->> (tree!)))
 
 (defn focused-node
   "Returns a map describing the currently focused app."
@@ -96,7 +92,7 @@
   []
   (-> (current-workspace)
       :name
-      (#(string/split % #":"))
+      (string/split #":")
       second
       string/trim))
 
@@ -104,7 +100,7 @@
   []
   (-> (current-workspace)
       :name
-      (#(string/split % #":"))
+      (string/split #":")
       first))
 
 (defn workspace-open?
@@ -127,9 +123,7 @@
 (defn apps-open?
   "Only searches within the passed workspace."
   [workspace apps]
-  (->> (workspace-for-name workspace)
-       (map ()
-            )))
+  (->> (workspace-for-name workspace)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -27,7 +27,6 @@
 
 (deftest find-command-test
   (let [cmd (find-command CONFIG "help")]
-    (println cmd)
     (is (= "help" (:name cmd))))
 
   (is (= "screenshot" (:name (find-command CONFIG "screenshot"))))
@@ -38,7 +37,7 @@
         first-arg (first args)
         command   (find-command config first-arg)]
     {:command command
-     :args    (rest args)}))
+     :args    (assoc parsed :arguments (rest args))}))
 
 (defn run [& passed-args]
   (let [config                 CONFIG
@@ -47,11 +46,11 @@
         {:keys [command args]} (parse-command config parsed)
         debug                  true
         ]
-    (when debug
-      (command/call-handler doctor/checkup-cmd config args))
+    ;; (when debug
+    ;;   (command/call-handler doctor/checkup-cmd config args))
 
-    (when-not command
-      (command/call-handler help/command config passed-args))
+    ;; (when-not command
+    ;;   (command/call-handler help/command config passed-args))
 
     (command/call-handler command config args)))
 
@@ -59,5 +58,4 @@
   (def -res
     (run "help"))
 
-  (:summary -res)
-  (println *file*))
+  (:summary -res))

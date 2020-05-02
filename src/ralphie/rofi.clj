@@ -9,6 +9,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn rofi
+  "Expects `xs` to be a coll of maps with a `:label` key.
+  `msg` is displayed to the user.
+  Upon selection, if the user-input matches a label, that `x`
+  is selected and retuned.
+  If a no match is found, the user input is returned.
+  If on-select is passed, it is called with the selected input.
+  "
   ([opts] (rofi opts (:xs opts)))
   ([{:keys [msg message on-select]} xs]
    (let [labels (map :label xs)
@@ -21,14 +28,15 @@
          selected-label (:out res)]
 
      (when (seq selected-label)
-       (let [selected-x
-             (->> xs
-                  (filter #(= selected-label (:label %)))
-                  first
-                  )]
-         (if on-select
-           (on-select selected-x)
-           selected-x))))))
+       (let [selected-x (->> xs
+                             (filter #(= selected-label (:label %)))
+                             first)]
+         (if selected-x
+           (if on-select
+             (on-select selected-x)
+             selected-x)
+           selected-label))))))
+
 
 (comment
   (sh/sh
@@ -48,19 +56,23 @@
 ;; cli/command
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn rofi-cmd
+(defn config->rofi-commands
+  [config]
+  (->> config
+       :commands
+       (filter (comp seq :name))
+       (map #(assoc % :label (:name %)))))
+
+(defn rofi-handler
   "Returns the selected xs if there is no handler."
   [config parsed]
-  (let [commands     (:commands config)
-        ;; TODO get a warning/doctor check for when a :name is missing
-        rofi-xs      (map #(assoc % :label (:name %))
-                          (filter (comp seq :name) commands))
-        selected-cmd (rofi {:xs  rofi-xs
-                            :msg "All commands"})]
-    (if selected-cmd
-      (command/call-handler selected-cmd config parsed)
-      (println "Selected:" selected-cmd))))
-
+  (->> config
+       config->rofi-commands
+       (rofi {:msg "All commands"})
+       ((fn [cmd]
+          (if cmd
+            (command/call-handler cmd config parsed)
+            (println "Selected:" cmd))))))
 
 (def command
   {:name          "rofi"
@@ -68,4 +80,4 @@
    :description   ["Open Rofi for each command."
                    "Fires the selected command."
                    "Expects rofi to exist on the path."]
-   :handler       rofi-cmd})
+   :handler       rofi-handler})

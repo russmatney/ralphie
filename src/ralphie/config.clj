@@ -3,7 +3,6 @@
 
 (defn home-dir [] (expand "~"))
 
-;; TODO determine this at runtime
 (defn project-dir [] (expand "~/russmatney/ralphie"))
 
 ;; TODO determine this at runtime
