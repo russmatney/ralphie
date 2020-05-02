@@ -11,8 +11,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn i3-msg! [& args]
-  ;; TODO maybe this goes to an i3 workspace
-  ;; if it does, make sure the focus "stays" with the caller
   (apply sh/sh "i3-msg" args))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

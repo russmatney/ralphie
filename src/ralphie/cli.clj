@@ -41,16 +41,15 @@
 
 (defn run [& passed-args]
   (let [config                 CONFIG
-        ;; TODO decorate the config with :config-handlers
         parsed                 (parse-opts passed-args (config->opts config))
         {:keys [command args]} (parse-command config parsed)
         debug                  true
         ]
-    ;; (when debug
-    ;;   (command/call-handler doctor/checkup-cmd config args))
+    (when debug
+      (command/call-handler doctor/checkup-cmd config args))
 
-    ;; (when-not command
-    ;;   (command/call-handler help/command config passed-args))
+    (when-not command
+      (command/call-handler help/command config passed-args))
 
     (command/call-handler command config args)))
 

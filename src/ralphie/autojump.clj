@@ -9,7 +9,6 @@
 (def local-cache (str (config/project-dir) "/autojump.log"))
 
 (defn autojump-handler
-  "TODO: record and add history as suggestions"
   [_config _parsed]
   (let [xs    (map (fn [x] {:label x})
                    (string/split-lines (slurp local-cache)))

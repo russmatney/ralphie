@@ -13,7 +13,7 @@
     :else           x))
 
 (defn- on-fail [msg]
-  (println "cosmos/sh. Err: " msg) ; todo colors
+  (println "cosmos/sh. Err: " msg)
   ;; (notify/notify-send
   ;;   {:body    msg
   ;;    :subject "Cosmos `sh` Error"})
