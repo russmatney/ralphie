@@ -3,31 +3,40 @@
    [clojure.string :as string]
    [cheshire.core :as json]
    [ralphie.config :as config]
-   [clojure.java.shell :as sh]))
+   [clojure.java.shell :as sh]
+   [clojure.set :as set]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; utils
+;; i3-msg
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn i3-msg [& args]
+(defn i3-msg! [& args]
   ;; TODO maybe this goes to an i3 workspace
   ;; if it does, make sure the focus "stays" with the caller
   (apply sh/sh "i3-msg" args))
 
-(defn tree! []
-  (-> (i3-msg "-t" "get_tree")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; i3-data roots
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn tree []
+  (-> (i3-msg! "-t" "get_tree")
       :out
       (json/parse-string true)))
 
 (defn workspaces []
-  (-> (i3-msg "-t" "get_workspaces")
+  (-> (i3-msg! "-t" "get_workspaces")
       :out
       (json/parse-string true)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; mid-parse utils
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn monitor-node
   []
   (let [monitor (config/monitor)]
-    (some->> (tree!)
+    (some->> (tree)
              :nodes
              (filter #(= (:name %) monitor))
              first)))
@@ -38,54 +47,27 @@
            (filter #(= (:name %) "content"))
            first))
 
-(defn workspace-for-name
-  "Returns a workspace from tree for the passed workspace name.
-  TODO: handle multiple monitors
-  "
-  [wsp-name]
-  (some->> (monitor-node)
-           content-node
-           :nodes
-           (filter #(string/includes? (:name %) wsp-name))
-           first))
-
-(comment
-  (workspace-for-name "yodo"))
-
-(defn ->nodes
+(defn flatten-nodes
   "Joins and flattens `:nodes` and `:floating_nodes` in x"
   [x]
   (flatten ((juxt :nodes :floating_nodes) x)))
 
+(defn tree->nodes [tr]
+  (tree-seq flatten-nodes flatten-nodes tr))
+
 (defn all-nodes []
-  (->> (tree!)
-       (tree-seq ->nodes ->nodes)))
+  (->> (tree)
+       tree->nodes))
 
-(comment
-  (def --t (tree!))
-  )
-
-(defn focused-workspace []
-  (->> (tree!)))
-
-(defn focused-node
-  "Returns a map describing the currently focused app."
-  []
-  (->> (all-nodes)
-       (filter :focused)
-       (first)))
-
-(defn focused-app
-  [] (-> (focused-node)
-         :window_properties
-         :class))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; current workspace
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn current-workspace
   []
-  (->>
-    (workspaces)
-    (filter :focused)
-    first))
+  (->> (workspaces)
+       (filter :focused)
+       first))
 
 (defn workspace-name
   "Returns a simple workspace name for the focused workspace."
@@ -103,28 +85,66 @@
       (string/split #":")
       first))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; focused node/apps
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn focused-node
+  "Returns a map describing the currently focused app."
+  []
+  (->> (all-nodes)
+       (filter :focused)
+       first))
+
+(defn focused-app
+  [] (-> (focused-node)
+         :window_properties
+         :class))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; workspace for name
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn workspace-for-name
+  "Returns a workspace from tree for the passed workspace name.
+  TODO: handle multiple monitors
+  "
+  [wsp-name]
+  (some->> (monitor-node)
+           content-node
+           :nodes
+           (filter #(string/includes? (:name %) wsp-name))
+           first
+           ))
+
+(defn nodes-for-wsp-name
+  [name]
+  (-> name
+      workspace-for-name
+      tree->nodes))
+
+(defn app-names-in-wsp
+  [name]
+  (->> name
+       nodes-for-wsp-name
+       (map (comp :class :window_properties))))
+
 (defn workspace-open?
   [name]
   (seq (workspace-for-name name)))
 
-(comment
-  (workspace-open? "dotfiles")
-  (workspace-open? "gibber")
-  )
-
-(defn ->apps [workspace]
-  workspace
-  )
-
-(comment
-  (->apps (current-workspace))
-  )
-
 (defn apps-open?
   "Only searches within the passed workspace."
   [workspace apps]
-  (->> (workspace-for-name workspace)))
+  (-> workspace
+      app-names-in-wsp
+      set
+      ((fn [open-apps]
+         (set/subset? (set apps) open-apps)))))
 
+(comment
+  (app-names-in-wsp "read")
+  (apps-open? "read" ["Alacritty"]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; i3 Workspace Upsert
@@ -134,5 +154,5 @@
   (let [current-number (workspace-number)
         new-name       (str current-number ":" name)]
     (println "renaming workspace to" new-name)
-    ;; (i3-msg "rename" "workspace" "to" name)
+    ;; (i3-msg! "rename" "workspace" "to" name)
     ))

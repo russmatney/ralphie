@@ -18,7 +18,7 @@
 (defn new-window []
   (let [{:keys [name]} (workspace/current)
         args           ["tmux" "-c"
-                        (str "alacritty -e tmux -v new-session -A -s " name " & disown")]]
+                        (str "alacritty -e tmux new-session -A -s " name " & disown")]]
     (apply sh/sh args)))
 
 (comment

@@ -35,3 +35,6 @@
     (let [apps (or apps [app])
           name (or name (:name (current)))]
       (i3/apps-open? name apps))))
+
+(comment
+  (open? {:app :term}))
