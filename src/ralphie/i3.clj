@@ -143,11 +143,12 @@
          (set/subset? (set apps) open-apps)))))
 
 (comment
+  (workspace-for-name "yodo")
   (app-names-in-wsp "read")
   (apps-open? "read" ["Alacritty"]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; i3 Workspace Update
+;; i3 Workspace Upsert
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn workspace->rofi-x [workspace]
@@ -157,17 +158,18 @@
 (defn upsert
   "TODO Perhaps this logic should be in workspaces?"
   [{:keys [name]}]
-  (let [name-to-update (->>
-                         (workspaces)
-                         (map workspace->rofi-x)
-                         (rofi/rofi {:msg "Workspace to update?"})
-                         :label)
-
-        number   (some-> name-to-update (string/split #":") first)
-        new-name (str number ": " name)]
-    (println "renaming workspace from" name-to-update "to" new-name)
-    (i3-msg! "rename" "workspace" "to" name)
-    ))
+  (let [name-to-update   (->>
+                           (workspaces)
+                           (map workspace->rofi-x)
+                           (rofi/rofi {:msg "Workspace to update?"})
+                           ;; This style prevents free-input...
+                           ;; TODO improve rofi api
+                           :label)
+        number-to-update (some-> name-to-update (string/split #":") first)
+        new-name         (str number-to-update ": " name)]
+    (i3-msg! "rename" "workspace"
+             (str "\"" name-to-update "\"")
+             "to" new-name)))
 
 (comment
   (upsert {:name "timeline"})
