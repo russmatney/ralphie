@@ -16,6 +16,7 @@
    [ralphie.autojump :as autojump]
    [ralphie.scratchpad :as scratchpad]
    [ralphie.readme :as readme]
+   [ralphie.yodo :as yodo]
    [ralphie.workspace :as workspace]))
 
 (def CONFIG
@@ -35,6 +36,7 @@
               install/command
               update/update-doom-cmd
               readme/build
+              yodo/restart-cmd
               workspace/rename-cmd]})
 
 (comment
