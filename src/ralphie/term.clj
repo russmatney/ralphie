@@ -1,10 +1,18 @@
 (ns ralphie.term
   (:require
-   [ralphie.tmux :as tmux]))
+   [ralphie.tmux :as tmux]
+   ;; [ralphie.workspace :as workspace]
+   ))
 
 (defn open-term-handler
   ([] (open-term-handler nil nil))
-  ([_config _parsed] (tmux/new-window)))
+  ([_config _parsed]
+   ;; when opened, move focus instead
+   (tmux/new-window)
+   ;; when opened the first time
+   ;; (tmux/fire (str "j " (:name (workspace/current))))
+
+   ))
 
 (comment
   (open-term-handler))
