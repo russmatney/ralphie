@@ -75,6 +75,14 @@ ralphie open-term
 ```
 bindsym  exec --no-startup-id ralphie open-term
 ```
+## `fire`: fire
+Fires a command in the nearest tmux shell.
+```sh
+ralphie fire
+```
+```
+bindsym  exec --no-startup-id ralphie fire
+```
 ## `open-emacs`: Opens emacs in the current workspace
 ```sh
 ralphie open-emacs
@@ -109,6 +117,15 @@ ralphie doctor-checkup
 ```
 bindsym  exec --no-startup-id ralphie doctor-checkup
 ```
+## `scratchpad-show`: Shows the next scratchpad.
+Intended to get more convenient handling.
+Ex: per workspace, per app-type, all.
+```sh
+ralphie scratchpad-show
+```
+```
+bindsym  exec --no-startup-id ralphie scratchpad-show
+```
 ## `find-deps`: find-deps
 Looks up clojars libs for the passed str.
 ```sh
@@ -141,14 +158,13 @@ ralphie build-readme
 ```
 bindsym  exec --no-startup-id ralphie build-readme
 ```
-## `workspace-upsert`: Updates a workspace to match the passed data
-Supports :name.
-Not yet implemented.
+## `rename-workspace`: Updates a workspace to match the passed data
+Supports name as the first argument.
 ```sh
-ralphie workspace-upsert
+ralphie rename-workspace
 ```
 ```
-bindsym  exec --no-startup-id ralphie workspace-upsert
+bindsym  exec --no-startup-id ralphie rename-workspace
 ```## TODO
 ### Resize monitor resolution
 ### Restart i3
