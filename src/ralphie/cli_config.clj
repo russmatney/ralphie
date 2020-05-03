@@ -13,6 +13,7 @@
    [ralphie.install :as install]
    [ralphie.update :as update]
    [ralphie.autojump :as autojump]
+   [ralphie.scratchpad :as scratchpad]
    [ralphie.readme :as readme]
    [ralphie.workspace :as workspace]))
 
@@ -28,6 +29,7 @@
               story/story-cmd
               git/clone-cmd
               doctor/checkup-cmd
+              scratchpad/scratchpad-show-cmd
               find-deps/find-deps-cmd
               install/command
               update/update-doom-cmd
