@@ -4,6 +4,7 @@
    [clojure.string :as string]
    [ralphie.command :as command]))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; rofi-general
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -22,6 +23,7 @@
          msg    (or msg message)
 
          res
+         ;; TODO remove ralphie/sh dep
          (sh/sh "rofi" "-i" "-dmenu" "-mesg" msg "-sync" "-p" "*"
                 :in (string/join "\n" labels))
 

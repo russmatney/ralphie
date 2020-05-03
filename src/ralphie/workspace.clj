@@ -1,19 +1,20 @@
 (ns ralphie.workspace
-  (:require [ralphie.i3 :as i3]))
+  (:require
+   [ralphie.i3 :as i3]
+   [ralphie.rofi :as rofi]))
 
-(defn upsert-cmd
-  "Updates the current workspace."
+(defn rename-handler
+  "Updates a selected workspace with the passed name."
   [_config parsed]
-  ;; TODO parse arguments intelligently
-  (let [name (first (:arguments parsed))]
+  (let [name (or (some-> parsed :arguments first)
+                 (rofi/rofi {:msg "New name for workspace"}))]
     (i3/upsert {:name name})))
 
-(def upsert
-  {:name          "workspace-upsert"
+(def rename-cmd
+  {:name          "rename-workspace"
    :one-line-desc "Updates a workspace to match the passed data"
-   :description   ["Supports :name."
-                   "Not yet implemented."]
-   :handler       upsert-cmd})
+   :description   ["Supports name as the first argument."]
+   :handler       rename-handler})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; current workspace

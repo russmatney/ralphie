@@ -16,6 +16,7 @@
    [ralphie.readme :as readme]
    [ralphie.workspace :as workspace]))
 
+
 (def CONFIG
   {:commands [autojump/autojump-cmd
               dates/command
@@ -31,7 +32,8 @@
               install/command
               update/update-doom-cmd
               readme/build
-              workspace/upsert]})
+              workspace/rename-cmd]})
 
 (comment
   ((:handler term/open-term-cmd) nil nil))
+

@@ -3,8 +3,10 @@
    [clojure.string :as string]
    [cheshire.core :as json]
    [ralphie.config :as config]
+   [ralphie.rofi :as rofi]
    [clojure.java.shell :as sh]
    [clojure.set :as set]))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; i3-msg
@@ -145,12 +147,28 @@
   (apps-open? "read" ["Alacritty"]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; i3 Workspace Upsert
+;; i3 Workspace Update
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn upsert [{:keys [name]}]
-  (let [current-number (workspace-number)
-        new-name       (str current-number ":" name)]
-    (println "renaming workspace to" new-name)
+(defn workspace->rofi-x [workspace]
+  {:label (:name workspace)}
+  )
+
+(defn upsert
+  "TODO Perhaps this logic should be in workspaces?"
+  [{:keys [name]}]
+  (let [name-to-update (->>
+                         (workspaces)
+                         (map workspace->rofi-x)
+                         (rofi/rofi {:msg "Workspace to update?"})
+                         :label)
+
+        number   (some-> name-to-update (string/split #":") first)
+        new-name (str number ": " name)]
+    (println "renaming workspace from" name-to-update "to" new-name)
     ;; (i3-msg! "rename" "workspace" "to" name)
     ))
+
+(comment
+  (upsert {:name "timeline"})
+  )
