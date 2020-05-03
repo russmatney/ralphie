@@ -166,7 +166,7 @@
         number   (some-> name-to-update (string/split #":") first)
         new-name (str number ": " name)]
     (println "renaming workspace from" name-to-update "to" new-name)
-    ;; (i3-msg! "rename" "workspace" "to" name)
+    (i3-msg! "rename" "workspace" "to" name)
     ))
 
 (comment

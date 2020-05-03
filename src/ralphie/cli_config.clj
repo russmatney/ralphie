@@ -5,6 +5,7 @@
    [ralphie.screenshot :as screenshot]
    [ralphie.rofi :as rofi]
    [ralphie.term :as term]
+   [ralphie.tmux :as tmux]
    [ralphie.emacs :as emacs]
    [ralphie.story :as story]
    [ralphie.find-deps :as find-deps]
@@ -17,7 +18,6 @@
    [ralphie.readme :as readme]
    [ralphie.workspace :as workspace]))
 
-
 (def CONFIG
   {:commands [autojump/autojump-cmd
               dates/command
@@ -25,6 +25,7 @@
               screenshot/command
               rofi/command
               term/open-term-cmd
+              tmux/fire-cmd
               emacs/open-cmd
               story/story-cmd
               git/clone-cmd

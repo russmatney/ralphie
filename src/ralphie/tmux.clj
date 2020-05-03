@@ -1,7 +1,12 @@
 (ns ralphie.tmux
   (:require
    [ralphie.workspace :as workspace]
-   [clojure.java.shell :as sh]))
+   [clojure.java.shell :as sh]
+   [ralphie.rofi :as rofi]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Fire command
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn fire
   "Aka send-keys
@@ -14,6 +19,21 @@
 
 (comment
   (fire "echo sup" {:workspace "dotfiles"}))
+
+(defn fire-handler [_config parsed]
+  (let [cmd (or (some-> parsed :arguments first)
+                (rofi/rofi {:msg "Command to fire"} (rofi/zsh-history)))]
+    (fire cmd)))
+
+(def fire-cmd
+  {:name          "fire"
+   :one-line-desc "fire"
+   :description   ["Fires a command in the nearest tmux shell."]
+   :handler       fire-handler})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; New window
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn new-window []
   (let [{:keys [name]} (workspace/current)
