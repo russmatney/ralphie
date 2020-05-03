@@ -2,20 +2,8 @@
   (:require
    [ralphie.sh :as sh]
    [clojure.string :as string]
+   [ralphie.config :as config]
    [ralphie.command :as command]))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Suggestion helpers
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-(defn zsh-history
-  "Zsh history as rofi-xs.
-  TODO implement based on existing dotfiles bin with `tac .zsh/history`
-  "
-  []
-  [])
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; rofi-general
@@ -42,11 +30,12 @@
          selected-label (:out res)]
 
      (when (seq selected-label)
+       ;; TODO use index-by
        (let [selected-x (->> xs
                              (filter #(= selected-label (:label %)))
                              first)]
          (if selected-x
-           (if on-select
+           (if-let [on-select (or (:on-select selected-x) on-select)]
              (on-select selected-x)
              selected-x)
            selected-label))))))
@@ -94,3 +83,24 @@
                    "Fires the selected command."
                    "Expects rofi to exist on the path."]
    :handler       rofi-handler})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Suggestion helpers
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn zsh-history
+  "Zsh history as rofi-xs.
+  TODO cache/speed up/trim allowed entries
+  "
+  []
+  (->> "/.zsh_history"
+       (str (config/home-dir))
+       slurp
+       string/split-lines
+       (map (fn [l] (some-> l (string/split #";" 2) second)))
+       (remove nil?)
+       (map (fn [l] {:label l :on-select :label}))))
+
+(comment
+  (zsh-history)
+  (rofi {:msg "zsh history"} (zsh-history)))

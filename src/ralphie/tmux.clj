@@ -25,6 +25,7 @@
                 (rofi/rofi {:msg "Command to fire"} (rofi/zsh-history)))]
     (fire cmd)))
 
+
 (def fire-cmd
   {:name          "fire"
    :one-line-desc "fire"
