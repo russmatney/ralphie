@@ -3,6 +3,7 @@
    "cd" "/home/russ/russmatney/ralphie"
    "exec" "bb" "--classpath" "$(clojure -Spath)" "-m" "ralphie.core" "$@"
    )
+
 ;; TODO un-hardcode the dirname
 
 (ns ralphie.core
@@ -40,3 +41,7 @@
   (:summary -res)
 
   (println *file*))
+
+;; Local Variables:
+;; mode: clojure
+;; End:
