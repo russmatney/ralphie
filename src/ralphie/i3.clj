@@ -24,7 +24,7 @@
       :out
       (json/parse-string true)))
 
-(defn workspaces []
+(defn workspaces-simple []
   (-> (i3-msg! "-t" "get_workspaces")
       :out
       (json/parse-string true)))
@@ -59,29 +59,43 @@
   (->> (tree)
        tree->nodes))
 
+(defn workspaces-from-tree []
+  (->> (monitor-node)
+       content-node
+       :nodes))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; current workspace
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn current-workspace
+  "TODO rewrite to use get_tree"
   []
-  (->> (workspaces)
-       (filter :focused)
-       first))
+  (some->> (workspaces-simple)
+           (filter :focused)
+           first
+           :name
+           ((fn [name]
+              (some->> (workspaces-from-tree)
+                       (filter (fn [node]
+                                 (= (:name node) name)))
+                       first)))))
 
-(defn workspace-name
-  "Returns a simple workspace name for the focused workspace."
-  []
-  (-> (current-workspace)
-      :name
+(comment
+  (println "\n\n\nbreak\n\n\n")
+  (clojure.pprint/pprint
+    (current-workspace)))
+
+(defn workspace-name->name
+  [wsp-name]
+  (-> wsp-name
       (string/split #":")
       second
       string/trim))
 
-(defn workspace-number
-  []
-  (-> (current-workspace)
-      :name
+(defn workspace-name->number
+  [wsp-name]
+  (-> wsp-name
       (string/split #":")
       first))
 
@@ -159,7 +173,7 @@
   "TODO Perhaps this logic should be in workspaces?"
   [{:keys [name]}]
   (let [name-to-update   (->>
-                           (workspaces)
+                           (workspaces-simple)
                            (map workspace->rofi-x)
                            (rofi/rofi {:msg "Workspace to update?"})
                            ;; This style prevents free-input...
@@ -173,4 +187,17 @@
 
 (comment
   (upsert {:name "timeline"})
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; workspaces.org items -> i3 config
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn org->i3!
+  "Converts passed workspaces into an i3 config.
+  The contents is written to i3/config.ralphie,
+  which is then concattenated with i3.config.base"
+  [workspace-items]
+  (def --wsitems workspace-items)
+  (println "not yet impled")
   )

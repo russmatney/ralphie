@@ -14,7 +14,7 @@
   ([cmd-str]
    (fire cmd-str {}))
   ([cmd-str opts]
-   (let [wksp (or (:workspace opts) (:name (workspace/current)))]
+   (let [wksp (or (:workspace opts) (:name (workspace/->workspace)))]
      (sh/sh "tmux" "send-keys" "-t"  wksp cmd-str "C-m"))))
 
 (comment
@@ -37,9 +37,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn new-window []
-  (let [{:keys [name]} (workspace/current)
-        args           ["tmux" "-c"
-                        (str "alacritty -e tmux new-session -A -s " name " & disown")]]
+  (let [{:keys [name directory]} (workspace/->workspace)
+        args                     ["tmux" "-c"
+                                  (str "alacritty -e tmux new-session -A -s "
+                                       name
+                                       (when directory " -c " directory)
+                                       " & disown")]]
     (apply sh/sh args)))
 
 (comment

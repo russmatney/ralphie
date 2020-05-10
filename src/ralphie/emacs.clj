@@ -22,7 +22,7 @@
   (open "cosmos"))
 
 (defn open-handler [_config _parsed]
-  (let [{:keys [name]} (workspace/current)]
+  (let [{:keys [name]} (workspace/->workspace)]
     (open name)))
 
 (def open-cmd

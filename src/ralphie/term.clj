@@ -10,7 +10,7 @@
    ;; when opened, move focus instead
    (tmux/new-window)
    ;; when opened the first time
-   ;; (tmux/fire (str "j " (:name (workspace/current))))
+   ;; (tmux/fire (str "j " (:name (workspace/->workspace))))
 
    ))
 

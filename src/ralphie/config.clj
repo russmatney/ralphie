@@ -10,7 +10,7 @@
 (defn github-username [] "russmatney")
 
 ;; TODO handle multiple monitors
-(defn monitor [] "eDP-1")
-;; (defn monitor [] "HDMI-0")
+;; (defn monitor [] "eDP-1")
+(defn monitor [] "HDMI-0")
 
 (defn org-dir [] (expand "~/todo"))
