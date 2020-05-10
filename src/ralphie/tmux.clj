@@ -36,7 +36,7 @@
 ;; New window
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn new-window []
+(defn open []
   (let [{:keys [name directory]} (workspace/->workspace)
         args                     ["tmux" "-c"
                                   (str "alacritty -e tmux new-session -A "
@@ -47,4 +47,4 @@
     (apply sh/sh args)))
 
 (comment
-  (new-window))
+  (open))

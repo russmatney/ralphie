@@ -19,7 +19,8 @@
   "
   ([opts] (rofi opts (:xs opts)))
   ([{:keys [msg message on-select]} xs]
-   (let [labels (map :label xs)
+   (let [maps?  (-> xs first map?)
+         labels (if maps? (map :label xs) xs)
          msg    (or msg message)
 
          res
@@ -31,9 +32,11 @@
 
      (when (seq selected-label)
        ;; TODO use index-by
-       (let [selected-x (->> xs
-                             (filter #(= selected-label (:label %)))
-                             first)]
+       (let [selected-x (if maps?
+                          (->> xs
+                               (filter #(= selected-label (:label %)))
+                               first)
+                          selected-label)]
          (if selected-x
            (if-let [on-select (or (:on-select selected-x) on-select)]
              (on-select selected-x)

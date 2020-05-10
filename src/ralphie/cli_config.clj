@@ -37,6 +37,7 @@
               update/update-doom-cmd
               readme/build
               yodo/restart-cmd
+              workspace/start-workspace-cmd
               workspace/rename-cmd]})
 
 (comment

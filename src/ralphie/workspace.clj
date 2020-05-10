@@ -43,25 +43,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn ->workspace
-  "Returns the current workspace."
   []
   (let [full (full-workspace)]
     (merge
       (-> full :org/item :props)
       {:name (-> full :org/item :name)})))
 
-(comment
-  (clojure.pprint/pprint "hi")
-  (clojure.pprint/pprint (->workspace)))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; restart workspaces in-place (i3)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn restart-workspaces-handler [_config _parsed]
-  (println "restarting i3!")
-  (i3/org->i3! (all-workspaces))
-  (i3/i3-msg! "restart")
+  (println "TODO restarting i3!")
+  ;; (i3/org->i3! (all-workspaces))
+  ;; (i3/i3-msg! "restart")
   )
 
 (def restart-workspaces-cmd
@@ -70,6 +65,32 @@
    :description   ["Restarts i3 in place."
                    "Builds an updated config based on workspaces.org"]
    :handler       restart-workspaces-handler})
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; start workspace
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn start-workspace-handler [_config _parsed]
+  (let [selected         (->> (all-workspaces)
+                              (map (fn [wsp]
+                                     (assoc wsp :label
+                                            (-> wsp :org/item :name))))
+                              (rofi/rofi {:msg "Select workspace"}))
+        name             (-> selected :org/item :name)
+        workspace-number (rofi/rofi
+                           {:msg "Take over workspace number:"}
+                           [1 2 3 4 5 6 7 8 9 0])]
+    (i3/visit-workspace workspace-number)
+    (i3/rename-workspace name workspace-number)))
+
+
+(def start-workspace-cmd
+  {:name          "start-workspace"
+   :one-line-desc "start-workspace"
+   :description
+   ["Creates a new workspace based on workspaces.org and rofi input."]
+   :handler       start-workspace-handler})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; open? helper

@@ -83,8 +83,9 @@
 
 (comment
   (println "\n\n\nbreak\n\n\n")
-  (clojure.pprint/pprint
-    (current-workspace)))
+  ;; (clojure.pprint/pprint
+  ;;   (current-workspace))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; focused node/apps
@@ -152,25 +153,21 @@
 ;; i3 Workspace Upsert
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn workspace->rofi-x [workspace]
-  {:label (:name workspace)}
-  )
+(defn visit-workspace [number]
+  (i3-msg! "workspace" "number" number))
+
+(defn rename-workspace [name number]
+  []
+  (i3-msg! "rename" "workspace" "to" (str number ":" name)))
 
 (defn upsert
   "TODO Perhaps this logic should be in workspaces?"
   [{:keys [name]}]
-  (let [name-to-update   (->>
-                           (workspaces-simple)
-                           (map workspace->rofi-x)
-                           (rofi/rofi {:msg "Workspace to update?"})
-                           ;; This style prevents free-input...
-                           ;; TODO improve rofi api
-                           :label)
-        number-to-update (some-> name-to-update (string/split #":") first)
-        new-name         (str number-to-update ": " name)]
-    (i3-msg! "rename" "workspace"
-             (str "\"" name-to-update "\"")
-             "to" new-name)))
+  (let [name-to-update   (->> (workspaces-simple)
+                              (map :name)
+                              (rofi/rofi {:msg "Workspace to update?"}))
+        number-to-update (some-> name-to-update (string/split #":") first)]
+    (rename-workspace name number-to-update)))
 
 (comment
   (upsert {:name "timeline"})
@@ -184,7 +181,6 @@
   "Converts passed workspaces into an i3 config.
   The contents is written to i3/config.ralphie,
   which is then concattenated with i3.config.base"
-  [workspace-items]
-  (def --wsitems workspace-items)
+  [_workspace-items]
   (println "not yet impled")
   )

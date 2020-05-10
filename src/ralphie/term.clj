@@ -8,7 +8,7 @@
   ([] (open-term-handler nil nil))
   ([_config _parsed]
    ;; when opened, move focus instead
-   (tmux/new-window)
+   (tmux/open)
    ;; when opened the first time
    ;; (tmux/fire (str "j " (:name (workspace/->workspace))))
 

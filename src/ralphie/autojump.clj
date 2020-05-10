@@ -15,7 +15,7 @@
         input (rofi/rofi {:message   "Autojump input"
                           :on-select :label} xs)]
     (when-not (workspace/open? {:app "Alacritty"})
-      (tmux/new-window))
+      (tmux/open))
 
     (when-not ((set (map :label xs)) input)
       (spit local-cache (str input "\n") :append true))

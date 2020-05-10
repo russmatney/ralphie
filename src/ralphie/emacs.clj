@@ -3,23 +3,24 @@
    [ralphie.workspace :as workspace]
    [clojure.java.shell :as sh]))
 
-(defn open [workspace-name]
-  (let [args ["emacsclient"
-              "--no-wait"
-              "--create-frame"
-              "--display=:0"
-              "--eval"
-              (str "(russ/open-workspace \"" workspace-name "\")")
-              ]]
-    (apply sh/sh args)))
+(defn open
+  ([] (open nil))
+  ([name]
+   (let [name (or name (:name (workspace/->workspace)))
+         args ["emacsclient"
+               "--no-wait"
+               "--create-frame"
+               "--display=:0"
+               "--eval"
+               (str "(russ/open-workspace \"" name "\")")
+               ]]
+     (apply sh/sh args))))
 
 (comment
   (println "cosmos")
   (open "cosmos"))
 
-(defn open-handler [_config _parsed]
-  (let [{:keys [name]} (workspace/->workspace)]
-    (open name)))
+(defn open-handler [_config _parsed] (open))
 
 (def open-cmd
   {:name          "open-emacs"
