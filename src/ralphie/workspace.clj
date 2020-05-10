@@ -35,7 +35,7 @@
   ([name]
    (let [name (or name (-> (i3/current-workspace) :name))]
      (->> (all-workspaces)
-          (filter #(-> % :org/item :name (string/includes? name)))
+          (filter #(->> % :org/item :name (string/includes? name)))
           first))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

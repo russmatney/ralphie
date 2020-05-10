@@ -86,19 +86,6 @@
   (clojure.pprint/pprint
     (current-workspace)))
 
-(defn workspace-name->name
-  [wsp-name]
-  (-> wsp-name
-      (string/split #":")
-      second
-      string/trim))
-
-(defn workspace-name->number
-  [wsp-name]
-  (-> wsp-name
-      (string/split #":")
-      first))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; focused node/apps
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

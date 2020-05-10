@@ -39,9 +39,10 @@
 (defn new-window []
   (let [{:keys [name directory]} (workspace/->workspace)
         args                     ["tmux" "-c"
-                                  (str "alacritty -e tmux new-session -A -s "
+                                  (str "alacritty -e tmux new-session -A "
+                                       (when directory (str " -c " directory))
+                                       " -s "
                                        name
-                                       (when directory " -c " directory)
                                        " & disown")]]
     (apply sh/sh args)))
 

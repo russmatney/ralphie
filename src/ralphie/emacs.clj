@@ -13,10 +13,6 @@
               ]]
     (apply sh/sh args)))
 
-(defn postit [name screenshot-id]
-  {:name          name
-   :screenshot-id screenshot-id})
-
 (comment
   (println "cosmos")
   (open "cosmos"))
