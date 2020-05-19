@@ -16,16 +16,20 @@
   is selected and retuned.
   If a no match is found, the user input is returned.
   If on-select is passed, it is called with the selected input.
+
+  Supports :require-match? in `opts`.
   "
   ([opts] (rofi opts (:xs opts)))
-  ([{:keys [msg message on-select]} xs]
+  ([{:keys [msg message on-select require-match?]} xs]
    (let [maps?  (-> xs first map?)
          labels (if maps? (map :label xs) xs)
          msg    (or msg message)
 
          res
          ;; TODO remove ralphie/sh dep
-         (sh/sh "rofi" "-i" "-dmenu" "-mesg" msg "-sync" "-p" "*"
+         (sh/sh "rofi" "-i"
+                (if require-match? "-no-custom" "")
+                "-dmenu" "-mesg" msg "-sync" "-p" "*"
                 :in (string/join "\n" labels))
 
          selected-label (:out res)]
@@ -55,6 +59,14 @@
     [{:label "iii" :url "urlllll"}
      {:label "333" :url "something"}
      {:label "jkjkjkjkjkjkjkjkjkjkjkjkjkjkjk" :url "w/e"}
+     {:label "xxxxxxxx" :url "--------------"}])
+
+  (rofi
+    {:require-match? true
+     :msg            "message"}
+    [{:label "iii" :url "urlllll"}
+     {:label "333" :url "something"}
+     {:label "jkjkjkjkjkjkjkjkjkjkjkjkjkjkjk" :url "w/e"}
      {:label "xxxxxxxx" :url "--------------"}]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -66,18 +78,21 @@
   (->> config
        :commands
        (filter (comp seq :name))
-       (map #(assoc % :label (:name %)))))
+       (map #(assoc % :label (str (:name %) " \t "
+                                  (:one-line-desc %) " | "
+                                  (string/join " " (:description %)))))))
 
 (defn rofi-handler
   "Returns the selected xs if there is no handler."
   [config parsed]
-  (->> config
-       config->rofi-commands
-       (rofi {:msg "All commands"})
-       ((fn [cmd]
-          (if cmd
-            (command/call-handler cmd config parsed)
-            (println "Selected:" cmd))))))
+  (when-let [cmd (some->> config
+                          config->rofi-commands
+                          (rofi {:require-match? true
+                                 :msg            "All commands"}))]
+    (command/call-handler cmd config parsed)))
+
+(comment
+  (rofi-handler nil nil))
 
 (def command
   {:name          "rofi"
