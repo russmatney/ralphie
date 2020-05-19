@@ -109,3 +109,29 @@
 
 (comment
   (open? {:app :term}))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; workspace scratchpads
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn scratchpad-pop-handler
+  [_config _parsed]
+  (let [workspace-name (-> (->workspace) :name)]
+    (i3/i3-msg! (str "[con_mark='" workspace-name "'] scratchpad show"))))
+
+(def scratchpad-pop-cmd
+  {:name          "scratchpad-pop"
+   :one-line-desc "Shows the next scratchpad in the workspace."
+   :description   []
+   :handler       scratchpad-pop-handler})
+
+(defn scratchpad-push-handler
+  [_config _parsed]
+  (let [workspace-name (-> (->workspace) :name)]
+    (i3/i3-msg! (str "mark '" workspace-name "', move scratchpad"))))
+
+(def scratchpad-push-cmd
+  {:name          "scratchpad-push"
+   :one-line-desc "Pushes the focused window to the workspace scratchpad."
+   :description   []
+   :handler       scratchpad-push-handler})

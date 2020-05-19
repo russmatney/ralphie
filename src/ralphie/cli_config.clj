@@ -13,8 +13,8 @@
    [ralphie.doctor :as doctor]
    [ralphie.install :as install]
    [ralphie.update :as update]
+   [ralphie.window :as window]
    [ralphie.autojump :as autojump]
-   [ralphie.scratchpad :as scratchpad]
    [ralphie.readme :as readme]
    [ralphie.yodo :as yodo]
    [ralphie.workspace :as workspace]))
@@ -31,14 +31,17 @@
               story/story-cmd
               git/clone-cmd
               doctor/checkup-cmd
-              scratchpad/scratchpad-show-cmd
               find-deps/find-deps-cmd
               install/command
               update/update-doom-cmd
+              window/resize-window-cmd
               readme/build
               yodo/restart-cmd
               workspace/start-workspace-cmd
-              workspace/rename-cmd]})
+              workspace/rename-cmd
+              workspace/scratchpad-push-cmd
+              workspace/scratchpad-pop-cmd
+              ]})
 
 (comment
   ((:handler term/open-term-cmd) nil nil))
