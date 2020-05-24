@@ -33,10 +33,13 @@
   ([]
    (full-workspace nil))
   ([name]
-   (let [name (or name (-> (i3/current-workspace) :name))]
-     (->> (all-workspaces)
-          (filter #(->> % :org/item :name (string/includes? name)))
-          first))))
+   (when-let [name (or name (-> (i3/current-workspace) :name))]
+     (some->> (all-workspaces)
+              (filter
+                #(some->>
+                   % :org/item :name
+                   (string/includes? name)))
+              first))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; current workspace

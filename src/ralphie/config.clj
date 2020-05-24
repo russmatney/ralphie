@@ -1,7 +1,7 @@
 (ns ralphie.config
   (:require [ralphie.sh :refer [expand]]))
 
-;; TODO support configuration
+;; TODO support some kind of configuration
 
 (defn home-dir [] (expand "~"))
 
@@ -9,8 +9,9 @@
 
 (defn github-username [] "russmatney")
 
-;; TODO handle multiple monitors
-;; (defn monitor [] "eDP-1")
-(defn monitor [] "HDMI-0")
+(defn monitor []
+  (or (System/getenv "MONITOR")
+      "HDMI-0"
+      "eDP-1"))
 
 (defn org-dir [] (expand "~/todo"))

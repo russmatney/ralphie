@@ -26,10 +26,10 @@
   (when-not name
     (println "no workspace name provided" name))
   (when name
-    (let [args ["tmux" "new-session" "-A" " -s " (->fire-session-name name)]]
+    (let [args ["tmux" "new-session" "-s" (->fire-session-name name)]]
       (apply sh/sh args))
 
-    (let [args ["tmux" "new-session" "-A" " -s " name]]
+    (let [args ["tmux" "new-session" "-s" name]]
       (apply sh/sh args))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -45,8 +45,10 @@
   ([cmd-str opts]
    (let [name (:name (:workspace opts))]
      (ensure-sessions (:workspace opts))
+     (println "sessions created?")
      (sh/sh "tmux" "send-keys"
-            "-t"  (->fire-session-name name)
+            ;; "-t"  (->fire-session-name name)
+            "-t"  name
             cmd-str
             "C-m"))))
 
