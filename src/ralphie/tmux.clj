@@ -1,24 +1,57 @@
 (ns ralphie.tmux
   (:require
-   [ralphie.workspace :as workspace]
    [clojure.java.shell :as sh]
    [ralphie.rofi :as rofi]))
+
+(defn ->fire-session-name [workspace-name]
+  (str workspace-name "-fire"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; New window
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn open-session [{:keys [name directory]}]
+  (let [args ["tmux" "-c"
+              (str "alacritty -e tmux new-session -A "
+                   (when directory (str " -c " directory))
+                   " -s "
+                   name
+                   " & disown")]]
+    (apply sh/sh args)))
+
+(comment
+  (open-session {:name "yodo"}))
+
+(defn ensure-sessions [{:keys [name]}]
+  (when-not name
+    (println "no workspace name provided" name))
+  (when name
+    (let [args ["tmux" "new-session" "-A" " -s " (->fire-session-name name)]]
+      (apply sh/sh args))
+
+    (let [args ["tmux" "new-session" "-A" " -s " name]]
+      (apply sh/sh args))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fire command
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn fire
-  "Aka send-keys
-  TODO create the named workspace/session if it doesn't exist"
+  "Aka send-keys.
+  Defaults to firing into a 'tmux' workspace, which results in the
+  'tmux-fire' session."
   ([cmd-str]
-   (fire cmd-str {}))
+   (fire cmd-str {:workspace {:name "tmux"}}))
   ([cmd-str opts]
-   (let [wksp (or (:workspace opts) (:name (workspace/->workspace)))]
-     (sh/sh "tmux" "send-keys" "-t"  wksp cmd-str "C-m"))))
+   (let [name (:name (:workspace opts))]
+     (ensure-sessions (:workspace opts))
+     (sh/sh "tmux" "send-keys"
+            "-t"  (->fire-session-name name)
+            cmd-str
+            "C-m"))))
 
 (comment
-  (fire "echo sup" {:workspace "dotfiles"}))
+  (fire "echo sup" {:workspace {:name "ralphie"}}))
 
 (defn fire-handler [_config parsed]
   (let [cmd (or (some-> parsed :arguments first)
@@ -28,23 +61,6 @@
 
 (def fire-cmd
   {:name          "fire"
-   :one-line-desc "fire"
-   :description   ["Fires a command in the nearest tmux shell."]
+   :one-line-desc "Fires a command in the nearest tmux shell."
+   :description   [""]
    :handler       fire-handler})
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; New window
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn open []
-  (let [{:keys [name directory]} (workspace/->workspace)
-        args                     ["tmux" "-c"
-                                  (str "alacritty -e tmux new-session -A "
-                                       (when directory (str " -c " directory))
-                                       " -s "
-                                       name
-                                       " & disown")]]
-    (apply sh/sh args)))
-
-(comment
-  (open))
