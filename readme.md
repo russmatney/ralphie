@@ -75,8 +75,8 @@ ralphie open-term
 ```
 bindsym  exec --no-startup-id ralphie open-term
 ```
-## `fire`: fire
-Fires a command in the nearest tmux shell.
+## `fire`: Fires a command in the nearest tmux shell.
+
 ```sh
 ralphie fire
 ```
@@ -117,15 +117,6 @@ ralphie doctor-checkup
 ```
 bindsym  exec --no-startup-id ralphie doctor-checkup
 ```
-## `scratchpad-show`: Shows the next scratchpad.
-Intended to get more convenient handling.
-Ex: per workspace, per app-type, all.
-```sh
-ralphie scratchpad-show
-```
-```
-bindsym  exec --no-startup-id ralphie scratchpad-show
-```
 ## `find-deps`: find-deps
 Looks up clojars libs for the passed str.
 ```sh
@@ -151,12 +142,36 @@ ralphie update-doom
 ```
 bindsym  exec --no-startup-id ralphie update-doom
 ```
+## `resize-window`: resize-window
+Resizes the window according to a few presets.
+Depends on i3.
+```sh
+ralphie resize-window
+```
+```
+bindsym  exec --no-startup-id ralphie resize-window
+```
 ## `build-readme`: build-readme
 ```sh
 ralphie build-readme
 ```
 ```
 bindsym  exec --no-startup-id ralphie build-readme
+```
+## `Restart Yodo`: Restart the locally-running yodo servers.
+```sh
+ralphie Restart Yodo
+```
+```
+bindsym  exec --no-startup-id ralphie Restart Yodo
+```
+## `start-workspace`: start-workspace
+Creates a new workspace based on workspaces.org and rofi input.
+```sh
+ralphie start-workspace
+```
+```
+bindsym  exec --no-startup-id ralphie start-workspace
 ```
 ## `rename-workspace`: Updates a workspace to match the passed data
 Supports name as the first argument.
@@ -165,6 +180,20 @@ ralphie rename-workspace
 ```
 ```
 bindsym  exec --no-startup-id ralphie rename-workspace
+```
+## `scratchpad-push`: Pushes the focused window to the workspace scratchpad.
+```sh
+ralphie scratchpad-push
+```
+```
+bindsym  exec --no-startup-id ralphie scratchpad-push
+```
+## `scratchpad-pop`: Shows the next scratchpad in the workspace.
+```sh
+ralphie scratchpad-pop
+```
+```
+bindsym  exec --no-startup-id ralphie scratchpad-pop
 ```## TODO
 ### Resize monitor resolution
 ### Restart i3
