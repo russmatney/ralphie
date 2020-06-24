@@ -23,6 +23,7 @@ This mostly speaks to Ralphie knowing he wants to write something in Babashka,
 whether there are bears near Pulaski's or not.
 
 # Features
+
 ## `autojump`: Sends `j <userinput>` to the current workspace's tmux.
 Uses j (autojump) to fuzzy-find a directory.
 Opens that directory in the workspace terminal.
@@ -194,7 +195,8 @@ ralphie scratchpad-pop
 ```
 ```
 bindsym  exec --no-startup-id ralphie scratchpad-pop
-```## TODO
+```
+## TODO
 ### Resize monitor resolution
 ### Restart i3
 ### Git Clone

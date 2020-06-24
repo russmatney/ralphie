@@ -37,7 +37,7 @@
   (let [feats (readme-feature-lines config)
         head  (slurp readme-head-path)
         tail  (slurp readme-tail-path)
-        parts [head feats tail]]
+        parts [head "\n" feats "\n" tail]]
     (spit readme-path (apply str parts))))
 
 (def build
