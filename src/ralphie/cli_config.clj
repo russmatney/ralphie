@@ -6,7 +6,6 @@
    [ralphie.rofi :as rofi]
    [ralphie.term :as term]
    [ralphie.tmux :as tmux]
-   [ralphie.emacs :as emacs]
    [ralphie.story :as story]
    [ralphie.find-deps :as find-deps]
    [ralphie.git :as git]
@@ -27,7 +26,6 @@
               rofi/command
               term/open-term-cmd
               tmux/fire-cmd
-              emacs/open-cmd
               story/story-cmd
               git/clone-cmd
               doctor/checkup-cmd
@@ -40,8 +38,7 @@
               workspace/start-workspace-cmd
               workspace/rename-cmd
               workspace/scratchpad-push-cmd
-              workspace/scratchpad-pop-cmd
-              ]})
+              workspace/scratchpad-pop-cmd]})
 
 (comment
   ((:handler term/open-term-cmd) nil nil))

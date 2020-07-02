@@ -10,3 +10,17 @@
 (defn call-handler
   [cmd config parsed]
   ((:handler cmd) config parsed))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; defcom and command registry
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defonce command-registry (atom {}))
+
+(defmacro defcom
+  [command-name opts]
+  `(let [key#  ~(keyword (-> *ns* ns-name name) (name command-name))
+         opts# (assoc ~opts ::registry-key key#)]
+     (swap! command-registry assoc key# opts#)))
+
+(defn commands [] (vals @command-registry))

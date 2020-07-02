@@ -6,3 +6,5 @@ tmp/
 
 .cpcache/
 .nrepl-port
+
+.clj-kondo/.cache/

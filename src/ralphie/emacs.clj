@@ -1,7 +1,8 @@
 (ns ralphie.emacs
   (:require
    [ralphie.workspace :as workspace]
-   [clojure.java.shell :as sh]))
+   [clojure.java.shell :as sh]
+   [ralphie.command :refer [defcom]]))
 
 (defn open
   ([] (open nil))
@@ -23,6 +24,11 @@
 (defn open-handler [_config _parsed] (open))
 
 (def open-cmd
+  {:name          "open-emacs"
+   :one-line-desc "Opens emacs in the current workspace"
+   :handler       open-handler})
+
+(defcom open-emacs
   {:name          "open-emacs"
    :one-line-desc "Opens emacs in the current workspace"
    :handler       open-handler})

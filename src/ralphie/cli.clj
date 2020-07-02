@@ -40,7 +40,8 @@
      :args    (assoc parsed :arguments (rest args))}))
 
 (defn run [& passed-args]
-  (let [config                 CONFIG
+  (let [config                 (update CONFIG :commands
+                                       concat (command/commands))
         parsed                 (parse-opts passed-args (config->opts config))
         {:keys [command args]} (parse-command config parsed)
         debug                  true

@@ -1,0 +1,2 @@
+{:lint-as
+ {ralphie.command/defcom clojure.core/def}}
