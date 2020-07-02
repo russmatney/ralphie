@@ -34,8 +34,7 @@
   (let [config                 {:commands (command/commands)}
         parsed                 (parse-opts passed-args (config->opts config))
         {:keys [command args]} (parse-command config parsed)
-        debug                  true
-        ]
+        debug                  false]
     (when debug
       (doctor/checkup-handler config args))
 
