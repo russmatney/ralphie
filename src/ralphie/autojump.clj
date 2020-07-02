@@ -1,6 +1,7 @@
 (ns ralphie.autojump
   (:require
    [clojure.string :as string]
+   [ralphie.command :refer [defcom]]
    [ralphie.tmux :as tmux]
    [ralphie.config :as config]
    [ralphie.workspace :as workspace]
@@ -22,7 +23,7 @@
 
     (tmux/fire (str "j " input))))
 
-(def autojump-cmd
+(defcom autojump-cmd
   {:name          "autojump"
    :one-line-desc "Sends `j <userinput>` to the current workspace's tmux."
    :description   ["Uses j (autojump) to fuzzy-find a directory."

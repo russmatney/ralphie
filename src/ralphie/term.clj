@@ -2,6 +2,7 @@
   (:require
    [ralphie.tmux :as tmux]
    [ralphie.workspace :as workspace]
+   [ralphie.command :refer [defcom]]
    ))
 
 (defn open-term-handler
@@ -14,7 +15,7 @@
 (comment
   (open-term-handler))
 
-(def open-term-cmd
+(defcom open-term-cmd
   {:name          "open-term"
    :one-line-desc "Opens a terminal."
    :description   ["Hardcoded to alacritty and tmux."

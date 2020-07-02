@@ -1,6 +1,8 @@
-(ns ralphie.screenshot)
+(ns ralphie.screenshot
+  (:require
+   [ralphie.command :refer [defcom]]))
 
-(def command
+(defcom command
   {:name          "screenshot"
    :one-line-desc "Take Screenshot"
    :description   ["Takes a screenshot."

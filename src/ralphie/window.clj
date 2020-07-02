@@ -2,7 +2,7 @@
   (:require
    [ralphie.rofi :as rofi]
    [ralphie.i3 :as i3]
-   ))
+   [ralphie.command :refer [defcom]]))
 
 (def window-size-options
   [{:label  "small-centered"
@@ -24,7 +24,7 @@
        :i3-cmd
        (i3/i3-msg!)))
 
-(def resize-window-cmd
+(defcom resize-window-cmd
   {:name          "resize-window"
    :one-line-desc "resize-window"
    :description

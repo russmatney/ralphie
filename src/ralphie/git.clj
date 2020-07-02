@@ -1,9 +1,10 @@
 (ns ralphie.git
   (:require
+   [cheshire.core :as json]
    [ralphie.tmux :as tmux]
    [ralphie.rofi :as rofi]
    [ralphie.config :as config]
-   [cheshire.core :as json]))
+   [ralphie.command :refer [defcom]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; transforms
@@ -67,7 +68,7 @@
       (clone {:repo-id repo-id})
       (clone-from-stars))))
 
-(def clone-cmd
+(defcom clone-cmd
   {:name          "clone"
    :one-line-desc "Clone from your Github Stars"
    :description
@@ -81,12 +82,12 @@
 ;; gprom
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn gpom-handler [_config _parsed]
+(defn gprom-handler [_config _parsed]
   (println "ask which repo to gprom")
   )
 
-(def gpom-cmd
-  {:name          "gpom"
-   :one-line-desc "gpom"
+(defcom gprom-cmd
+  {:name          "gprom"
+   :one-line-desc "gprom"
    :description   [""]
-   :handler       gpom-handler})
+   :handler       gprom-handler})

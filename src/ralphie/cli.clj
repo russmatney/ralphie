@@ -3,8 +3,6 @@
    [ralphie.help :as help]
    [ralphie.doctor :as doctor]
    [ralphie.command :as command]
-   [ralphie.cli-config :refer [CONFIG]]
-   [clojure.test :as t :refer [is deftest]]
    [clojure.tools.cli :refer [parse-opts]]))
 
 (defn config->opts
@@ -25,13 +23,6 @@
        (into {})
        (#(get % arg))))
 
-(deftest find-command-test
-  (let [cmd (find-command CONFIG "help")]
-    (is (= "help" (:name cmd))))
-
-  (is (= "screenshot" (:name (find-command CONFIG "screenshot"))))
-  (is (= nil (:name (find-command CONFIG "not-found")))))
-
 (defn parse-command [config parsed]
   (let [args      (:arguments parsed)
         first-arg (first args)
@@ -40,21 +31,23 @@
      :args    (assoc parsed :arguments (rest args))}))
 
 (defn run [& passed-args]
-  (let [config                 (update CONFIG :commands
-                                       concat (command/commands))
+  (let [config                 {:commands (command/commands)}
         parsed                 (parse-opts passed-args (config->opts config))
         {:keys [command args]} (parse-command config parsed)
         debug                  true
         ]
     (when debug
-      (command/call-handler doctor/checkup-cmd config args))
+      (doctor/checkup-handler config args))
 
     (when-not command
-      (command/call-handler help/command config passed-args))
+      (help/help-handler config passed-args))
 
     (command/call-handler command config args)))
 
 (comment
+  (->>
+    (command/commands)
+    (map :name))
   (def -res
     (run "help"))
 

@@ -1,6 +1,7 @@
 (ns ralphie.readme
   (:require
    [ralphie.config :refer [project-dir]]
+   [ralphie.command :refer [defcom]]
    [clojure.string :as string]))
 
 (def readme-path (str (project-dir) "/readme.md"))
@@ -40,7 +41,7 @@
         parts [head "\n" feats "\n" tail]]
     (spit readme-path (apply str parts))))
 
-(def build
+(defcom build
   {:name          "build-readme"
    :short         "-"
    :one-line-desc "build-readme"

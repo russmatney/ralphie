@@ -1,6 +1,7 @@
 (ns ralphie.install
   (:require
    [clojure.java.shell :as sh]
+   [ralphie.command :refer [defcom]]
    [ralphie.config :as config]))
 
 (defn symlink
@@ -15,7 +16,7 @@
 (defn install-cmd [_config _parsed]
   (add-bin-to-path))
 
-(def command
+(defcom command
   {:name          "install"
    :one-line-desc "Installs ralphie via symlink."
    :description

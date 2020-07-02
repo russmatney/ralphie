@@ -3,6 +3,7 @@
    [ralphie.i3 :as i3]
    [ralphie.org :as org]
    [ralphie.rofi :as rofi]
+   [ralphie.command :refer [defcom]]
    [clojure.string :as string]))
 
 (defn rename-handler
@@ -12,7 +13,7 @@
                  (rofi/rofi {:msg "New name for workspace"}))]
     (i3/upsert {:name name})))
 
-(def rename-cmd
+(defcom rename-cmd
   {:name          "rename-workspace"
    :one-line-desc "Updates a workspace to match the passed data"
    :description   ["Supports name as the first argument."]
@@ -62,7 +63,7 @@
   ;; (i3/i3-msg! "restart")
   )
 
-(def restart-workspaces-cmd
+(defcom restart-workspaces-cmd
   {:name          "restart-workspaces"
    :one-line-desc "restart-workspaces"
    :description   ["Restarts i3 in place."
@@ -88,7 +89,7 @@
     (i3/rename-workspace name workspace-number)))
 
 
-(def start-workspace-cmd
+(defcom start-workspace-cmd
   {:name          "start-workspace"
    :one-line-desc "start-workspace"
    :description
@@ -122,7 +123,7 @@
   (let [workspace-name (-> (->workspace) :name)]
     (i3/i3-msg! (str "[con_mark='" workspace-name "'] scratchpad show"))))
 
-(def scratchpad-pop-cmd
+(defcom scratchpad-pop-cmd
   {:name          "scratchpad-pop"
    :one-line-desc "Shows the next scratchpad in the workspace."
    :description   []
@@ -133,7 +134,7 @@
   (let [workspace-name (-> (->workspace) :name)]
     (i3/i3-msg! (str "mark '" workspace-name "', move scratchpad"))))
 
-(def scratchpad-push-cmd
+(defcom scratchpad-push-cmd
   {:name          "scratchpad-push"
    :one-line-desc "Pushes the focused window to the workspace scratchpad."
    :description   []

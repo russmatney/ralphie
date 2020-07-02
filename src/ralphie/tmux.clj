@@ -1,7 +1,8 @@
 (ns ralphie.tmux
   (:require
    [clojure.java.shell :as sh]
-   [ralphie.rofi :as rofi]))
+   [ralphie.rofi :as rofi]
+   [ralphie.command :refer [defcom]]))
 
 (defn ->fire-session-name [workspace-name]
   (str workspace-name "-fire"))
@@ -60,8 +61,7 @@
                 (rofi/rofi {:msg "Command to fire"} (rofi/zsh-history)))]
     (fire cmd)))
 
-
-(def fire-cmd
+(defcom fire-cmd
   {:name          "fire"
    :one-line-desc "Fires a command in the nearest tmux shell."
    :description   [""]

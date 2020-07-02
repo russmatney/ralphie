@@ -1,5 +1,6 @@
-(ns ralphie.dates)
-
+(ns ralphie.dates
+  (:require
+   [ralphie.command :refer [defcom]]))
 
 (defn now []
   (let [
@@ -13,7 +14,7 @@
 (defn date-cmd [_config _parsed]
   (now))
 
-(def command
+(defcom command
   {:name          "date"
    :one-line-desc "Prints the date"
    :handler       date-cmd})

@@ -1,11 +1,12 @@
 (ns ralphie.update
   (:require
+   [ralphie.command :refer [defcom]]
    [ralphie.tmux :as tmux]))
 
 (defn update-doom-handler [_config _parsed]
   (tmux/fire "doom sync && doom build" {:workspace "dotfiles"}))
 
-(def update-doom-cmd
+(defcom update-doom-cmd
   {:name          "update-doom"
    :one-line-desc "Fetch and rebuild Doom"
    :description   ["Updates doom emacs to the bleeding-edge latest."

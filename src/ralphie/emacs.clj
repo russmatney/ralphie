@@ -23,11 +23,6 @@
 
 (defn open-handler [_config _parsed] (open))
 
-(def open-cmd
-  {:name          "open-emacs"
-   :one-line-desc "Opens emacs in the current workspace"
-   :handler       open-handler})
-
 (defcom open-emacs
   {:name          "open-emacs"
    :one-line-desc "Opens emacs in the current workspace"

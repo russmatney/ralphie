@@ -1,5 +1,6 @@
 (ns ralphie.yodo
   (:require
+   [ralphie.command :refer [defcom]]
    [ralphie.rofi :as rofi]
    [ralphie.tmux :as tmux]))
 
@@ -17,7 +18,7 @@
 (comment
   (restart-handler nil nil))
 
-(def restart-cmd
+(defcom restart-cmd
   {:name          "Restart Yodo"
    :one-line-desc "Restart the locally-running yodo servers."
    :description   []

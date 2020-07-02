@@ -3,7 +3,7 @@
    [ralphie.sh :as sh]
    [clojure.string :as string]
    [ralphie.config :as config]
-   [ralphie.command :as command]))
+   [ralphie.command :as command :refer [defcom]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; rofi-general
@@ -94,7 +94,7 @@
 (comment
   (rofi-handler nil nil))
 
-(def command
+(defcom command
   {:name          "rofi"
    :one-line-desc "Select a command to run via rofi."
    :description   ["Open Rofi for each command."

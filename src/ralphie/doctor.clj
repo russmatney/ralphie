@@ -1,5 +1,7 @@
 (ns ralphie.doctor
-  (:require [clojure.string :as string]))
+  (:require
+   [ralphie.command :refer [defcom]]
+   [clojure.string :as string]))
 
 (defn missing-for-key
   "Returns commands that are missing a value for the key."
@@ -38,7 +40,7 @@
   (missing-for-key {:commands [{:name "hi"}]} :hi)
   )
 
-(def checkup-cmd
+(defcom checkup-cmd
   {:name          "doctor-checkup"
    :one-line-desc "Debug helper for sanity-checking"
    :description   ["Runs a sanity check on your built config, and logs a report."]

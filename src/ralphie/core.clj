@@ -8,7 +8,24 @@
 
 (ns ralphie.core
   (:require
+   [ralphie.emacs]
+   [ralphie.autojump]
    [ralphie.dates :as dates]
+   [ralphie.help]
+   [ralphie.screenshot]
+   [ralphie.rofi]
+   [ralphie.term]
+   [ralphie.tmux]
+   [ralphie.story]
+   [ralphie.find-deps]
+   [ralphie.git]
+   [ralphie.doctor]
+   [ralphie.install]
+   [ralphie.update]
+   [ralphie.window]
+   [ralphie.readme]
+   [ralphie.yodo]
+   [ralphie.workspace]
    [ralphie.cli :as cli]
    [clojure.string :as string]))
 

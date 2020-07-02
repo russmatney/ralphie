@@ -1,5 +1,7 @@
 (ns ralphie.story
-  (:require [ralphie.rofi :as rofi]))
+  (:require
+   [ralphie.rofi :as rofi]
+   [ralphie.command :refer [defcom]]))
 
 (defn person [name]
   {:name name})
@@ -35,7 +37,7 @@
           {:label "Does it start with a kiss?"}
           {:label "Who even knows?"}]}))
 
-(def story-cmd
+(defcom story-cmd
   {:name          "story"
    :one-line-desc "story"
    :description   ["Starts a story"]
