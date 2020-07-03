@@ -31,35 +31,46 @@
        :content
        (map :text)))
 
-(defn ->prop-key [text]
+(defn ->prop-key [key]
+  (when key
+    (-> key
+        (string/replace ":" "")
+        (string/replace "_" "-")
+        (string/replace "+" "")
+        string/lower-case
+        keyword)))
+
+(defn raw->prop-key [text]
   (let [[key _val] (string/split text #" " 2)]
-    (when key
-      (-> key
-          (string/replace ":" "")
-          (string/replace "_" "-")
-          (string/replace "+" "")
-          string/lower-case
-          keyword))))
+    (->prop-key key)))
 
 (defn ->prop-value [text]
-  (when (->prop-key text)
+  (when (raw->prop-key text)
     (some-> text
             (string/split #" " 2)
             second
             string/trim)))
 
+(def plural-keys #{:pinned-apps :pinned-tabs})
+
 (defn ->properties [x]
   (let [drawer-items (->drawer x)]
     (if (seq drawer-items)
       (->> drawer-items
-           (group-by ->prop-key)
+           (group-by raw->prop-key)
            (map (fn [[k vals]]
                   [k (cond->> vals
                        true
                        (map ->prop-value)
 
-                       (= (count vals) 1)
-                       first)]))
+                       (->> k
+                            ->prop-key
+                            (contains? plural-keys)
+                            not)
+                       ((fn [x]
+                          (println x)
+                          (println k)
+                          (first x))))]))
            (into {}))
       {})))
 
@@ -96,4 +107,8 @@
 
 (comment
   (def --w
-    (fname->items "workspaces.org")))
+    (fname->items "workspaces.org"))
+
+  (first --w)
+  )
+

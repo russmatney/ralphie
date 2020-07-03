@@ -2,9 +2,11 @@
   (:require
    [clojure.string :as string]
    [cheshire.core :as json]
+   [ralphie.sh :refer [expand]]
    [ralphie.config :as config]
    [ralphie.rofi :as rofi]
    [ralphie.command :refer [defcom]]
+   [ralphie.org :as org]
    [clojure.java.shell :as sh]
    [clojure.set :as set]))
 
@@ -178,36 +180,56 @@
 ;; workspaces.org items -> i3 config
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn workspace->i3-config-lines
-  [_workspace]
-  ;; TODO convert parsed workspace to i3 config
-  [])
+(defn workspace->lines
+  [i {:keys [name props]}]
+  (let [{:keys [number hotkey pinned-apps]} props
+        number                              (or number (+ 1 i))
+        hotkey                              (or hotkey number)]
+    (concat
+      [(str "set $wn" number " \"" number ": " name "\"")
+       (str "bindsym $mod+" hotkey " workspace number $wn" number)
+       (str "bindsym $mod+Shift+" hotkey
+            " move container to workspace number $wn" number)
+       ;; TODO pull monitor from config
+       (str "workspace $wn" number " output HDMI-0 eDP-1")]
+      (for [app pinned-apps]
+        (str "for_window [class=\"" app "\"] move"
+             "--no-auto-back-and-forth"
+             "to workspace number $wn" number)))))
 
 (defn write-i3-ralphie
   "Parses misc org data into an i3 config. Writes to the passed file."
   [file]
-  (let [
-        ;; TODO parse workspaces from org (requires yodo org parser)
-        workspaces []]
+  (let [workspaces (org/fname->items "workspaces.org")]
     (->> workspaces
-         (map workspace->i3-config-lines)
+         (take 10)
+         (map-indexed workspace->lines)
+         (remove nil?)
          (apply concat)
          (string/join "\n")
          (spit file))))
+
+(comment
+  (write-i3-ralphie (expand "~/temp-i3-conf")))
 
 (defn rebuild-i3-config!
   "The i3 config is partially based on data in <org-dir>/workspaces.org.
   This function converts that data to <i3-config-dir>/config.ralphie and
   concatenates it with <i3-config-dir>/config.base.
+
+  Could be rewritten to not write the config.ralphie.
+  Left as is to help debugging/expose what this command is doing.
   "
   []
   (let [i3-config-file (str (config/i3-dir) "/config")
         base-file      (str (config/i3-dir) "/config.base")
         ralphie-file   (str (config/i3-dir) "/config.ralphie")]
     (write-i3-ralphie ralphie-file)
-    (sh/sh "rm" i3-config-file)
-    (sh/sh "cat" base-file ">>" i3-config-file)
-    (sh/sh "cat" ralphie-file ">>" i3-config-file)))
+    (let [base (slurp base-file)
+          ext  (slurp ralphie-file)]
+      (->> [base ext]
+           (string/join "\n")
+           (spit i3-config-file)))))
 
 (defn restart-i3! [] (i3-msg! "restart"))
 
@@ -223,4 +245,7 @@
 (defcom rebuild-and-restart-i3
   {:name          "restart-i3"
    :one-line-desc "Restarts i3 in place"
+   :description   ["Pulls workspace config from workspaces.org."
+                   "Writes a new i3/config."
+                   "Restarts i3."]
    :handler       rebuild-and-restart!})
