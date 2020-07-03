@@ -15,3 +15,5 @@
       "eDP-1"))
 
 (defn org-dir [] (expand "~/todo"))
+
+(defn i3-dir [] (expand "~/.config/i3"))

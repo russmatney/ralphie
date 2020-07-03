@@ -4,6 +4,7 @@
    [cheshire.core :as json]
    [ralphie.config :as config]
    [ralphie.rofi :as rofi]
+   [ralphie.command :refer [defcom]]
    [clojure.java.shell :as sh]
    [clojure.set :as set]))
 
@@ -177,10 +178,49 @@
 ;; workspaces.org items -> i3 config
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn org->i3!
+(defn workspace->i3-config-lines
+  [_workspace]
+  ;; TODO convert parsed workspace to i3 config
+  [])
+
+(defn write-i3-ralphie
+  "Parses misc org data into an i3 config. Writes to the passed file."
+  [file]
+  (let [
+        ;; TODO parse workspaces from org (requires yodo org parser)
+        workspaces []]
+    (->> workspaces
+         (map workspace->i3-config-lines)
+         (apply concat)
+         (string/join "\n")
+         (spit file))))
+
+(defn rebuild-i3-config!
+  "The i3 config is partially based on data in <org-dir>/workspaces.org.
+  This function converts that data to <i3-config-dir>/config.ralphie and
+  concatenates it with <i3-config-dir>/config.base.
+  "
+  []
+  (let [i3-config-file (str (config/i3-dir) "/config")
+        base-file      (str (config/i3-dir) "/config.base")
+        ralphie-file   (str (config/i3-dir) "/config.ralphie")]
+    (write-i3-ralphie ralphie-file)
+    (sh/sh "rm" i3-config-file)
+    (sh/sh "cat" base-file ">>" i3-config-file)
+    (sh/sh "cat" ralphie-file ">>" i3-config-file)))
+
+(defn restart-i3! [] (i3-msg! "restart"))
+
+(defn rebuild-and-restart!
   "Converts passed workspaces into an i3 config.
   The contents is written to i3/config.ralphie,
-  which is then concattenated with i3.config.base"
-  [_workspace-items]
-  (println "not yet impled")
-  )
+  which is then concattenated with i3.config.base."
+  [_config _parsed]
+  ;; TODO try-catch the rebuild, always restart
+  (rebuild-i3-config!)
+  (restart-i3!))
+
+(defcom rebuild-and-restart-i3
+  {:name          "restart-i3"
+   :one-line-desc "Restarts i3 in place"
+   :handler       rebuild-and-restart!})
