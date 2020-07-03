@@ -18,8 +18,7 @@
      (apply sh/sh args))))
 
 (comment
-  (println "cosmos")
-  (open "cosmos"))
+  (open "yodo"))
 
 (defn open-handler [_config _parsed] (open))
 

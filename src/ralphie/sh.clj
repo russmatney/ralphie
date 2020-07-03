@@ -13,15 +13,10 @@
     :else           x))
 
 (defn- on-fail [msg]
-  (println "cosmos/sh. Err: " msg)
-  ;; (notify/notify-send
-  ;;   {:body    msg
-  ;;    :subject "Cosmos `sh` Error"})
-  )
+  (println "ralphie/sh. Err: " msg))
 
 (defn sh
   [& args]
-  ;; (when args (println (string "cosmos/sh. Args: " args)))
   (let [result
         (try
           (apply clj-sh/sh args)
@@ -30,7 +25,6 @@
         out  (some-> result :out string/split-lines first-or-list)
         err  (some-> result :err string/split-lines first-or-list)
         exit (:exit result)]
-    ;; (when out (println (string "cosmos/sh. Out: " out)))
     (when (not= "" err) (on-fail err))
     {:out out :err err :exit exit}))
 
