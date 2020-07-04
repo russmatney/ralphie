@@ -15,5 +15,6 @@
       "eDP-1"))
 
 (defn org-dir [] (expand "~/todo"))
+(defn roam-dir [] (expand "~/Dropbox/roam"))
 
 (defn i3-dir [] (expand "~/.config/i3"))
