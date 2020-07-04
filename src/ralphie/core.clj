@@ -19,6 +19,7 @@
    [ralphie.story]
    [ralphie.find-deps]
    [ralphie.git]
+   [ralphie.garden]
    [ralphie.doctor]
    [ralphie.install]
    [ralphie.update]
