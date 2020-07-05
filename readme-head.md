@@ -1,7 +1,7 @@
 # Ralphie
 
-A set of tools for cli and keybindings, written in
-Clojure/[Babashka](https://github.com/borkdude/babashka/).
+A set of commands for the command line, keybindings, and rofi,
+expressed via Clojure and [Babashka](https://github.com/borkdude/babashka/).
 
 ## Ralphie?
 
