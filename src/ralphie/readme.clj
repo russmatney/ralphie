@@ -9,9 +9,10 @@
 (def readme-tail-path (str (project-dir) "/readme-tail.md"))
 
 (defn command->i3-binding-usage [{:keys [name i3-keybinding]}]
-  ["```"
-   (str "bindsym " i3-keybinding " exec --no-startup-id ralphie " name)
-   "```"])
+  (when i3-keybinding
+    ["```"
+     (str "bindsym " i3-keybinding " exec --no-startup-id ralphie " name)
+     "```"]))
 
 (defn command->sh-usage [{:keys [name]}]
   ["```sh"
@@ -30,6 +31,7 @@
 (defn readme-feature-lines [config]
   (->> config
        :commands
+       (sort-by :name)
        (map command->feature-doc)
        flatten
        (string/join "\n")))

@@ -19,7 +19,7 @@
   (restart-handler nil nil))
 
 (defcom restart-cmd
-  {:name          "Restart Yodo"
+  {:name          "restart-yodo"
    :one-line-desc "Restart the locally-running yodo servers."
    :description   []
    :handler       restart-handler})
