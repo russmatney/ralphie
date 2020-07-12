@@ -15,8 +15,8 @@
       "eDP-1"))
 
 (defn org-dir [] (expand "~/todo"))
-(defn roam-dir [] (expand "~/Dropbox/roam"))
-(defn blog-garden-dir []
-  (expand "~/russmatney/blog-gatsby/content/posts/garden"))
+(defn notes-dir [] (expand "~/Dropbox/notes"))
+(defn blog-notes-dir []
+  (expand "~/russmatney/blog-gatsby/content/posts/notes"))
 
 (defn i3-dir [] (expand "~/.config/i3"))

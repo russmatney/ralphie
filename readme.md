@@ -91,12 +91,12 @@ Runs a sanity check on your built config, and logs a report.
 ```sh
 ralphie doctor-checkup
 ```
-## `export-garden`: Exports the org-roam dir as a blog.
-Parses the org-roam dir into an intermediary.
-Writes to an out dir markdown.
-Handles backlinks.
+## `export-notes`: Exports an org notes dir as markdown with backlinks.
+Parses an org notes dir into `items`.
+Writes those items to an out dir as markdown.
+Adds handles backlinks to all notes.
 ```sh
-ralphie export-garden
+ralphie export-notes
 ```
 ## `find-deps`: find-deps
 Looks up clojars libs for the passed str.
