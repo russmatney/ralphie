@@ -13,7 +13,7 @@
    [ralphie.dates :as dates]
    [ralphie.doctor]
    [ralphie.emacs]
-   [ralphie.find-deps]
+   [ralphie.deps]
    [ralphie.git]
    [ralphie.help]
    [ralphie.install]

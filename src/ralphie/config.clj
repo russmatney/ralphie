@@ -15,6 +15,8 @@
       "eDP-1"))
 
 (defn org-dir [] (expand "~/todo"))
+(defn repos-file [] (str (org-dir) "/repos.org"))
+
 (defn notes-dir [] (expand "~/Dropbox/notes"))
 (defn blog-notes-dir []
   (expand "~/russmatney/blog-gatsby/content/posts/notes"))

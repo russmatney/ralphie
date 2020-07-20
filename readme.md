@@ -64,6 +64,10 @@ This list contains wip-commands as well.
 
 Many of these are wips, or their usage examples are not useful.
 
+## `any-outdated`: Checks if watched repos have any outdated deps.
+```sh
+ralphie any-outdated
+```
 ## `autojump`: Sends `j <userinput>` to the current workspace's tmux.
 Uses j (autojump) to fuzzy-find a directory.
 Opens that directory in the workspace terminal.
@@ -97,11 +101,6 @@ Writes those items to an out dir as markdown.
 Adds handles backlinks to all notes.
 ```sh
 ralphie export-notes
-```
-## `find-deps`: find-deps
-Looks up clojars libs for the passed str.
-```sh
-ralphie find-deps
 ```
 ## `fire`: Fires a command in the nearest tmux shell.
 

@@ -50,6 +50,11 @@
     (.isDirectory (file path))
     false))
 
+(defn exists?
+  "Return true if `path` exists."
+  [path]
+  (. (file path) exists))
+
 (defn absolute
   "Return absolute file."
   [path]
