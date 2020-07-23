@@ -18,6 +18,7 @@
    [ralphie.help]
    [ralphie.install]
    [ralphie.notes]
+   [ralphie.picom]
    [ralphie.readme]
    [ralphie.rofi]
    [ralphie.screenshot]
