@@ -15,6 +15,7 @@
 ;; defcom and command registry
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; TODO convert to multi-method
 (defonce command-registry (atom {}))
 
 (defmacro defcom
