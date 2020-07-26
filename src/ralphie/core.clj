@@ -26,10 +26,12 @@
    [ralphie.term]
    [ralphie.tmux]
    [ralphie.update]
+   [ralphie.watch]
    [ralphie.window]
    [ralphie.workspace]
    [ralphie.yodo]
    [clojure.string :as string]))
+
 
 (defn debug-log [log]
   (when false
