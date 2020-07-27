@@ -1,19 +1,20 @@
 (ns ralphie.watch
   (:require
    [ralphie.command :refer [defcom]]
-   [babashka.pods :as pods]))
+   ;; [babashka.pods :as pods]
+   ))
 
-(pods/load-pod "pod-babashka-filewatcher")
-(require '[pod.babashka.filewatcher :as fw])
+;; (pods/load-pod "pod-babashka-filewatcher")
+;; (require '[pod.babashka.filewatcher :as fw])
 
 (defn watch-handler [_config parsed]
   (if-let [file (some->> parsed :arguments first)]
     (do
       (println "watching " file)
-      (fw/watch file (fn [event]
-                       (println "do something")
-                       (prn event))
-                {:delay-ms 500})
+      ;; (fw/watch file (fn [event]
+      ;;                  (println "do something")
+      ;;                  (prn event))
+      ;;           {:delay-ms 500})
       (println "should i hold onto fw?"))
     (println "No file passed.")))
 
