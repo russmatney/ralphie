@@ -11,14 +11,16 @@
 ;; New window
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn open-session [{:keys [name directory]}]
-  (let [args ["tmux" "-c"
-              (str "alacritty -e tmux new-session -A "
-                   (when directory (str " -c " directory))
-                   " -s "
-                   name
-                   " & disown")]]
-    (apply sh/sh args)))
+(defn open-session
+  ([] (open-session {:name "ralphie-fallback" :directory "~/."}))
+  ([{:keys [name directory]}]
+   (let [args ["tmux" "-c"
+               (str "alacritty -e tmux new-session -A "
+                    (when directory (str " -c " directory))
+                    " -s "
+                    name
+                    " & disown")]]
+     (apply sh/sh args))))
 
 (comment
   (open-session {:name "yodo"}))

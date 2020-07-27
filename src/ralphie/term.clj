@@ -1,7 +1,7 @@
 (ns ralphie.term
   (:require
    [ralphie.tmux :as tmux]
-   [ralphie.workspace :as workspace]
+   ;; [ralphie.workspace :as workspace]
    [ralphie.command :refer [defcom]]
    ))
 
@@ -9,7 +9,7 @@
   ([] (open-term-handler nil nil))
   ([_config _parsed]
    ;; TODO when opened, move focus via i3 instead?
-   (tmux/open-session (workspace/->workspace))
+   (tmux/open-session #_(workspace/->workspace))
    ))
 
 (comment
