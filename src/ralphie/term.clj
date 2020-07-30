@@ -7,10 +7,11 @@
 
 (defn open-term-handler
   ([] (open-term-handler nil nil))
-  ([_config _parsed]
-   ;; TODO when opened, move focus via i3 instead?
-   (tmux/open-session #_(workspace/->workspace))
-   ))
+  ([_config parsed]
+   (let [name (some-> parsed :arguments first)]
+     (if name
+       (tmux/open-session {:name name})
+       (tmux/open-session)))))
 
 (comment
   (open-term-handler))
