@@ -20,7 +20,11 @@
 (comment
   (open "yodo"))
 
-(defn open-handler [_config _parsed] (open))
+(defn open-handler [_config parsed]
+  (let [name (some-> parsed :arguments first)]
+    (if name
+      (open name)
+      (open))))
 
 (defcom open-emacs
   {:name          "open-emacs"
