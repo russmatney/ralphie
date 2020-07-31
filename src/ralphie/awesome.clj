@@ -1,6 +1,7 @@
 (ns ralphie.awesome
   (:require
    [ralphie.rofi :as rofi]
+   [ralphie.workspace :as workspace]
    [ralphie.command :refer [defcom]]
    [clojure.string :as string]
    [clojure.java.shell :as sh]))
@@ -79,7 +80,11 @@
                       (if tag-name
                         (create-tag! tag-name)
                         (create-tag!
-                          (rofi/rofi {:msg "New Tag Name?"})))))})
+                          (rofi/rofi {:msg "New Tag Name?"}
+                                     (->>
+                                       (workspace/all-workspaces)
+                                       ;; TODO filter workspaces already open
+                                       (map (comp :name :org/item))))))))})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Delete current tag
