@@ -4,8 +4,7 @@
    [ralphie.org :as org]
    [ralphie.rofi :as rofi]
    [ralphie.command :refer [defcom]]
-   [clojure.string :as string]
-   [clojure.java.shell :as sh]))
+   [clojure.string :as string]))
 
 (defn rename-handler
   "Updates a selected workspace with the passed name."
@@ -139,48 +138,4 @@
    :dei3-scription []
    :handler        i3-scratchpad-push-handler})
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; create new tag
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn awm-cli [cmd]
-
-  (sh/sh "awesome-client"
-         ;; wrap command?
-         cmd))
-
-;; TODO maybe later
-;; (defn awm-fn [fn args]}]
-;;   (-> (str fn
-;;            "(" fn " " (->> args
-;;                            (map ->lua-table-str)
-;;                            (map (partial conj " "))) ")")
-;;       awm-cli))
-
-(defn create-tag! [name]
-  (awm-cli
-    (str "awful.tag.add(" name ", {screen=(awful.screen.focused)})"))
-  ;; (awm-fn "awful.tag.add(" [name {:screen "(awful.screen.focused)"}]})
-  )
-
-
-(defcom awesome-create-tag
-  {:name          "awesome-create-tag"
-   :one-line-desc "Creates a new tag in your _Awesome_ Window Manager."
-   :description   []
-   :handler       (fn [_ {:keys [arguments]}]
-                    (let [tag-name (some-> arguments first)]
-                      (if tag-name
-                        (create-tag! tag-name)
-                        (create-tag!
-                          (rofi/rofi {:msg "New Tag Name?"}))))
-                    )})
-
-
-(defn awm-current-tags []
-  (all-workspaces)
-  )
-
-(comment)
 
