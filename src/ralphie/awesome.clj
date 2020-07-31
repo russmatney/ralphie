@@ -24,7 +24,7 @@
 (defn ->lua-arg [arg]
   (cond
     (string? arg)
-    (str arg)
+    (str "'" arg "'")
 
     (map? arg)
     (->> arg
@@ -47,8 +47,10 @@
        ")"))
 
 (comment
-  (awm-fn "awful.tag.add" "ralphie" {:screen "s"
-                                     :layout "awful.layout.suit.floating"}))
+  (awm-fn "awful.tag.add"
+          "ralphie"
+          {:screen "s"
+           :layout "awful.layout.suit.floating"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; create new tag
@@ -78,4 +80,3 @@
                         (create-tag! tag-name)
                         (create-tag!
                           (rofi/rofi {:msg "New Tag Name?"})))))})
-
