@@ -25,3 +25,6 @@
      (swap! command-registry assoc key# opts#)))
 
 (defn commands [] (vals @command-registry))
+
+(comment
+  (println "hi"))

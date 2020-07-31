@@ -7,7 +7,7 @@
 (defn open
   ([] (open nil))
   ([name]
-   (let [name (or name (:name (workspace/->workspace)))
+   (let [name (or name (:name (workspace/->current-workspace)))
          args ["emacsclient"
                "--no-wait"
                "--create-frame"

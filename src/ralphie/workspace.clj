@@ -4,7 +4,8 @@
    [ralphie.org :as org]
    [ralphie.rofi :as rofi]
    [ralphie.command :refer [defcom]]
-   [clojure.string :as string]))
+   [clojure.string :as string]
+   [clojure.java.shell :as sh]))
 
 (defn rename-handler
   "Updates a selected workspace with the passed name."
@@ -30,25 +31,23 @@
            {:org/item     org-wsp
             :i3/workspace (i3/workspace-for-name name)}))))
 
-(defn full-workspace
-  ([]
-   (full-workspace nil))
-  ([name]
-   (when-let [name (or name (-> (i3/current-workspace) :name))]
-     (some->> (all-workspaces)
-              (filter
-                #(some->>
-                   % :org/item :name
-                   (string/includes? name)))
-              first))))
+(defn current-workspace
+  []
+  (when-let [name (-> (i3/current-workspace) :name)]
+    (some->> (all-workspaces)
+             (filter
+               #(some->>
+                  % :org/item :name
+                  (string/includes? name)))
+             first)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; current workspace
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn ->workspace
+(defn ->current-workspace
   []
-  (let [full (full-workspace)]
+  (let [full (current-workspace)]
     (merge
       (-> full :org/item :props)
       {:name (-> full :org/item :name)})))
@@ -108,7 +107,7 @@
   (if name
     (i3/workspace-open? name)
     (let [apps (or apps [app])
-          name (or name (:name (->workspace)))]
+          name (or name (:name (->current-workspace)))]
       (i3/apps-open? name apps))))
 
 (comment
@@ -118,24 +117,70 @@
 ;; workspace scratchpads
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn scratchpad-pop-handler
+(defn i3-scratchpad-pop-handler
   [_config _parsed]
-  (let [workspace-name (-> (->workspace) :name)]
-    (i3/i3-msg! (str "[con_mark='" workspace-name "'] scratchpad show"))))
+  (let [workspace-name (-> (->current-workspace) :name)]
+    (i3/i3-msg! (str "[con_mark='" workspace-name "'] i3-scratchpad show"))))
 
-(defcom scratchpad-pop-cmd
-  {:name          "scratchpad-pop"
-   :one-line-desc "Shows the next scratchpad in the workspace."
-   :description   []
-   :handler       scratchpad-pop-handler})
+(defcom i3-scratchpad-pop-cmd
+  {:name           "i3-scratchpad-pop"
+   :one-line-desc  "Shows the next i3-scratchpad in the workspace."
+   :dei3-scription []
+   :handler        i3-scratchpad-pop-handler})
 
-(defn scratchpad-push-handler
+(defn i3-scratchpad-push-handler
   [_config _parsed]
-  (let [workspace-name (-> (->workspace) :name)]
-    (i3/i3-msg! (str "mark '" workspace-name "', move scratchpad"))))
+  (let [workspace-name (-> (->current-workspace) :name)]
+    (i3/i3-msg! (str "mark '" workspace-name "', move i3-scratchpad"))))
 
-(defcom scratchpad-push-cmd
-  {:name          "scratchpad-push"
-   :one-line-desc "Pushes the focused window to the workspace scratchpad."
+(defcom i3-scratchpad-push-cmd
+  {:name           "i3-scratchpad-push"
+   :one-line-desc  "Pushes the focused window to the workspace i3-scratchpad."
+   :dei3-scription []
+   :handler        i3-scratchpad-push-handler})
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; create new tag
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn awm-cli [cmd]
+
+  (sh/sh "awesome-client"
+         ;; wrap command?
+         cmd))
+
+;; TODO maybe later
+;; (defn awm-fn [fn args]}]
+;;   (-> (str fn
+;;            "(" fn " " (->> args
+;;                            (map ->lua-table-str)
+;;                            (map (partial conj " "))) ")")
+;;       awm-cli))
+
+(defn create-tag! [name]
+  (awm-cli
+    (str "awful.tag.add(" name ", {screen=(awful.screen.focused)})"))
+  ;; (awm-fn "awful.tag.add(" [name {:screen "(awful.screen.focused)"}]})
+  )
+
+
+(defcom awesome-create-tag
+  {:name          "awesome-create-tag"
+   :one-line-desc "Creates a new tag in your _Awesome_ Window Manager."
    :description   []
-   :handler       scratchpad-push-handler})
+   :handler       (fn [_ {:keys [arguments]}]
+                    (let [tag-name (some-> arguments first)]
+                      (if tag-name
+                        (create-tag! tag-name)
+                        (create-tag!
+                          (rofi/rofi {:msg "New Tag Name?"}))))
+                    )})
+
+
+(defn awm-current-tags []
+  (all-workspaces)
+  )
+
+(comment)
+
