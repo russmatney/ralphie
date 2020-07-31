@@ -9,6 +9,7 @@
 (ns ralphie.core
   (:require
    [ralphie.autojump]
+   [ralphie.awesome]
    [ralphie.cli :as cli]
    [ralphie.dates :as dates]
    [ralphie.doctor]

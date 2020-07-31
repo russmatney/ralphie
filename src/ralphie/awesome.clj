@@ -7,10 +7,12 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; create new tag
+;; awesome-client helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn awm-cli [cmd]
+(defn awm-cli
+  "Prefixes the passed lua code with common requires and local vars."
+  [cmd]
   (sh/sh "awesome-client"
          (->> ["local awful = require \"awful\";\n"
                "local inspect = require \"inspect\";\n"
@@ -36,7 +38,6 @@
   (->lua-arg "hello")
   (->lua-arg {:screen "s" :tag "yodo"}))
 
-;; TODO maybe later
 (defn awm-fn [fn & args]
   (str fn "("
        (->> args
@@ -46,7 +47,12 @@
        ")"))
 
 (comment
-  (awm-fn "awful.tag.add" "ralphie" {:screen "s"}))
+  (awm-fn "awful.tag.add" "ralphie" {:screen "s"
+                                     :layout "awful.layout.suit.floating"}))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; create new tag
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn awful-tag-add [tag-name]
   (awm-fn "awful.tag.add" tag-name))
@@ -57,11 +63,7 @@
     "function (t) return t.name end))"))
 
 (defn create-tag! [name]
-  (awm-cli (str (awful-tag-add name) "\n" (awful-return)))
-  ;; (awm-cli
-  ;;   (str "awful.tag.add(" name ", {screen=s});\n "))
-  ;; (awm-fn "awful.tag.add(" [name {:screen "(awful.screen.focused)"}]})
-  )
+  (awm-cli (str (awful-tag-add name) "\n" (awful-return))))
 
 (comment
   (create-tag! "ralphie"))
@@ -77,8 +79,3 @@
                         (create-tag!
                           (rofi/rofi {:msg "New Tag Name?"})))))})
 
-
-(defn awm-current-tags []
-  )
-
-(comment)
