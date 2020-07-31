@@ -80,3 +80,20 @@
                         (create-tag! tag-name)
                         (create-tag!
                           (rofi/rofi {:msg "New Tag Name?"})))))})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Delete current tag
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn delete-current-tag! []
+  (awm-cli "s.selected_tag:delete()"))
+
+(comment
+  (delete-current-tag!))
+
+(defcom awesome-delete-current-tag
+  {:name          "awesome-delete-current-tag"
+   :one-line-desc "Deletes the current focused tag."
+   :description
+   ["Deletes current tag if there are no clients exclusively attached."]
+   :handler       (fn [_ _] (delete-current-tag!))})
