@@ -54,37 +54,52 @@
            :layout "awful.layout.suit.floating"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; list awesome tags
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn awesome-tag-names []
+  (some->>
+    (awm-cli (str "return inspect(lume.map(awful.screen.focused().tags, "
+                  "function (t) return t.name end))"))
+    :out
+    (re-find #"\{ (.+) \}")
+    first
+    (drop 2)
+    reverse
+    (drop 2)
+    reverse
+    (apply str)
+    (#(string/replace % "\"" ""))
+    (#(string/split % #","))
+    (map string/trim)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; create new tag
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn awful-tag-add [tag-name]
   (awm-fn "awful.tag.add" tag-name))
 
-(defn awful-return []
-  (str
-    "return inspect(lume.map(awful.screen.focused().tags, "
-    "function (t) return t.name end))"))
-
 (defn create-tag! [name]
-  (awm-cli (str (awful-tag-add name) "\n" (awful-return))))
-
-(comment
-  (create-tag! "ralphie"))
+  (awm-cli (awful-tag-add name)))
 
 (defcom awesome-create-tag
   {:name          "awesome-create-tag"
    :one-line-desc "Creates a new tag in your _Awesome_ Window Manager."
    :description   []
-   :handler       (fn [_ {:keys [arguments]}]
-                    (let [tag-name (some-> arguments first)]
-                      (if tag-name
-                        (create-tag! tag-name)
-                        (create-tag!
-                          (rofi/rofi {:msg "New Tag Name?"}
-                                     (->>
-                                       (workspace/all-workspaces)
-                                       ;; TODO filter workspaces already open
-                                       (map (comp :name :org/item))))))))})
+   :handler
+   (fn [_ {:keys [arguments]}]
+     (let [tag-name (some-> arguments first)]
+       (if tag-name
+         (create-tag! tag-name)
+         (create-tag!
+           (let [existing (set (awesome-tag-names))]
+             (rofi/rofi {:msg "New Tag Name?"}
+                        (->>
+                          ;; TODO pull in repos.org
+                          (workspace/all-workspaces)
+                          (map (comp :name :org/item))
+                          (remove #(contains? existing %)))))))))})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Delete current tag
