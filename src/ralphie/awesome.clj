@@ -135,3 +135,18 @@
    :description   ["Initializes a set of tags (workspaces) for awesomeWM."
                    "Created to remove tag creation from awesome restarts."]
    :handler       init-tags-handler})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Reapply rules to all clients
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn reapply-rules-handler [_config _parsed]
+  (awm-cli "reapply_rules();"))
+
+(defcom reapply-rules-cmd
+  {:name          "reapply-rules"
+   :one-line-desc "Reapplies rules to all clients"
+   :description   ["Reapplies rules to clients."
+                   "When tags are re-created without metadata, clients get lost."
+                   "This should re-run the rules, so they get reattached."]
+   :handler reapply-rules-handler})
