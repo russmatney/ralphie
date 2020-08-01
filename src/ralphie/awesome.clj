@@ -18,6 +18,7 @@
                   "local inspect = require \"inspect\";\n"
                   "local lume = require \"lume\";\n"
                   "local s = awful.screen.focused();\n"
+                  "local lain = require \"lain\";\n"
                   cmd]
                  (apply str))]
     (println "sending to awesome" cmd)
@@ -81,11 +82,20 @@
 ;; create new tag
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn awful-tag-add [tag-name]
-  (awm-fn "awful.tag.add" tag-name))
+(defn awful-tag-add [& args]
+  (apply (partial awm-fn "awful.tag.add") args))
+
+
+(comment
+  (awful-tag-add
+    "ralphie"
+    {:screen "s"
+     :layout "awful.layout.suit.floating"}))
 
 (defn create-tag! [name]
-  (awm-cli (awful-tag-add name)))
+  (awm-cli (awful-tag-add name
+                          {:screen "s"
+                           :layout "lain.layout.centerwork"})))
 
 (defcom awesome-create-tag
   {:name          "awesome-create-tag"
@@ -93,17 +103,19 @@
    :description   []
    :handler
    (fn [_ {:keys [arguments]}]
-     (let [tag-name (some-> arguments first)]
-       (if tag-name
-         (create-tag! tag-name)
-         (create-tag!
-           (let [existing (set (awesome-tag-names))]
-             (rofi/rofi {:msg "New Tag Name?"}
-                        (->>
-                          ;; TODO pull in repos.org
-                          (workspace/all-workspaces)
-                          (map (comp :name :org/item))
-                          (remove #(contains? existing %)))))))))})
+     (if-let [tag-name (some-> arguments first)]
+       (create-tag! tag-name)
+
+       ;; no tag, get from rofi
+       (let [existing-tag-names (set (awesome-tag-names))]
+         (rofi/rofi
+           {:msg "New Tag Name?"}
+           (->>
+             ;; TODO pull in repos.org
+             (workspace/all-workspaces)
+             (map (comp :name :org/item))
+             (remove #(contains? existing-tag-names %))
+             create-tag!)))))})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Delete current tag
@@ -149,4 +161,34 @@
    :description   ["Reapplies rules to clients."
                    "When tags are re-created without metadata, clients get lost."
                    "This should re-run the rules, so they get reattached."]
-   :handler reapply-rules-handler})
+   :handler       reapply-rules-handler})
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Set tag laytou
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn set-layout
+  [layout]
+  (awm-cli (awm-fn "set_layout" layout)))
+
+
+(defn set-tag-layout-handler [_config parsed]
+  (let [layout (or (some-> parsed :arguments first)
+                   ;; TODO current tag fn to set name in this str?
+                   (rofi/rofi {:msg "Set current tag layout to:"}
+                              ["awful.layout.suit.tile"
+                               "awful.layout.suit.floating"
+                               "awful.layout.suit.fair"
+                               "awful.layout.suit.magnifier"
+                               "awful.layout.suit.spiral"
+                               "awful.layout.suit.spiral.dwindle"
+                               "lain.layouts.centerwork"
+                               "lain.layouts.centerwork.horizontal"]))]
+    (set-layout layout)))
+
+(defcom set-tag-layout-cmd
+  {:name          "set-tag-layout"
+   :one-line-desc "Sets the current tag's layout."
+   :description   ["Sets the current tag's layout."]
+   :handler       set-tag-layout-handler})
