@@ -14,13 +14,17 @@
 (defn awm-cli
   "Prefixes the passed lua code with common requires and local vars."
   [cmd]
-  (sh/sh "awesome-client"
-         (->> ["local awful = require \"awful\";\n"
-               "local inspect = require \"inspect\";\n"
-               "local lume = require \"lume\";\n"
-               "local s = awful.screen.focused();\n"
-               cmd]
-              (apply str))))
+  (let [cmd (->> ["local awful = require \"awful\";\n"
+                  "local inspect = require \"inspect\";\n"
+                  "local lume = require \"lume\";\n"
+                  "local s = awful.screen.focused();\n"
+                  cmd]
+                 (apply str))]
+    (println "sending to awesome" cmd)
+    (sh/sh "awesome-client" cmd)))
+
+(comment
+  (awm-cli "add_all_tags()"))
 
 (defn ->lua-arg [arg]
   (cond
@@ -117,3 +121,17 @@
    :description
    ["Deletes current tag if there are no clients exclusively attached."]
    :handler       (fn [_ _] (delete-current-tag!))})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Init tags
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn init-tags-handler [_config _parsed]
+  (awm-cli "add_all_tags();"))
+
+(defcom init-tags-cmd
+  {:name          "init-tags"
+   :one-line-desc "Initializes a set of tags (workspaces) for awesomeWM."
+   :description   ["Initializes a set of tags (workspaces) for awesomeWM."
+                   "Created to remove tag creation from awesome restarts."]
+   :handler       init-tags-handler})
