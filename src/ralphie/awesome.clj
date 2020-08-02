@@ -3,6 +3,9 @@
    [ralphie.rofi :as rofi]
    [ralphie.workspace :as workspace]
    [ralphie.command :refer [defcom]]
+   [ralphie.config :as config]
+   [ralphie.item :as item]
+   [org-crud.core :as org-crud]
    [clojure.string :as string]
    [clojure.java.shell :as sh]))
 
@@ -170,7 +173,10 @@
 
 (defn set-layout
   [layout]
-  (awm-cli (awm-fn "set_layout" layout)))
+  (awm-cli (str "set_layout(" layout ");")))
+
+(comment
+  (set-layout "awful.layout.suit.fair"))
 
 
 (defn set-tag-layout-handler [_config parsed]
@@ -192,3 +198,35 @@
    :one-line-desc "Sets the current tag's layout."
    :description   ["Sets the current tag's layout."]
    :handler       set-tag-layout-handler})
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Awesome init
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn build-config [conf-org]
+  (let [awesome-tags
+        (item/->level-1-list conf-org item/awesome-tag-parent?)]
+    (assoc conf-org
+           :tag-names (map :name awesome-tags))
+    ))
+
+(defn init-handler
+  "Initializes awesome's configuration process.
+
+  The parsed config is handed into all init_helpers."
+  [_config _parsed]
+  (->>
+    (config/awesome-config-org-path)
+    org-crud/path->nested-item
+    build-config
+    (awm-fn "init")
+    ;; awm-cli
+    ))
+
+(defcom init-cmd
+  {:name          "init"
+   :one-line-desc "Initializes your awesome config"
+   :description   ["Initializes your awesome config."
+                   "Reads awesome config from a `config.org` file"]
+   :handler       init-handler})
