@@ -5,6 +5,7 @@
    [ralphie.rofi :as rofi]
    [ralphie.config :as config]
    [ralphie.clipboard :as clipboard]
+   [ralphie.re :as re]
    [ralphie.command :refer [defcom]]
    [clojure.java.shell :as sh]))
 
@@ -12,8 +13,8 @@
 ;; transforms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn repo->rofi-x [{:keys [repo-id description] :as repo}]
-  (assoc repo :label (str repo-id " | " description)))
+(defn repo->rofi-x [{:keys [repo-id language description] :as repo}]
+  (assoc repo :label (str repo-id " | " language " | " description)))
 
 (defn star->repo [star]
   (let [owner     (get-in star ["owner" "login"])
@@ -56,7 +57,11 @@
        (map star->repo)
        (map repo->rofi-x)
        (concat (->> (clipboard/values)
-                    (map (fn [v] {:label v}))))
+                    (map (fn [v]
+                           (when-let [repo-id (re/url->repo-id v)]
+                             {:repo-id repo-id
+                              :label   repo-id})))
+                    (filter :repo-id)))
        (rofi/rofi {:message   "Select repo to clone"
                    :on-select clone})))
 
