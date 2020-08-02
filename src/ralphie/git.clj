@@ -4,6 +4,7 @@
    [ralphie.tmux :as tmux]
    [ralphie.rofi :as rofi]
    [ralphie.config :as config]
+   [ralphie.clipboard :as clipboard]
    [ralphie.command :refer [defcom]]
    [clojure.java.shell :as sh]))
 
@@ -54,6 +55,8 @@
   (->> (fetch-stars)
        (map star->repo)
        (map repo->rofi-x)
+       (concat (->> (clipboard/values)
+                    (map (fn [v] {:label v}))))
        (rofi/rofi {:message   "Select repo to clone"
                    :on-select clone})))
 
