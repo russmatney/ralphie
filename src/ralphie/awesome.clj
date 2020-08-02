@@ -245,8 +245,11 @@
      org-crud/path->nested-item
      build-config
      (awm-fn "init")
-     awm-cli
-     )))
+     awm-cli)
+
+   ;; pause? wait for all-clear?
+   (awm-cli "reapply_rules();")
+   ))
 
 (comment
   (init-awesome)
