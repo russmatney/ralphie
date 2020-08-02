@@ -5,12 +5,12 @@
   (-> item
       :props
       :child-tag
-      (= "awesome-tag")))
+      (= "awesometag")))
 
 
 (defn ->level-1-list [root-item pred]
-  (some-> root-item
-          :items
-          (filter pred)
-          first
-          :items))
+  (some->> root-item
+           :items
+           (filter pred)
+           first
+           :items))

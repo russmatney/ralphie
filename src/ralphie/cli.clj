@@ -39,6 +39,7 @@
       (doctor/checkup-handler config args))
 
     (when-not command
+      (println "404! Command not found.")
       (help/help-handler config passed-args))
 
     (command/call-handler command config args)))

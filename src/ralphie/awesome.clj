@@ -9,6 +9,7 @@
    [clojure.string :as string]
    [clojure.java.shell :as sh]))
 
+(declare init-awesome)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; awesome-client helpers
@@ -30,15 +31,28 @@
 (comment
   (awm-cli "add_all_tags()"))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; converts a clojure map to a lua table
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; TODO needs an escape/no quote signal of some kind
+;; metadata?
 (defn ->lua-arg [arg]
   (cond
     (string? arg)
-    (str "'" arg "'")
+    (str "\"" arg "\"")
 
     (map? arg)
     (->> arg
          (map (fn [[k v]]
-                (str (name k) "= " v)))
+                (str (name k) " = " (->lua-arg v))))
+         (string/join ",")
+         (#(str "{" % "}")))
+
+    (coll? arg)
+    (->> arg
+         (map (fn [x]
+                (->lua-arg x)))
          (string/join ",")
          (#(str "{" % "}")))))
 
@@ -47,7 +61,14 @@
   (->lua-arg "hello")
   (->lua-arg {:screen "s" :tag "yodo"}))
 
+
+(defonce --init-args (atom nil))
+
 (defn awm-fn [fn & args]
+  (cond
+    (= fn "init")
+    (reset! --init-args args))
+
   (str fn "("
        (->> args
             (map ->lua-arg)
@@ -56,6 +77,10 @@
        ")"))
 
 (comment
+
+  (init-awesome)
+  @--init-args
+
   (awm-fn "awful.tag.add"
           "ralphie"
           {:screen "s"
@@ -199,7 +224,6 @@
    :description   ["Sets the current tag's layout."]
    :handler       set-tag-layout-handler})
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Awesome init
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -207,26 +231,30 @@
 (defn build-config [conf-org]
   (let [awesome-tags
         (item/->level-1-list conf-org item/awesome-tag-parent?)]
-    (assoc conf-org
-           :tag-names (map :name awesome-tags))
-    ))
+    (println awesome-tags)
+    {:tag_names (seq (map :name awesome-tags))}))
 
-(defn init-handler
+(defn init-awesome
   "Initializes awesome's configuration process.
 
   The parsed config is handed into all init_helpers."
-  [_config _parsed]
-  (->>
-    (config/awesome-config-org-path)
-    org-crud/path->nested-item
-    build-config
-    (awm-fn "init")
-    ;; awm-cli
-    ))
+  ([] (init-awesome nil nil))
+  ([_config _parsed]
+   (->>
+     (config/awesome-config-org-path)
+     org-crud/path->nested-item
+     build-config
+     (awm-fn "init")
+     awm-cli
+     )))
+
+(comment
+  (init-awesome)
+  )
 
 (defcom init-cmd
-  {:name          "init"
+  {:name          "awesome-init"
    :one-line-desc "Initializes your awesome config"
    :description   ["Initializes your awesome config."
                    "Reads awesome config from a `config.org` file"]
-   :handler       init-handler})
+   :handler       init-awesome})

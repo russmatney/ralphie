@@ -18,6 +18,7 @@
    [ralphie.git]
    [ralphie.help]
    [ralphie.install]
+   [ralphie.item]
    [ralphie.monitor]
    [ralphie.notes]
    [ralphie.picom]
