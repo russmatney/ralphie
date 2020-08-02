@@ -5,6 +5,7 @@
    [ralphie.command :refer [defcom]]
    [ralphie.config :as config]
    [ralphie.item :as item]
+   [clojure.pprint]
    [org-crud.core :as org-crud]
    [clojure.string :as string]
    [clojure.java.shell :as sh]))
@@ -25,7 +26,7 @@
                   "local lain = require \"lain\";\n"
                   cmd]
                  (apply str))]
-    (println "sending to awesome" cmd)
+    (clojure.pprint/pprint "<awesome-client INPUT>" cmd)
     (sh/sh "awesome-client" cmd)))
 
 (comment
@@ -163,20 +164,6 @@
    :handler       (fn [_ _] (delete-current-tag!))})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Init tags
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn init-tags-handler [_config _parsed]
-  (awm-cli "add_all_tags();"))
-
-(defcom init-tags-cmd
-  {:name          "init-tags"
-   :one-line-desc "Initializes a set of tags (workspaces) for awesomeWM."
-   :description   ["Initializes a set of tags (workspaces) for awesomeWM."
-                   "Created to remove tag creation from awesome restarts."]
-   :handler       init-tags-handler})
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Reapply rules to all clients
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -225,14 +212,13 @@
    :handler       set-tag-layout-handler})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Awesome init
+;; Awesome Global Init
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn build-config [conf-org]
   (let [awesome-tags
         (item/->level-1-list conf-org item/awesome-tag-parent?)]
-    (println awesome-tags)
-    {:tag_names (seq (map :name awesome-tags))}))
+    {:tag-names (seq (map :name awesome-tags))}))
 
 (defn init-awesome
   "Initializes awesome's configuration process.
@@ -261,3 +247,28 @@
    :description   ["Initializes your awesome config."
                    "Reads awesome config from a `config.org` file"]
    :handler       init-awesome})
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Init Tags
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn init-tags
+  ([] (init-tags nil nil))
+  ([_config _parsed]
+   (->>
+     (config/awesome-config-org-path)
+     org-crud/path->nested-item
+     build-config
+     (awm-fn "init_tags")
+     awm-cli)))
+
+(comment
+  (init-tags))
+
+(defcom init-tags-cmd
+  {:name          "init-tags"
+   :one-line-desc "Recreates the current AwesomeWM tags"
+   :description   ["Recreates the current AwesomeWM tags."
+                   "Pulls the latest from your `config.org`"]
+   :handler       init-tags})
