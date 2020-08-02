@@ -10,7 +10,7 @@
    [clojure.string :as string]
    [clojure.java.shell :as sh]))
 
-(declare init-awesome)
+(declare init-awesome set-layout)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; awesome-client helpers
@@ -19,18 +19,20 @@
 (defn awm-cli
   "Prefixes the passed lua code with common requires and local vars."
   [cmd]
-  (let [cmd (->> ["local awful = require \"awful\";\n"
-                  "local inspect = require \"inspect\";\n"
-                  "local lume = require \"lume\";\n"
-                  "local s = awful.screen.focused();\n"
-                  "local lain = require \"lain\";\n"
-                  cmd]
-                 (apply str))]
-    (clojure.pprint/pprint "<awesome-client INPUT>" cmd)
-    (sh/sh "awesome-client" cmd)))
+  (let [full-cmd (->> ["local awful = require \"awful\";\n"
+                       "local inspect = require \"inspect\";\n"
+                       "local lume = require \"lume\";\n"
+                       "local s = awful.screen.focused();\n"
+                       "local lain = require \"lain\";\n"
+                       cmd]
+                      (apply str))]
+    (clojure.pprint/pprint "<awesome-client INPUT>")
+    (clojure.pprint/pprint (string/split-lines full-cmd))
+    (sh/sh "awesome-client" full-cmd)))
 
 (comment
-  (awm-cli "add_all_tags()"))
+  (awm-cli "add_all_tags()")
+  (set-layout "awful.layout.suit.fair"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; converts a clojure map to a lua table
@@ -62,13 +64,12 @@
   (->lua-arg "hello")
   (->lua-arg {:screen "s" :tag "yodo"}))
 
-
-(defonce --init-args (atom nil))
+;; (defonce --init-args (atom nil))
 
 (defn awm-fn [fn & args]
-  (cond
-    (= fn "init")
-    (reset! --init-args args))
+  ;; (cond
+  ;;   (= fn "init")
+  ;;   (reset! --init-args args))
 
   (str fn "("
        (->> args
@@ -78,9 +79,8 @@
        ")"))
 
 (comment
-
   (init-awesome)
-  @--init-args
+  ;; @--init-args
 
   (awm-fn "awful.tag.add"
           "ralphie"
@@ -188,8 +188,8 @@
   (awm-cli (str "set_layout(" layout ");")))
 
 (comment
+  (println "hi")
   (set-layout "awful.layout.suit.fair"))
-
 
 (defn set-tag-layout-handler [_config parsed]
   (let [layout (or (some-> parsed :arguments first)
