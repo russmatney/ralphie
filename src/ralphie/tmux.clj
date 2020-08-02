@@ -8,10 +8,45 @@
   (str workspace-name "-fire"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Tmux create background
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn has-session? [name]
+  (->
+    (sh/sh "tmux" "has-session" "-t" name)
+    :exit
+    (= 0)))
+
+(comment
+  (has-session? "new"))
+
+(defn new-session [{:keys [name dir]}]
+  (when name
+    (->>
+      ["tmux" "new-session"
+       "-d" ;; do not attach
+       "-c" (if dir dir "~") ;; set working dir
+       "-s" name ;; session name
+       "-n" name ;; window name
+       ]
+      (apply sh/sh))))
+
+(defn create-background-session
+  "Creates a tmux session in the background."
+  [{:keys [name] :as opts}]
+  (if (has-session? name)
+    (println (str "Found session " name "."))
+    (new-session opts)))
+
+(comment
+  (create-background-session {:name "mysess"}))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; New window
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn open-session
+  "Creates a session in a new alacritty window."
   ([] (open-session {:name "ralphie-fallback" :directory "~/."}))
   ([{:keys [name directory]}]
    (let [args ["tmux" "-c"
@@ -25,16 +60,6 @@
 (comment
   (open-session {:name "yodo"}))
 
-(defn ensure-sessions [{:keys [name]}]
-  (when-not name
-    (println "no workspace name provided" name))
-  (when name
-    (let [args ["tmux" "new-session" "-s" (->fire-session-name name)]]
-      (apply sh/sh args))
-
-    (let [args ["tmux" "new-session" "-s" name]]
-      (apply sh/sh args))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fire command
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -44,19 +69,19 @@
   Defaults to firing into a 'tmux' workspace, which results in the
   'tmux-fire' session."
   ([cmd-str]
-   (fire cmd-str {:workspace {:name "tmux"}}))
+   (fire cmd-str {:session "ralphie-fallback"}))
   ([cmd-str opts]
-   (let [name (:name (:workspace opts))]
-     (ensure-sessions (:workspace opts))
+   (let [name (:session opts)]
+     (create-background-session {:name name})
      (println "sessions created?")
      (sh/sh "tmux" "send-keys"
-            ;; "-t"  (->fire-session-name name)
-            "-t"  name
+            "-t"  (str name ".0")
+            ;; "-t"  name
             cmd-str
             "C-m"))))
 
 (comment
-  (fire "echo sup" {:workspace {:name "ralphie"}}))
+  (fire "echo sup" {:session "ralphie"}))
 
 (defn fire-handler [_config parsed]
   (let [cmd (or (some-> parsed :arguments first)

@@ -4,7 +4,7 @@
    [ralphie.tmux :as tmux]))
 
 (defn update-doom-handler [_config _parsed]
-  (tmux/fire "doom sync && doom build" {:workspace "dotfiles"}))
+  (tmux/fire "doom sync && doom build"))
 
 (defcom update-doom-cmd
   {:name          "update-doom"

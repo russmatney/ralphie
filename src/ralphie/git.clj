@@ -4,7 +4,8 @@
    [ralphie.tmux :as tmux]
    [ralphie.rofi :as rofi]
    [ralphie.config :as config]
-   [ralphie.command :refer [defcom]]))
+   [ralphie.command :refer [defcom]]
+   [clojure.java.shell :as sh]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; transforms
@@ -44,8 +45,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn clone [{:keys [repo-id]}]
-  (-> (str "hub clone " repo-id " " (str (config/home-dir) "/" repo-id))
-      (tmux/fire {:workspace "dotfiles"})))
+  (->> (str "hub clone " repo-id " " (str (config/home-dir) "/" repo-id))
+       tmux/fire
+       str
+       (sh/sh "notify-send" "Clone attempt")))
 
 (defn clone-from-stars []
   (->> (fetch-stars)
@@ -63,10 +66,9 @@
 
 (defn clone-handler
   [_config parsed]
-  (let [repo-id (first (:arguments parsed))]
-    (if repo-id
-      (clone {:repo-id repo-id})
-      (clone-from-stars))))
+  (if-let [repo-id (some-> parsed :arguments first)]
+    (clone {:repo-id repo-id})
+    (clone-from-stars)))
 
 (defcom clone-cmd
   {:name          "clone"
