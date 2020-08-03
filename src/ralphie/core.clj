@@ -15,6 +15,7 @@
    [ralphie.doctor]
    [ralphie.emacs]
    [ralphie.deps]
+   [ralphie.focus]
    [ralphie.git]
    [ralphie.help]
    [ralphie.install]
@@ -53,7 +54,7 @@
                (rest args)
                args)]
     (debug-log args)
-    (println "\nNew Log running: " (dates/now))
+    ;; (println "\nNew Log running: " (dates/now))
 
     (apply cli/run args)))
 
