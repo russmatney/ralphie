@@ -18,7 +18,9 @@
           (list)
           [(config/repos-file)
            (config/projects-file)
-           (config/goals-file)]))
+           (config/goals-file)
+           (config/today-file)
+           ]))
 
 (defn focuses []
   (->> (parse-current-todos)

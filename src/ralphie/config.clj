@@ -19,6 +19,7 @@
 (defn repos-file [] (str (org-dir) "/repos.org"))
 (defn projects-file [] (str (org-dir) "/projects.org"))
 (defn goals-file [] (str (org-dir) "/goals.org"))
+(defn today-file [] (str (org-dir) "/today.org"))
 (defn focus-file [] (str (org-dir) "/focus.json"))
 
 (defn notes-dir [] (expand "~/Dropbox/notes"))

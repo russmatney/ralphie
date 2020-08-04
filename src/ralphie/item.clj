@@ -34,6 +34,9 @@
 (defn awesome-tag-parent? [item]
   (has-prop? item :child-tag "awesometag"))
 
+(defn watching? [item]
+  (has-prop? item :watching))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parse Helper
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
