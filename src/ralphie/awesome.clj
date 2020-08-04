@@ -38,18 +38,26 @@
 ;; converts a clojure map to a lua table
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; TODO needs an escape/no quote signal of some kind
-;; metadata?
+(defn ->snake-case [s]
+  (string/replace s "-" "_"))
+
+;; TODO needs an escape/no quote signal of some kind for literals
+;; eg. `awful.layout.suit.fair`
+;; maybe clj metadata?
 (defn ->lua-arg [arg]
   (cond
-    (string? arg)
+    (or (string? arg)
+        (keyword? arg))
     (str "\"" arg "\"")
+
+    (int? arg)
+    arg
 
     (map? arg)
     (->> arg
          (map (fn [[k v]]
-                (str (name k) " = " (->lua-arg v))))
-         (string/join ",")
+                (str "\n" (->snake-case (name k)) " = " (->lua-arg v))))
+         (string/join ", ")
          (#(str "{" % "}")))
 
     (coll? arg)
@@ -62,10 +70,11 @@
 (comment
   (string? "hello")
   (->lua-arg "hello")
+  (->lua-arg {:level 1 :status :status/done})
+  (->lua-arg {:fix-keyword 1})
   (->lua-arg {:screen "s" :tag "yodo"}))
 
 ;; (defonce --init-args (atom nil))
-
 (defn awm-fn [fn & args]
   ;; (cond
   ;;   (= fn "init")
@@ -210,6 +219,21 @@
    :one-line-desc "Sets the current tag's layout."
    :description   ["Sets the current tag's layout."]
    :handler       set-tag-layout-handler})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Set tag laytou
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn update-focus-widget
+  [item]
+  (println item)
+  (println (awm-fn "update_focus_widget" item))
+  (->> item
+       (awm-fn "update_focus_widget")
+       awm-cli))
+
+(comment
+  (update-focus-widget {:name "yall be focused, ya hear!" :bad-key "key"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Awesome Global Init

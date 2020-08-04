@@ -4,8 +4,8 @@
    [ralphie.rofi :as rofi]
    [ralphie.item :as item]
    [ralphie.config :as config]
-   [org-crud.core :as org-crud]
-   [cheshire.core :as json]))
+   [ralphie.awesome :as awm]
+   [org-crud.core :as org-crud]))
 
 (defn parse-current-todos []
   (reduce (fn [todos path]
@@ -22,31 +22,35 @@
 
 (defn focuses []
   (->> (parse-current-todos)
-       (filter item/focused-at)))
+       (filter item/focused-at)
+       ;; not yet a true date comparison
+       (sort-by (comp :focused-at :props))
+       (reverse)))
 
 (comment
   (count (focuses)))
 
-(defn focus-handler
-  ([] (focus-handler nil nil))
+(defn set-focus-handler
+  ([] (set-focus-handler nil nil))
   ([_config parsed]
    (cond
-     (some-> parsed :arguments first (= "update-json"))
-     (->> (focuses)
-          first
-          ((fn [focus]
-             {:latest_focus focus}))
-          cheshire.core/encode
-          (spit (config/focus-file)))
+     (some-> parsed :arguments first (= "first"))
+     ;; used to let the awesome focus widget request an update
+     (-> (focuses)
+         first
+         awm/update-focus-widget)
 
      :else
+     ;; interactive selection of current focus
      (->> (focuses)
           (map (fn [it]
                  (assoc it :label (:name it))))
-          (rofi/rofi {:msg "Focuses"})))))
+          (rofi/rofi {:msg "Focuses"})
+          ;; TODO write 'focused-at' date-time back to org
+          awm/update-focus-widget))))
 
-(defcom focus-cmd
-  {:name          "focus"
+(defcom set-focus-cmd
+  {:name          "set-focus"
    :one-line-desc "Returns your current focused todos"
    :description   ["Supports a json parameter: `ralphie focus json`."]
-   :handler       focus-handler})
+   :handler       set-focus-handler})
