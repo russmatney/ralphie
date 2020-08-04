@@ -24,6 +24,7 @@
    [ralphie.notes]
    [ralphie.picom]
    [ralphie.readme]
+   [ralphie.repos]
    [ralphie.rofi]
    [ralphie.screenshot]
    [ralphie.story]
