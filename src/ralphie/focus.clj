@@ -19,8 +19,7 @@
           [(config/repos-file)
            (config/projects-file)
            (config/goals-file)
-           (config/today-file)
-           ]))
+           (config/today-file)]))
 
 (defn focuses []
   (->> (parse-current-todos)
@@ -45,11 +44,16 @@
      :else
      ;; interactive selection of current focus
      (->> (focuses)
-          (map (fn [it]
-                 (assoc it :label (:name it))))
+          (map item/->rofi-item)
           (rofi/rofi {:msg "Focuses"})
           ;; TODO write 'focused-at' date-time back to org
           awm/update-focus-widget))))
+
+(comment
+  (->> (focuses)
+       (map item/->rofi-item)
+       (rofi/rofi {:msg "Focuses"})))
+
 
 (defcom set-focus-cmd
   {:name          "set-focus"

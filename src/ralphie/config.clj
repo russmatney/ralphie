@@ -20,7 +20,16 @@
 (defn projects-file [] (str (org-dir) "/projects.org"))
 (defn goals-file [] (str (org-dir) "/goals.org"))
 (defn today-file [] (str (org-dir) "/today.org"))
-(defn focus-file [] (str (org-dir) "/focus.json"))
+(defn journal-file [] (str (org-dir) "/journal.org"))
+(defn screenshots-file [] (str (org-dir) "/screenshots.org"))
+
+(defn item-paths []
+  [(repos-file)
+   (projects-file)
+   (goals-file)
+   (today-file)
+   (journal-file)
+   (screenshots-file)])
 
 (defn notes-dir [] (expand "~/Dropbox/notes"))
 (defn blog-notes-dir []

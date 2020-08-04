@@ -20,6 +20,7 @@
    [ralphie.help]
    [ralphie.install]
    [ralphie.item]
+   [ralphie.items]
    [ralphie.monitor]
    [ralphie.notes]
    [ralphie.picom]

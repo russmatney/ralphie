@@ -29,6 +29,7 @@
          ;; TODO remove ralphie/sh dep
          (sh/sh "rofi" "-i"
                 (if require-match? "-no-custom" "")
+                "-markup-rows"
                 "-dmenu" "-mesg" msg "-sync" "-p" "*"
                 :in (string/join "\n" labels))
 
@@ -78,9 +79,14 @@
   (->> config
        :commands
        (filter (comp seq :name))
-       (map #(assoc % :label (str (:name %) " \t "
-                                  (:one-line-desc %) " | "
-                                  (string/join " " (:description %)))))))
+       (map #(assoc % :label
+                    ;; TODO command icons
+                    (str
+                      "<span >" (:name %) " </span> "
+                      "<span color='gray'>" (:one-line-desc %) "</span> "
+                      "<span>"
+                      (string/join " " (:description %))
+                      "</span>")))))
 
 (defn rofi-handler
   "Returns the selected xs if there is no handler."

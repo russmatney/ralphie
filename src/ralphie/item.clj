@@ -52,4 +52,38 @@
 ;; Item data
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(def props :props)
+
 (defn path [item] (-> item :props :path))
+
+(defn ->rofi-item
+  "Preps an item for rofi display.
+
+  (rofi/rofi {:msg \"Items list\"} (->> items (map ->rofi-item)))
+  "
+  [{:keys [name tags] :as item}]
+  (-> item
+      (assoc :label
+             (str name
+                  (when (seq tags)
+                    (str " <span color='gray'>" tags "</span>"))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Dates
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn latest-date
+  [item]
+  (some-> item :props
+          ((fn [ps]
+             (or
+               (:created-at ps)
+               (:updated-at ps)
+               (:started-at ps)
+               (:finished-at ps)
+               (:seen-at ps))))))
+
+(comment
+  (latest-date {:props {:created-at "hi"}})
+  )
+
