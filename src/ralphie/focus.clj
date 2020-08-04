@@ -47,7 +47,9 @@
           (map item/->rofi-item)
           (rofi/rofi {:msg "Focuses"})
           ;; TODO write 'focused-at' date-time back to org
-          awm/update-focus-widget))))
+          (#(dissoc % :label))
+          awm/update-focus-widget)
+     )))
 
 (comment
   (->> (focuses)
