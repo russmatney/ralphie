@@ -41,11 +41,22 @@
 (defn ->snake-case [s]
   (string/replace s "-" "_"))
 
+(defn ->lua-key [s]
+  (-> s
+      (string/replace "-" "_")
+      (string/replace "?" "")))
+
 ;; TODO needs an escape/no quote signal of some kind for literals
 ;; eg. `awful.layout.suit.fair`
 ;; maybe clj metadata?
 (defn ->lua-arg [arg]
   (cond
+    (nil? arg)
+    "nil"
+
+    (boolean? arg)
+    (str arg)
+
     (or (string? arg)
         (keyword? arg))
     (str "\"" arg "\"")
@@ -56,22 +67,25 @@
     (map? arg)
     (->> arg
          (map (fn [[k v]]
-                (str "\n" (->snake-case (name k)) " = " (->lua-arg v))))
+                (str "\n" (->lua-key (name k)) " = " (->lua-arg v))))
          (string/join ", ")
-         (#(str "{" % "}")))
+         (#(str "{" % "} \n")))
 
     (coll? arg)
     (->> arg
          (map (fn [x]
                 (->lua-arg x)))
          (string/join ",")
-         (#(str "{" % "}")))))
+         (#(str "{" % "} \n")))))
 
 (comment
   (string? "hello")
   (->lua-arg "hello")
   (->lua-arg {:level 1 :status :status/done})
   (->lua-arg {:fix-keyword 1})
+  ;; drop question marks
+  (->lua-arg {:clean? nil})
+  (->lua-arg {:clean? false})
   (->lua-arg {:screen "s" :tag "yodo"}))
 
 ;; (defonce --init-args (atom nil))

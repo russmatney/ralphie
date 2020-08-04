@@ -67,12 +67,12 @@
 (defn update-repos-handler
   ([] (update-repos-handler nil nil))
   ([_config _parsed]
-   (-> (dirty-repos)
-       ;; awm/update-dirty-repos-widget
-       )))
+   (->> (dirty-repos)
+        (awm/awm-fn "update_repos_widget")
+        awm/awm-cli)))
 
 (defcom update-repos-cmd
-  {:name          "update-repos"
+  {:name          "update-dirty-repos"
    :one-line-desc "Updates the dirty repos used by misc widgets."
    :handler       update-repos-handler})
 
