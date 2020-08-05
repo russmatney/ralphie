@@ -21,6 +21,7 @@
 (defn goals-file [] (str (org-dir) "/goals.org"))
 (defn today-file [] (str (org-dir) "/today.org"))
 (defn journal-file [] (str (org-dir) "/journal.org"))
+(defn prompts-file [] (str (org-dir) "/prompts.org"))
 (defn screenshots-file [] (str (org-dir) "/screenshots.org"))
 
 (defn item-paths []
@@ -29,6 +30,7 @@
    (goals-file)
    (today-file)
    (journal-file)
+   (prompts-file)
    (screenshots-file)])
 
 (defn notes-dir [] (expand "~/Dropbox/notes"))
