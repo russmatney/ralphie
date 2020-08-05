@@ -3,7 +3,6 @@
    "cd" "/home/russ/russmatney/ralphie"
    "exec" "bb" "--classpath" "$(clojure -Spath)" "-m" "ralphie.core" "$@"
    )
-
 ;; TODO un-hardcode the dirname
 
 (ns ralphie.core
@@ -11,7 +10,7 @@
    [ralphie.autojump]
    [ralphie.awesome]
    [ralphie.cli :as cli]
-   [ralphie.dates :as dates]
+   [ralphie.dates]
    [ralphie.doctor]
    [ralphie.emacs]
    [ralphie.deps]
@@ -24,6 +23,7 @@
    [ralphie.monitor]
    [ralphie.notes]
    [ralphie.picom]
+   [ralphie.pomodoro]
    [ralphie.prompts]
    [ralphie.readme]
    [ralphie.repos]

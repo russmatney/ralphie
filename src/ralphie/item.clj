@@ -1,4 +1,7 @@
-(ns ralphie.item)
+(ns ralphie.item
+  (:require
+   [org-crud.core :as org-crud]
+   [ralphie.config :as config]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helpers
@@ -84,6 +87,23 @@
                (:seen-at ps))))))
 
 (comment
+
+  (->>
+    (reduce
+      (fn [items path]
+        (apply conj
+               items
+               (org-crud/path->flattened-items path)))
+      (list)
+      [
+       ;; (config/repos-file)
+       ;; (config/projects-file)
+       ;; (config/goals-file)
+       (config/journal-file)
+       ])
+    first
+    )
+
   (latest-date {:props {:created-at "hi"}})
   )
 
