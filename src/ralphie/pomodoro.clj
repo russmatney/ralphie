@@ -1,12 +1,16 @@
 (ns ralphie.pomodoro
   (:require
    [ralphie.command :refer [defcom]]
-   [ralphie.rofi :as rofi]
    [ralphie.awesome :as awm]))
 
-(defn update-pomodoro-widget [str]
-  (->> (awm/awm-fn "update_pomodoro_widget" str)
+(defn update-pomodoro-widget [msg]
+  (->> msg
+       (awm/awm-fn "update_pomodoro_widget")
        awm/awm-cli))
+
+(comment
+  (update-pomodoro-widget {:label "label"
+                           :value "value"}))
 
 (defn update-pomodoro-widget-handler
   ([] (update-pomodoro-widget-handler nil nil))
