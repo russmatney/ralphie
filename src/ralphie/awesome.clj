@@ -31,6 +31,8 @@
     (sh/sh "awesome-client" full-cmd)))
 
 (comment
+  (println "hello")
+  (awm-cli "print('hello')")
   (awm-cli "add_all_tags()")
   (set-layout "awful.layout.suit.fair"))
 
@@ -102,6 +104,10 @@
        ")"))
 
 (comment
+  (awm-cli
+    (str
+      "return print(" (awm-fn "inspect" {:hello "world"}) ");"))
+
   (init-awesome)
   ;; @--init-args
 

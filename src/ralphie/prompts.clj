@@ -5,6 +5,7 @@
    [ralphie.rofi :as rofi]
    [ralphie.command :refer [defcom]]
    [org-crud.create :as org-crud.create]
+   [clojure.string :as string]
    [org-crud.core :as org-crud]))
 
 (defn items
@@ -15,7 +16,9 @@
 
 (comment
   (->> (items)
-       first)
+       (filter #(string/includes? % "triage"))
+       (map :name)
+       )
   (count (items)))
 
 (defn new-prompt-handler

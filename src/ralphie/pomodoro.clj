@@ -2,30 +2,19 @@
   (:require
    [ralphie.command :refer [defcom]]
    [ralphie.rofi :as rofi]
-   [ralphie.item :as item]
-   [ralphie.config :as config]
-   [ralphie.awesome :as awm]
-   [ralphie.items :as items]
-   [org-crud.core :as org-crud]))
+   [ralphie.awesome :as awm]))
 
-(defn pomodoro-minutes []
-  ;; TODO find minutes since first timestamp after last 15+ minute gap
-  (->>
-    (items/recent-items)
-    )
-  12)
-
-(comment
-  (pomodoro-minutes))
+(defn update-pomodoro-widget [str]
+  (->> (awm/awm-fn "update_pomodoro_widget" str)
+       awm/awm-cli))
 
 (defn update-pomodoro-widget-handler
   ([] (update-pomodoro-widget-handler nil nil))
-  ([_config _parsed]
-   (->> (pomodoro-minutes)
-        ((fn [mins] (str mins " mins")))
-        (awm/awm-fn "update_pomodoro_widget")
-        awm/awm-cli)
-   ))
+  ([_config parsed]
+   (some-> parsed
+           :arguments
+           first
+           update-pomodoro-widget)))
 
 (defcom update-pomodoro-widget-cmd
   {:name          "update-pomodoro-widget"
