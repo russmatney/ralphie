@@ -1,7 +1,9 @@
 (ns ralphie.pomodoro
   (:require
    [ralphie.command :refer [defcom]]
-   [ralphie.awesome :as awm]))
+   [ralphie.awesome :as awm]
+   [ralphie.config :as config]
+   [clojure.java.shell :as sh]))
 
 (defn update-pomodoro-widget [msg]
   (->> msg
@@ -13,12 +15,9 @@
                            :value "value"}))
 
 (defn update-pomodoro-widget-handler
-  ([] (update-pomodoro-widget-handler nil nil))
-  ([_config parsed]
-   (some-> parsed
-           :arguments
-           first
-           update-pomodoro-widget)))
+  [_config _parsed]
+  ;; wip does nothing for now
+  (sh/sh "echo" "\n\n" :out (config/pomodoros-file)))
 
 (defcom update-pomodoro-widget-cmd
   {:name          "update-pomodoro-widget"

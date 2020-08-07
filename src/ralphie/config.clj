@@ -22,6 +22,7 @@
 (defn today-file [] (str (org-dir) "/today.org"))
 (defn journal-file [] (str (org-dir) "/journal.org"))
 (defn prompts-file [] (str (org-dir) "/prompts.org"))
+(defn pomodoros-file [] (str (org-dir) "/pomodoros.org"))
 (defn screenshots-file [] (str (org-dir) "/screenshots.org"))
 
 (defn item-paths []
