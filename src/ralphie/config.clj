@@ -24,6 +24,7 @@
 (defn prompts-file [] (str (org-dir) "/prompts.org"))
 (defn pomodoros-file [] (str (org-dir) "/pomodoros.org"))
 (defn screenshots-file [] (str (org-dir) "/screenshots.org"))
+(defn workspaces-file [] (str (org-dir) "/workspaces.org"))
 
 (defn item-paths []
   [(repos-file)

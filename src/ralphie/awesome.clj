@@ -259,38 +259,37 @@
 ;; Awesome Global Init
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn build-config [conf-org]
-  (let [awesome-tags
-        (item/->level-1-list conf-org item/awesome-tag-parent?)]
-    {:tag-names (seq (map :name awesome-tags))}))
+(defn build-config [workspace-items]
+  {:tag-names (->> workspace-items (map :name) seq)})
 
-(defn init-awesome
-  "Initializes awesome's configuration process.
+;; (defn init-awesome
+;;   "Initializes awesome's configuration process.
 
-  The parsed config is handed into all init_helpers."
-  ([] (init-awesome nil nil))
-  ([_config _parsed]
-   (->>
-     (config/awesome-config-org-path)
-     org-crud/path->nested-item
-     build-config
-     (awm-fn "init")
-     awm-cli)
+;;   The parsed config is handed into all init_helpers."
+;;   ([] (init-awesome nil nil))
+;;   ([_config _parsed]
+;;    (->>
+;;      (config/workspaces-file)
+;;      org-crud/path->nested-item
+;;      :items
+;;      build-config
+;;      (awm-fn "init")
+;;      awm-cli)
 
-   ;; pause? wait for all-clear?
-   (awm-cli "reapply_rules();")
-   ))
+;;    ;; pause? wait for all-clear?
+;;    (awm-cli "reapply_rules();")
+;;    ))
 
-(comment
-  (init-awesome)
-  )
+;; (comment
+;;   (init-awesome)
+;;   )
 
-(defcom init-cmd
-  {:name          "awesome-init"
-   :one-line-desc "Initializes your awesome config"
-   :description   ["Initializes your awesome config."
-                   "Reads awesome config from a `config.org` file"]
-   :handler       init-awesome})
+;; (defcom init-cmd
+;;   {:name          "awesome-init"
+;;    :one-line-desc "Initializes your awesome config"
+;;    :description   ["Initializes your awesome config."
+;;                    "Reads awesome config from a `config.org` file"]
+;;    :handler       init-awesome})
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -301,11 +300,13 @@
   ([] (init-tags nil nil))
   ([_config _parsed]
    (->>
-     (config/awesome-config-org-path)
+     (config/workspaces-file)
      org-crud/path->nested-item
+     :items
      build-config
      (awm-fn "init_tags")
-     awm-cli)))
+     awm-cli
+     )))
 
 (comment
   (init-tags))
