@@ -22,6 +22,7 @@
    [ralphie.items]
    [ralphie.monitor]
    [ralphie.notes]
+   [ralphie.notify]
    [ralphie.picom]
    [ralphie.pomodoro]
    [ralphie.prompts]
