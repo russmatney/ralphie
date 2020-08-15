@@ -31,6 +31,9 @@
 (comment
   (count (focuses)))
 
+(defn update-focus-widget [focus]
+  (awm/update-focus-widget focus))
+
 (defn set-focus-handler
   ([] (set-focus-handler nil nil))
   ([_config parsed]
@@ -39,7 +42,7 @@
      ;; used to let the awesome focus widget request an update
      (-> (focuses)
          first
-         awm/update-focus-widget)
+         update-focus-widget)
 
      :else
      ;; interactive selection of current focus

@@ -2,12 +2,12 @@
   (:require
    [ralphie.command :refer [defcom]]
    [ralphie.awesome :as awm]
-   [ralphie.notify :as notify]
+   ;; [ralphie.notify :as notify]
    [ralphie.config :as config]
    [org-crud.api :as org-crud]))
 
 (defn update-pomodoro-widget [msg]
-  (notify/notify {:subject "Updating pomodoro widget" :body msg})
+  ;; (notify/notify {:subject "Updating pomodoro widget" :body msg})
   (->> msg
        (awm/awm-fn "update_pomodoro_widget")
        awm/awm-cli))
