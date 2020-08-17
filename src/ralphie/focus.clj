@@ -16,12 +16,10 @@
                  (remove item/cancelled?)
                  (concat todos)))
           (list)
-          [(config/repos-file)
-           (config/projects-file)
-           (config/goals-file)
-           (config/today-file)]))
+          (config/todo-paths)))
 
 (defn focuses []
+  ;; TODO dry up duplicated focus logic
   (->> (parse-current-todos)
        (filter item/focused-at)
        ;; not yet a true date comparison
@@ -29,6 +27,7 @@
        (reverse)))
 
 (comment
+
   (count (focuses)))
 
 (defn update-focus-widget [focus]

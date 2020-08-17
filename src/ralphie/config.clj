@@ -18,6 +18,7 @@
 (defn org-dir [] (expand "~/todo"))
 (defn repos-file [] (str (org-dir) "/repos.org"))
 (defn projects-file [] (str (org-dir) "/projects.org"))
+(defn inbox-file [] (str (org-dir) "/inbox.org"))
 (defn goals-file [] (str (org-dir) "/goals.org"))
 (defn today-file [] (str (org-dir) "/today.org"))
 (defn journal-file [] (str (org-dir) "/journal.org"))
@@ -26,8 +27,16 @@
 (defn screenshots-file [] (str (org-dir) "/screenshots.org"))
 (defn workspaces-file [] (str (org-dir) "/workspaces.org"))
 
+(defn todo-paths []
+  [(repos-file)
+   (projects-file)
+   (goals-file)
+   (today-file)
+   (inbox-file)])
+
 (defn item-paths []
   [(repos-file)
+   (inbox-file)
    (projects-file)
    (goals-file)
    (today-file)
