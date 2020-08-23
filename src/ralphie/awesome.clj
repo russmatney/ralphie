@@ -4,7 +4,6 @@
    [ralphie.workspace :as workspace]
    [ralphie.command :refer [defcom]]
    [ralphie.config :as config]
-   [ralphie.item :as item]
    [clojure.pprint]
    [org-crud.core :as org-crud]
    [clojure.string :as string]
