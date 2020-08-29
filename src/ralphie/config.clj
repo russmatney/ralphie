@@ -15,6 +15,7 @@
       "HDMI-0"
       "eDP-1"))
 
+(defn yodo-dir [] (expand "~/russmatney/yodo"))
 (defn org-dir [] (expand "~/todo"))
 (defn repos-file [] (str (org-dir) "/repos.org"))
 (defn projects-file [] (str (org-dir) "/projects.org"))
