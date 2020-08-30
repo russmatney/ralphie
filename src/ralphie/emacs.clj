@@ -11,6 +11,7 @@
          args ["emacsclient"
                "--no-wait"
                "--create-frame"
+               "-F" (str "((name . \"" name "\"))")
                "--display=:0"
                "--eval"
                (str "(russ/open-workspace \"" name "\")")
