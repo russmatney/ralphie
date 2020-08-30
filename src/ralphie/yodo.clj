@@ -33,7 +33,10 @@
 ;; Start yodo widget
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn start-widget [route]
+;; TODO this does not really work, b/c tmux/fire loads up the same tmux session.
+;; Should move to a desktop entry so that the OS manages the process for us.
+(defn start-widget
+  [route]
   (tmux/fire (str "cd " (config/yodo-dir)
                   " && yarn run electron electron/main.js " route)))
 
