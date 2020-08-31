@@ -4,6 +4,7 @@
    [ralphie.workspace :as workspace]
    [ralphie.command :refer [defcom]]
    [ralphie.config :as config]
+   [ralphie.item :as item]
    [clojure.pprint]
    [org-crud.core :as org-crud]
    [clojure.string :as string]
@@ -15,23 +16,60 @@
 ;; awesome-client helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn awm-cli-parse-output
+  "Parses the output of awm-cli, with assumptions not worth baking into the root
+  command."
+  [str]
+  (->>
+    ;; remove leading `string` label
+    (-> str string/trim (string/replace #"^string " ""))
+
+    ;; drop quotes
+    (drop 1) reverse
+    (drop 1) reverse
+
+    ;; rebuild string
+    string/join
+
+    ;; convert to clojure data structure
+    load-string))
+
+
 (defn awm-cli
   "Prefixes the passed lua code with common requires and local vars."
-  [cmd]
-  (let [full-cmd (->> ["local awful = require \"awful\";\n"
-                       "local inspect = require \"inspect\";\n"
-                       "local lume = require \"lume\";\n"
-                       "local s = awful.screen.focused();\n"
-                       "local lain = require \"lain\";\n"
-                       cmd]
-                      (apply str))]
-    (clojure.pprint/pprint "<awesome-client INPUT>")
-    (clojure.pprint/pprint (string/split-lines full-cmd))
-    (sh/sh "awesome-client" full-cmd)))
+  ([cmd] (awm-cli {:pp? true :parse? true} cmd))
+  ([{:keys [parse? pp?]} cmd]
+   (let [full-cmd (->> ["local awful = require \"awful\";\n"
+                        "local inspect = require \"inspect\";\n"
+                        "local lume = require \"lume\";\n"
+                        "local s = awful.screen.focused();\n"
+                        "local lain = require \"lain\";\n"
+                        "local view = require \"fennelview\";\n"
+                        cmd]
+                       (apply str))]
+     (when pp?
+       (clojure.pprint/pprint "<awesome-client INPUT>")
+       (clojure.pprint/pprint (string/split-lines full-cmd)))
+     (let [res
+           (sh/sh "awesome-client" full-cmd)]
+       (when pp?
+         (clojure.pprint/pprint "<awesome-client OUTPUT>")
+         (clojure.pprint/pprint res))
+       (if parse?
+         (awm-cli-parse-output (:out res))
+         res)))))
 
 (comment
+
+  (awm-cli
+    (str
+      "return view(lume.map(client.get(), "
+      "function (t) return {name= t.name
+} end))"))
+
   (println "hello")
   (awm-cli "print('hello')")
+  (awm-cli "return view(lume.map(s.tags, function (t) return {name= t.name} end))")
   (awm-cli "add_all_tags()")
   (set-layout "awful.layout.suit.fair"))
 
@@ -116,24 +154,51 @@
            :layout "awful.layout.suit.floating"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; list awesome tags
+;; Awesome Data/current-state fetchers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn awesome-tag-names []
-  (some->>
-    (awm-cli (str "return inspect(lume.map(awful.screen.focused().tags, "
-                  "function (t) return t.name end))"))
-    :out
-    (re-find #"\{ (.+) \}")
-    first
-    (drop 2)
-    reverse
-    (drop 2)
-    reverse
-    (apply str)
-    (#(string/replace % "\"" ""))
-    (#(string/split % #","))
-    (map string/trim)))
+(defn screen []
+  (awm-cli
+    (str "return view({
+tags= lume.map(s.tags, function (t) return {name= t.name} end),
+geometry= s.geometry})")))
+
+(defn all-tags []
+  (awm-cli
+    {:parse? true}
+    (str "return view(lume.map(awful.screen.focused().tags, "
+         "function (t) return {name= t.name,
+clients= lume.map(t:clients(), function (c) return {name= c.name} end),
+} end))")))
+
+(defn visible-clients []
+  (awm-cli
+    {:parse? true}
+    (str "return view(lume.map(awful.screen.focused().clients, "
+         "function (t) return {name= t.name} end))")))
+
+(defn all-clients []
+  (awm-cli
+    {:parse? true}
+    (str "return view(lume.map(client.get(), "
+         "function (c) return {
+name= c.name,
+geometry= c:geometry(),
+window= c.window,
+type= c.type,
+class= c.class,
+instance= c.instance,
+pid= c.pid,
+role= c.role,
+tags= lume.map(c:tags(), function (t) return {name= t.name} end),
+first_tag= c.first_tag.name,
+} end))")))
+
+(comment
+  (->> (all-clients)
+       (filter (comp #(= % "ralphie") :name))
+       )
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; create new tag
@@ -141,7 +206,6 @@
 
 (defn awful-tag-add [& args]
   (apply (partial awm-fn "awful.tag.add") args))
-
 
 (comment
   (awful-tag-add
@@ -164,7 +228,7 @@
        (create-tag! tag-name)
 
        ;; no tag, get from rofi
-       (let [existing-tag-names (set (awesome-tag-names))]
+       (let [existing-tag-names (->> (all-tags) (map :name) set)]
          (rofi/rofi
            {:msg "New Tag Name?"}
            (->>
@@ -206,106 +270,31 @@
                    "This should re-run the rules, so they get reattached."]
    :handler       reapply-rules-handler})
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Set tag laytou
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn set-layout
-  [layout]
-  (awm-cli (str "set_layout(" layout ");")))
-
-(comment
-  (println "hi")
-  (set-layout "awful.layout.suit.fair"))
-
-(defn set-tag-layout-handler [_config parsed]
-  (let [layout (or (some-> parsed :arguments first)
-                   ;; TODO current tag fn to set name in this str?
-                   (rofi/rofi {:msg "Set current tag layout to:"}
-                              ["awful.layout.suit.tile"
-                               "awful.layout.suit.floating"
-                               "awful.layout.suit.fair"
-                               "awful.layout.suit.magnifier"
-                               "awful.layout.suit.spiral"
-                               "awful.layout.suit.spiral.dwindle"
-                               "lain.layouts.centerwork"
-                               "lain.layouts.centerwork.horizontal"]))]
-    (set-layout layout)))
-
-(defcom set-tag-layout-cmd
-  {:name          "set-tag-layout"
-   :one-line-desc "Sets the current tag's layout."
-   :description   ["Sets the current tag's layout."]
-   :handler       set-tag-layout-handler})
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Set tag laytou
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn update-focus-widget
-  [item]
-  (println item)
-  (println (awm-fn "update_focus_widget" item))
-  (->> item
-       (awm-fn "update_focus_widget")
-       awm-cli))
-
-(comment
-  (update-focus-widget {:name "yall be focused, ya hear!" :bad-key "key"}))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Awesome Global Init
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn build-config [workspace-items]
-  {:tag-names (->> workspace-items (map :name) seq)})
-
-;; (defn init-awesome
-;;   "Initializes awesome's configuration process.
-
-;;   The parsed config is handed into all init_helpers."
-;;   ([] (init-awesome nil nil))
-;;   ([_config _parsed]
-;;    (->>
-;;      (config/workspaces-file)
-;;      org-crud/path->nested-item
-;;      :items
-;;      build-config
-;;      (awm-fn "init")
-;;      awm-cli)
-
-;;    ;; pause? wait for all-clear?
-;;    (awm-cli "reapply_rules();")
-;;    ))
-
-;; (comment
-;;   (init-awesome)
-;;   )
-
-;; (defcom init-cmd
-;;   {:name          "awesome-init"
-;;    :one-line-desc "Initializes your awesome config"
-;;    :description   ["Initializes your awesome config."
-;;                    "Reads awesome config from a `config.org` file"]
-;;    :handler       init-awesome})
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Init Tags
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn initial-tags-for-awesome [items]
+  (->> items
+       (filter item/workspace-key)
+       (sort-by item/workspace-key)))
+
+(defn init-tags-config []
+  {:tag-names (->>
+                (config/workspaces-file)
+                org-crud/path->nested-item
+                :items
+                initial-tags-for-awesome
+                (map :name)
+                seq)})
+
 (defn init-tags
   ([] (init-tags nil nil))
   ([_config _parsed]
-   (->>
-     (config/workspaces-file)
-     org-crud/path->nested-item
-     :items
-     build-config
-     (awm-fn "init_tags")
-     awm-cli
-     )))
+   (->> (init-tags-config)
+        (awm-fn "init_tags")
+        awm-cli
+        )))
 
 (comment
   (init-tags))
@@ -316,3 +305,6 @@
    :description   ["Recreates the current AwesomeWM tags."
                    "Pulls the latest from your `config.org`"]
    :handler       init-tags})
+
+(comment
+  nil)

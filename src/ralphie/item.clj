@@ -40,6 +40,8 @@
 (defn watching? [item]
   (has-prop? item :watching))
 
+(defn workspace-key [item] (-> item :props :workspace-key))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parse Helper
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

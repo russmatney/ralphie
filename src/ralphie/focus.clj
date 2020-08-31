@@ -4,7 +4,7 @@
    [ralphie.rofi :as rofi]
    [ralphie.item :as item]
    [ralphie.config :as config]
-   [ralphie.awesome :as awm]
+   ;; [ralphie.awesome :as awm]
    [org-crud.core :as org-crud]))
 
 (defn parse-current-todos []
@@ -30,8 +30,8 @@
 
   (count (focuses)))
 
-(defn update-focus-widget [focus]
-  (awm/update-focus-widget focus))
+;; (defn update-focus-widget [focus]
+;;   (awm/update-focus-widget focus))
 
 (defn set-focus-handler
   ([] (set-focus-handler nil nil))
@@ -41,7 +41,8 @@
      ;; used to let the awesome focus widget request an update
      (-> (focuses)
          first
-         update-focus-widget)
+         ;; update-focus-widget
+         )
 
      :else
      ;; interactive selection of current focus
@@ -50,7 +51,9 @@
           (rofi/rofi {:msg "Focuses"})
           ;; TODO write 'focused-at' date-time back to org
           (#(dissoc % :label))
-          awm/update-focus-widget)
+          ;; TODO restore by updating properly via yodo
+          ;; awm/update-focus-widget
+          )
      )))
 
 (comment
