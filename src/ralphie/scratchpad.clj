@@ -3,6 +3,7 @@
    [ralphie.command :refer [defcom]]
    [ralphie.emacs :as emacs]
    [ralphie.workspace :as workspace]
+   [clojure.string :as string]
    [clojure.java.shell :as sh]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -22,8 +23,13 @@
 
       (-> wsp :org/item :props :exec)
       (let [exec (-> wsp :org/item :props :exec)]
-        (println "running workspace exec" exec)
-        (sh/sh exec)))))
+        (as-> exec s
+          (string/split s #" ")
+          (apply sh/sh s))))))
+
+(comment
+  (create-client "org-crud")
+  (create-client "web"))
 
 (defn create-client-handler
   ([] (create-client-handler nil nil))
