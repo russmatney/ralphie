@@ -35,7 +35,12 @@
   (clj-sh/sh "bash" "-c" command))
 
 (defn zsh [& args]
+  (println args)
   (apply clj-sh/sh "zsh" "-c" args))
+
+(comment
+  (zsh "/usr/bin/gtk-launch firefox.desktop")
+  )
 
 
 (defn expand

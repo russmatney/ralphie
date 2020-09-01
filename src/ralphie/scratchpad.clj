@@ -4,6 +4,7 @@
    [ralphie.emacs :as emacs]
    [ralphie.workspace :as workspace]
    [ralphie.awesome :as awm]
+   [ralphie.sh :as r.sh]
    [clojure.string :as string]
    [clojure.java.shell :as sh]))
 
@@ -22,14 +23,26 @@
       (-> wsp :org/item :props :initial-file)
       (emacs/open wsp)
 
-      (-> wsp :org/item :props :exec)
-      (let [exec (-> wsp :org/item :props :exec)]
-        (as-> exec s
-          (string/split s #" ")
-          (apply sh/sh s))))))
+      (-> wsp :org/item :props :desktop-entry)
+      (let [entry (-> wsp :org/item :props :desktop-entry)]
+        (r.sh/zsh "/usr/bin/gtk-launch" entry)
+        ;; BOOM
+        ;; (shutdown-agents) not sure how to kill just sh's hanging future
+        )
+
+      ;; NOTE does not release properly....
+      ;; (-> wsp :org/item :props :exec)
+      ;; (let [exec (-> wsp :org/item :props :exec)]
+      ;;   (as-> exec s
+      ;;     (string/split s #" ")
+      ;;     (concat s ["--" "&" "disown"])
+      ;;     (apply sh/sh s)))
+      )))
 
 (comment
   (create-client "org-crud")
+  ;; TODO web holds onto process - needs to be disowned somehow
+  (workspace/for-name "web")
   (create-client "web"))
 
 (defn create-client-handler
@@ -86,10 +99,12 @@
         client   (some-> tag :clients first)]
     (cond
       (and tag client (:selected tag))
-      (if (:ontop client)
-        ;; TODO also set client ontop false ?
-        (toggle-tag wsp-name)
-        (this-client-ontop-and-focused client))
+      (do
+        (println "found selected tag, client for:" wsp-name)
+        (if (:ontop client)
+          ;; TODO also set client ontop false ?
+          (toggle-tag wsp-name)
+          (this-client-ontop-and-focused client)))
 
       (and tag client (not (:selected tag)))
       (do
@@ -99,7 +114,9 @@
 
       ;; tag exists, no client
       (and tag (not client))
-      (create-client wsp)
+      (do
+        (println "tag, but no client:" wsp-name)
+        (create-client wsp))
 
       ;; tag does not exist, presumably no client either
       (not tag)
@@ -108,9 +125,12 @@
         (create-client wsp)))))
 
 (comment
+  (println "hi")
   (toggle-scratchpad "journal")
+
   (toggle-scratchpad "notes")
   (toggle-scratchpad "web")
+  (workspace/for-name "web")
   )
 
 (defn toggle-scratchpad-handler
