@@ -50,11 +50,13 @@
   ([] (open-session {:name "ralphie-fallback" :directory "~/."}))
   ([{:keys [name directory]}]
    (let [args ["tmux" "-c"
-               (str "alacritty -e tmux new-session -A "
+               (str "alacritty --title " name
+                    " -e tmux new-session -A "
                     (when directory (str " -c " directory))
                     " -s "
                     name
                     " & disown")]]
+     (println args)
      (apply sh/sh args))))
 
 (comment
@@ -93,3 +95,5 @@
    :one-line-desc "Fires a command in the nearest tmux shell."
    :description   [""]
    :handler       fire-handler})
+
+(comment)
