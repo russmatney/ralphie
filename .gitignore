@@ -3,8 +3,11 @@
 *.log
 tmp/
 
-
 .cpcache/
 .nrepl-port
 
 .clj-kondo/.cache/
+
+ralphie.clj
+ralphie-script.clj
+ralphie.jar

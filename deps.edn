@@ -13,9 +13,16 @@
 
  :aliases
  {:run {:main-opts "-m ralphie.core"}
+
   :find-deps
   {:extra-deps
    {find-deps
     {:git/url "https://github.com/hagmonk/find-deps"
      :sha     "6fc73813aafdd2288260abb2160ce0d4cdbac8be"}}
-   :main-opts ["-m" "find-deps.core"]}}}
+   :main-opts ["-m" "find-deps.core"]}
+
+  :remove-spec
+  {:classpath-overrides {org.clojure/spec.alpha       nil
+                         org.clojure/core.specs.alpha nil}}
+
+  }}
