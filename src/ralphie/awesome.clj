@@ -180,6 +180,17 @@ clients= lume.map(t:clients(), function (c) return {name= c.name} end),
 (comment
   (tag-for-name "yodo-dev"))
 
+(defn current-tag-name
+  ""
+  []
+  (-> (awm-cli
+        {:parse? true}
+        (str "return view({name=s.selected_tag.name})"))
+      :name))
+
+(defn current-tag []
+  (tag-for-name (current-tag-name)))
+
 (defn visible-clients []
   (awm-cli
     {:parse? true}

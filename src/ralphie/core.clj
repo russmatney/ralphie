@@ -30,6 +30,7 @@
    [ralphie.repos]
    [ralphie.rofi]
    [ralphie.screenshot]
+   [ralphie.scratchpad]
    [ralphie.story]
    [ralphie.term]
    [ralphie.tmux]

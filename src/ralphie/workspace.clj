@@ -46,8 +46,7 @@
 
 (defn current-workspace
   []
-  (when-let [name (-> (i3/current-workspace) :name)]
-    (for-name name)))
+  (for-name (awm/current-tag-name)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -66,7 +65,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn restart-workspaces-handler [_config _parsed]
-  (println "TODO restarting i3!")
   ;; (i3/org->i3! (all-workspaces))
   ;; (i3/i3-msg! "restart")
   )
