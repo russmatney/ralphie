@@ -167,8 +167,16 @@ geometry= s.geometry})")))
   (awm-cli
     {:parse? true}
     (str "return view(lume.map(awful.screen.focused().tags, "
-         "function (t) return {name= t.name,
-clients= lume.map(t:clients(), function (c) return {name= c.name} end),
+         "function (t) return {
+name= t.name,
+selected= t.selected,
+clients= lume.map(t:clients(),
+
+function (c) return {
+name= c.name,
+ontop=c.ontop,
+window= c.window,
+} end),
 } end))")))
 
 (defn tag-for-name [name]

@@ -3,6 +3,7 @@
    [ralphie.command :refer [defcom]]
    [ralphie.emacs :as emacs]
    [ralphie.workspace :as workspace]
+   [ralphie.awesome :as awm]
    [clojure.string :as string]
    [clojure.java.shell :as sh]))
 
@@ -48,11 +49,76 @@
 ;; toggle scratchpad
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn this-client-ontop-and-focused [client]
+  ;; set all ontops false
+  ;; set this client ontop true
+  ;; focus this client
+
+  (awm/awm-cli
+    {:parse? false
+     :pp?    true}
+    (str
+      ;; set all ontops false
+      "for c in awful.client.iterate(function (c) return c.ontop end) do\n"
+      "c.ontop = false; "
+      "end;"
+
+      ;; set this client ontop true, and focus it
+      "for c in awful.client.iterate(function (c) return c.window == "
+      (-> client :window awm/->lua-arg)
+      " end) do\n"
+      "c.ontop = true; "
+      "_G.client.focus = c;"
+      "end; ")))
+
+(defn toggle-tag [tag-name]
+  ;; viewtoggle tag
+  (awm/awm-cli
+    (str "awful.tag.viewtoggle(awful.tag.find_by_name(s, \"" tag-name "\"));")))
+
+(defn toggle-scratchpad [wsp]
+  (let [wsp      (cond
+                   (nil? wsp)    (workspace/current-workspace)
+                   (string? wsp) (workspace/for-name wsp)
+                   :else         wsp)
+        wsp-name (-> wsp :org/item :name)
+        tag      (-> wsp :awesome/tag)
+        client   (some-> tag :clients first)]
+    (cond
+      (and tag client (:selected tag))
+      (if (:ontop client)
+        ;; TODO also set client ontop false ?
+        (toggle-tag wsp-name)
+        (this-client-ontop-and-focused client))
+
+      (and tag client (not (:selected tag)))
+      (do
+        (println "found unselected tag, client for:" wsp-name)
+        (toggle-tag wsp-name)
+        (this-client-ontop-and-focused client))
+
+      ;; tag exists, no client
+      (and tag (not client))
+      (create-client wsp)
+
+      ;; tag does not exist, presumably no client either
+      (not tag)
+      (do
+        (awm/create-tag! wsp-name)
+        (create-client wsp)))))
+
+(comment
+  (toggle-scratchpad "journal")
+  (toggle-scratchpad "notes")
+  (toggle-scratchpad "web")
+  )
+
 (defn toggle-scratchpad-handler
   ([] (toggle-scratchpad-handler nil nil))
-  ([_config _parsed]
-   ;; impl scratchpad logic
-   ))
+  ([_config parsed]
+   (if-let [arg (some-> parsed :arguments first)]
+     (toggle-scratchpad arg)
+     (toggle-scratchpad nil))))
 
 (defcom toggle-scratchpad-cmd
   {:name          "toggle-scratchpad"
