@@ -1,7 +1,7 @@
 (ns ralphie.awesome
   (:require
-   [ralphie.rofi :as rofi]
-   [ralphie.workspace :as workspace]
+   ;; [ralphie.rofi :as rofi]
+   ;; [ralphie.workspace :as workspace]
    [ralphie.command :refer [defcom]]
    [ralphie.config :as config]
    [ralphie.item :as item]
@@ -171,6 +171,15 @@ geometry= s.geometry})")))
 clients= lume.map(t:clients(), function (c) return {name= c.name} end),
 } end))")))
 
+(defn tag-for-name [name]
+  (some->>
+    (all-tags)
+    (filter (comp #(= % name) :name))
+    first))
+
+(comment
+  (tag-for-name "yodo-dev"))
+
 (defn visible-clients []
   (awm-cli
     {:parse? true}
@@ -218,25 +227,25 @@ first_tag= c.first_tag.name,
                           {:screen "s"
                            :layout "lain.layout.centerwork"})))
 
-(defcom awesome-create-tag
-  {:name          "awesome-create-tag"
-   :one-line-desc "Creates a new tag in your _Awesome_ Window Manager."
-   :description   []
-   :handler
-   (fn [_ {:keys [arguments]}]
-     (if-let [tag-name (some-> arguments first)]
-       (create-tag! tag-name)
+;; (defcom awesome-create-tag
+;;   {:name          "awesome-create-tag"
+;;    :one-line-desc "Creates a new tag in your _Awesome_ Window Manager."
+;;    :description   []
+;;    :handler
+;;    (fn [_ {:keys [arguments]}]
+;;      (if-let [tag-name (some-> arguments first)]
+;;        (create-tag! tag-name)
 
-       ;; no tag, get from rofi
-       (let [existing-tag-names (->> (all-tags) (map :name) set)]
-         (rofi/rofi
-           {:msg "New Tag Name?"}
-           (->>
-             ;; TODO pull in repos.org
-             (workspace/all-workspaces)
-             (map (comp :name :org/item))
-             (remove #(contains? existing-tag-names %))
-             create-tag!)))))})
+;;        ;; no tag, get from rofi
+;;        (let [existing-tag-names (->> (all-tags) (map :name) set)]
+;;          (rofi/rofi
+;;            {:msg "New Tag Name?"}
+;;            (->>
+;;              ;; TODO pull in repos.org
+;;              (workspace/all-workspaces)
+;;              (map (comp :name :org/item))
+;;              (remove #(contains? existing-tag-names %))
+;;              create-tag!)))))})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Delete current tag

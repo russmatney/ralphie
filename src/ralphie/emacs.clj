@@ -5,27 +5,35 @@
    [ralphie.command :refer [defcom]]))
 
 (defn open
-  ([] (open nil))
-  ([name]
-   (let [name (or name (:name (workspace/->current-workspace)))
+  ([] (open (workspace/->current-workspace)))
+  ([wsp]
+   (let [;; these should be org/name and org/props
+         name         (-> wsp :org/item :name)
+         initial-file (-> wsp :org/item :props :initial-file)
+
          args ["emacsclient"
                "--no-wait"
                "--create-frame"
                "-F" (str "((name . \"" name "\"))")
                "--display=:0"
                "--eval"
-               (str "(russ/open-workspace \"" name "\")")
-               ]]
+               (str "(progn (russ/open-workspace \"" name "\") "
+                    (if initial-file
+                      (str "(find-file \"" initial-file "\")")
+                      "")
+                    ")")]]
      (apply sh/sh args))))
 
 (comment
+  (open (workspace/for-name "journal"))
   (open "yodo"))
 
 (defn open-handler [_config parsed]
-  (let [name (some-> parsed :arguments first)]
-    (if name
-      (open name)
-      (open))))
+  (if-let [name (some-> parsed :arguments first)]
+    (let [wsp (workspace/for-name name)
+          wsp (or wsp (workspace/current-workspace))]
+      (open wsp))
+    (open)))
 
 (defcom open-emacs
   {:name          "open-emacs"

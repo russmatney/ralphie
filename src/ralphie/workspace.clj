@@ -1,6 +1,7 @@
 (ns ralphie.workspace
   (:require
    [ralphie.i3 :as i3]
+   [ralphie.awesome :as awm]
    [ralphie.org :as org]
    [ralphie.rofi :as rofi]
    [ralphie.command :refer [defcom]]
@@ -27,18 +28,27 @@
   (->>
     (org/fname->items "workspaces.org")
     (map (fn [{:keys [name] :as org-wsp}]
+           ;; TODO move to namespaced fields
            {:org/item     org-wsp
+            :awesome/tag  (awm/tag-for-name name)
             :i3/workspace (i3/workspace-for-name name)}))))
+
+(defn for-name [name]
+  (some->> (all-workspaces)
+           (filter
+             #(some->>
+                % :org/item :name
+                (string/includes? name)))
+           first))
+
+(comment
+  (for-name "yodo-dev"))
 
 (defn current-workspace
   []
   (when-let [name (-> (i3/current-workspace) :name)]
-    (some->> (all-workspaces)
-             (filter
-               #(some->>
-                  % :org/item :name
-                  (string/includes? name)))
-             first)))
+    (for-name name)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; current workspace
