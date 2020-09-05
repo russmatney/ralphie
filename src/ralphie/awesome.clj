@@ -160,16 +160,20 @@
 (defn screen []
   (awm-cli
     (str "return view({
-tags= lume.map(s.tags, function (t) return {name= t.name} end),
+tags= lume.map(s.tags, function (t) return
+{name= t.name,
+index= t.index,
+} end),
 geometry= s.geometry})")))
 
 (defn all-tags []
   (awm-cli
     {:parse? true}
-    (str "return view(lume.map(awful.screen.focused().tags, "
+    (str "return view(lume.map(root.tags(), "
          "function (t) return {
 name= t.name,
 selected= t.selected,
+index= t.index,
 clients= lume.map(t:clients(),
 
 function (c) return {
@@ -178,6 +182,11 @@ ontop=c.ontop,
 window= c.window,
 } end),
 } end))")))
+
+(comment
+  (->> (all-tags)
+       (map #(dissoc % :clients)))
+  )
 
 (defn tag-for-name [name]
   (some->>
@@ -236,15 +245,15 @@ first_tag= c.first_tag.name,
   (apply (partial awm-fn "awful.tag.add") args))
 
 (comment
-  (awful-tag-add
-    "ralphie"
-    {:screen "s"
-     :layout "awful.layout.suit.floating"}))
+  (->
+    (str "return view({name= "
+         (awful-tag-add
+           "new-tag" {})
+         ".name});")
+    awm-cli))
 
 (defn create-tag! [name]
-  (awm-cli (awful-tag-add name
-                          {:screen "s"
-                           :layout "lain.layout.centerwork"})))
+  (awm-cli (awful-tag-add name {})))
 
 ;; (defcom awesome-create-tag
 ;;   {:name          "awesome-create-tag"

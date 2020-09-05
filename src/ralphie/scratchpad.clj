@@ -62,7 +62,7 @@
 ;; toggle scratchpad
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn this-client-ontop-and-focused [client]
+(defn ontop-and-focused [client]
   ;; set all ontops false
   ;; set this client ontop true
   ;; focus this client
@@ -104,13 +104,13 @@
         (if (:ontop client)
           ;; TODO also set client ontop false ?
           (toggle-tag wsp-name)
-          (this-client-ontop-and-focused client)))
+          (ontop-and-focused client)))
 
       (and tag client (not (:selected tag)))
       (do
         (println "found unselected tag, client for:" wsp-name)
         (toggle-tag wsp-name)
-        (this-client-ontop-and-focused client))
+        (ontop-and-focused client))
 
       ;; tag exists, no client
       (and tag (not client))
