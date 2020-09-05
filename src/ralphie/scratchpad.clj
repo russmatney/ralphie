@@ -23,24 +23,15 @@
       (-> wsp :org/item :props :initial-file)
       (emacs/open wsp)
 
-      (-> wsp :org/item :props :desktop-entry)
-      (let [entry (-> wsp :org/item :props :desktop-entry)]
-        (r.sh/zsh "/usr/bin/gtk-launch" entry)
-        ;; BOOM
-        ;; (shutdown-agents) not sure how to kill just sh's hanging future
-        )
-
-      ;; NOTE does not release properly....
-      ;; (-> wsp :org/item :props :exec)
-      ;; (let [exec (-> wsp :org/item :props :exec)]
-      ;;   (as-> exec s
-      ;;     (string/split s #" ")
-      ;;     (concat s ["--" "&" "disown"])
-      ;;     (apply sh/sh s)))
-      )))
+      (-> wsp :org/item :props :exec)
+      (let [exec (-> wsp :org/item :props :exec)]
+        (r.sh/zsh exec)))))
 
 (comment
+  (sh/sh "exec" "sleep" "4")
+  (r.sh/bash "nohup sleep 2")
   (create-client "org-crud")
+  (create-client "yodo-app")
   ;; TODO web holds onto process - needs to be disowned somehow
   (workspace/for-name "web")
   (create-client "web"))
