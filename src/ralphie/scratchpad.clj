@@ -6,7 +6,8 @@
    [ralphie.awesome :as awm]
    [ralphie.sh :as r.sh]
    [clojure.string :as string]
-   [clojure.java.shell :as sh]))
+   [clojure.java.shell :as sh])
+  (:import java.lang.ProcessBuilder))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Create client
@@ -24,10 +25,20 @@
       (emacs/open wsp)
 
       (-> wsp :org/item :props :exec)
-      (let [exec (-> wsp :org/item :props :exec)]
-        (r.sh/zsh exec)))))
+      (let [exec (-> wsp :org/item :props :exec
+                     (string/split #" "))
+            pb   (doto (ProcessBuilder. exec)
+                   (.inheritIO))]
+        (.start pb)))))
 
 (comment
+  (let [pb (ProcessBuilder. ["echo" "hi"])]
+    (.start pb))
+
+  (let [pb (doto (ProcessBuilder. ["gtk-launch" "yodo-electron.desktop"])
+             (.inheritIO))]
+    (.start pb))
+
   (sh/sh "exec" "sleep" "4")
   (r.sh/bash "nohup sleep 2")
   (create-client "org-crud")
