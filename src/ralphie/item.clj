@@ -40,7 +40,11 @@
 (defn watching? [item]
   (has-prop? item :watching))
 
-(defn workspace-key [item] (-> item :props :workspace-key))
+(defn workspace-key [item] (some-> item :props :workspace-key
+                                   Integer/parseInt))
+
+(comment
+  (workspace-key {:props {:workspace-key "0 "}}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parse Helper
