@@ -10,8 +10,6 @@
    [clojure.string :as string]
    [clojure.java.shell :as sh]))
 
-(declare init-awesome set-layout)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; awesome-client helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -60,7 +58,6 @@
          res)))))
 
 (comment
-
   (awm-cli
     (str
       "return view(lume.map(client.get(), "
@@ -70,8 +67,7 @@
   (println "hello")
   (awm-cli "print('hello')")
   (awm-cli "return view(lume.map(s.tags, function (t) return {name= t.name} end))")
-  (awm-cli "add_all_tags()")
-  (set-layout "awful.layout.suit.fair"))
+  (awm-cli "add_all_tags()"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; converts a clojure map to a lua table
@@ -144,9 +140,6 @@
   (awm-cli
     (str
       "return print(" (awm-fn "inspect" {:hello "world"}) ");"))
-
-  (init-awesome)
-  ;; @--init-args
 
   (awm-fn "awful.tag.add"
           "ralphie"
@@ -313,6 +306,7 @@ first_tag= c.first_tag.name,
 
 (defn initial-tags-for-awesome [items]
   (->> items
+       ;; TODO rename to workspace number
        (filter item/workspace-key)
        (sort-by item/workspace-key)))
 
