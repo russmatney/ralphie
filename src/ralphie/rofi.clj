@@ -9,6 +9,9 @@
 ;; rofi-general
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn escape-rofi-label [label]
+  (string/escape label {\& "&amp;"}))
+
 (defn rofi
   "Expects `xs` to be a coll of maps with a `:label` key.
   `msg` is displayed to the user.
@@ -22,7 +25,10 @@
   ([opts] (rofi opts (:xs opts)))
   ([{:keys [msg message on-select require-match?]} xs]
    (let [maps?  (-> xs first map?)
-         labels (if maps? (map :label xs) xs)
+         labels (if maps? (->> xs
+                               (map :label)
+                               (map escape-rofi-label)
+                               ) xs)
          msg    (or msg message)
 
          res
@@ -36,10 +42,11 @@
          selected-label (:out res)]
 
      (when (seq selected-label)
-       ;; TODO use index-by
+       ;; TODO use index-by, or just make a map
        (let [selected-x (if maps?
                           (->> xs
-                               (filter #(= selected-label (:label %)))
+                               (filter #(= selected-label
+                                           (escape-rofi-label (:label %))))
                                first)
                           selected-label)]
          (if selected-x
