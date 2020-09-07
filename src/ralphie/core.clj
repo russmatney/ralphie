@@ -26,6 +26,7 @@
    [ralphie.picom]
    [ralphie.pomodoro]
    [ralphie.prompts]
+   [ralphie.read]
    [ralphie.readme]
    [ralphie.repos]
    [ralphie.rofi]

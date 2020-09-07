@@ -27,6 +27,8 @@
 (defn pomodoros-file [] (str (org-dir) "/pomos.org"))
 (defn screenshots-file [] (str (org-dir) "/screenshots.org"))
 (defn workspaces-file [] (str (org-dir) "/workspaces.org"))
+(defn reads-file [] (str (org-dir) "/reads.org"))
+(defn watches-file [] (str (org-dir) "/watches.org"))
 
 (defn todo-paths []
   [(repos-file)

@@ -86,7 +86,7 @@
                       "<span color='gray'>" (:one-line-desc %) "</span> "
                       "<span>"
                       (string/join " " (:description %))
-                      "</span>")))))
+                      "</span>;")))))
 
 (defn rofi-handler
   "Returns the selected xs if there is no handler."
