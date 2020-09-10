@@ -147,6 +147,32 @@
            :layout "awful.layout.suit.floating"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Set layout
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn set-layout-handler
+  ([] (set-layout-handler nil nil))
+  ([_config _parsed]
+   (awm-cli {:parse? false
+             :pp?    true}
+            "awful.layout.set(awful.layout.suit.tile);"
+            ;; "awful.layout.set(lain.layout.centerwork);"
+            )))
+
+(comment
+  (awm-cli
+    (str
+      "return print(" (awm-fn "inspect" {:hello "world"}) ");")))
+
+
+(defcom set-layout-cmd
+  {:name          "set-layout"
+   :one-line-desc "Sets the awesome layout"
+   :description   [""]
+   :handler       set-layout-handler})
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Awesome Data/current-state fetchers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
