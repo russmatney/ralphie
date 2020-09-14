@@ -2,24 +2,20 @@
 
  :deps
  {org.clojure/core.async    {:mvn/version "1.1.587"}
-  cheshire                  {:mvn/version "5.10.0"}
+  cheshire/cheshire         {:mvn/version "5.10.0"}
   babashka/babashka.pods    {:local/root "../../babashka/babashka.pods"}
   ;; cljc.java-time            {:mvn/version "0.1.11"}
-  find-deps
+  find-deps/find-deps
   {:git/url "https://github.com/hagmonk/find-deps"
    :sha     "6fc73813aafdd2288260abb2160ce0d4cdbac8be"}
   org.clojars.ogrim/organum {:mvn/version "0.2.0"}
-  org-crud                  {:local/root "../org-crud"}}
+  russmatney/org-crud       {:local/root "../org-crud"}}
 
  :aliases
  {:run {:main-opts "-m ralphie.core"}
 
   :find-deps
-  {:extra-deps
-   {find-deps
-    {:git/url "https://github.com/hagmonk/find-deps"
-     :sha     "6fc73813aafdd2288260abb2160ce0d4cdbac8be"}}
-   :main-opts ["-m" "find-deps.core"]}
+  {:main-opts ["-m" "find-deps.core"]}
 
   :remove-spec
   {:classpath-overrides {org.clojure/spec.alpha       nil
