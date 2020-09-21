@@ -40,7 +40,7 @@
   (some->> (all-workspaces)
            (filter
              #(some->>
-                % :org/item :name
+                % :org/name
                 (string/includes? name)))
            first))
 
