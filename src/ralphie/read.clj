@@ -12,8 +12,8 @@
   (->> item :urls
        (map (fn [u]
               {:label
-               (str (:name item)
-                    (when-not (string/includes? (:name item) u)
+               (str (:org/name item)
+                    (when-not (string/includes? (:org/name item) u)
                       (str " | " u)))
                :url u}))
        (into [])))

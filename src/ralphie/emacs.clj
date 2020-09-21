@@ -1,6 +1,7 @@
 (ns ralphie.emacs
   (:require
    [ralphie.workspace :as workspace]
+   [ralphie.notify :as notify]
    [clojure.java.shell :as sh]
    [ralphie.command :refer [defcom]]))
 
@@ -8,8 +9,8 @@
   ([] (open (workspace/current-workspace)))
   ([wsp]
    (let [;; these should be org/name and org/props
-         name         (-> wsp :org/item :name)
-         initial-file (-> wsp :org/item :props :initial-file)
+         name         (-> wsp :org/name)
+         initial-file (-> wsp :org.prop/initial-file)
 
          args ["emacsclient"
                "--no-wait"
@@ -22,6 +23,8 @@
                       (str "(find-file \"" initial-file "\")")
                       "")
                     ")")]]
+     (notify/notify {:subject "open-emacs"
+                     :body    (str args)})
      (apply sh/sh args))))
 
 (comment

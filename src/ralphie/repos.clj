@@ -39,11 +39,11 @@
 (defn fetch-repos []
   (->> (config/repos-file)
        (org-crud/path->flattened-items)
-       (filter (comp #(= % 1) :level))
+       (filter (comp #(= % 1) :org/level))
        (map (fn [repo]
-              (let [path (str (config/home-dir) "/" (:name repo))]
+              (let [path (str (config/home-dir) "/" (:org/name repo))]
                 (-> repo
-                    (assoc-in [:props :path] path)))))
+                    (assoc :org.prop/path path)))))
        (filter (comp fs/exists? item/path))))
 
 (defn dirty-repos []
@@ -92,3 +92,5 @@
   {:name          "list-dirty-repos"
    :one-line-desc "Updates the dirty repos used by misc widgets."
    :handler       list-dirty-repos-handler})
+
+(comment)

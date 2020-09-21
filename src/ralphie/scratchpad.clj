@@ -96,7 +96,7 @@
                    (nil? wsp)    (workspace/current-workspace)
                    (string? wsp) (workspace/for-name wsp)
                    :else         wsp)
-        wsp-name (-> wsp :org/item :name)
+        wsp-name (-> wsp :org/name)
         tag      (-> wsp :awesome/tag)
         client   (some-> tag :clients first)]
     (cond
