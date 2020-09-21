@@ -6,12 +6,12 @@
    ))
 
 (defn open-term
-  ([] (open-term (workspace/->current-workspace)))
+  ([] (open-term (workspace/current-workspace)))
   ([wsp]
    (let [wsp  (if (string? wsp) (workspace/for-name wsp)
                   wsp)
-         opts {:name (-> wsp :org/item :name)}
-         opts (if-let [dir (-> wsp :org/item :props :directory)]
+         opts {:name (-> wsp :org/name)}
+         opts (if-let [dir (-> wsp :org.prop/directory)]
                 (assoc opts :directory dir)
                 opts)]
      (println opts)
@@ -19,6 +19,7 @@
 
 (comment
   (println "hi")
+  (open-term)
   (open-term "notes")
   (open-term "ralphie")
   (open-term "gamedev")

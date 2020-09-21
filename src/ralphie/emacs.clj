@@ -5,7 +5,7 @@
    [ralphie.command :refer [defcom]]))
 
 (defn open
-  ([] (open (workspace/->current-workspace)))
+  ([] (open (workspace/current-workspace)))
   ([wsp]
    (let [;; these should be org/name and org/props
          name         (-> wsp :org/item :name)
@@ -39,3 +39,5 @@
   {:name          "open-emacs"
    :one-line-desc "Opens emacs in the current workspace"
    :handler       open-handler})
+
+(comment)

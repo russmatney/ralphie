@@ -15,8 +15,10 @@
                    (string/split-lines (slurp local-cache)))
         input (rofi/rofi {:message   "Autojump input"
                           :on-select :label} xs)]
-    (when-not (workspace/open? {:app "Alacritty"})
-      (tmux/open-session (workspace/->current-workspace)))
+    ;; (when-not (workspace/open? {:app "Alacritty"})
+    ;; TODO restore - outdated. feels like a client predicate, not workspace
+    ;;   (tmux/open-session (workspace/current-workspace)))
+    (tmux/open-session (workspace/current-workspace))
 
     (when-not ((set (map :label xs)) input)
       (spit local-cache (str input "\n") :append true))
@@ -29,3 +31,5 @@
    :description   ["Uses j (autojump) to fuzzy-find a directory."
                    "Opens that directory in the workspace terminal."]
    :handler       autojump-handler})
+
+(comment)
