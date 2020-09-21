@@ -2,9 +2,10 @@
   (:require
    [ralphie.i3 :as i3]
    [ralphie.awesome :as awm]
-   [ralphie.org :as org]
    [ralphie.rofi :as rofi]
    [ralphie.command :refer [defcom]]
+   [ralphie.config :as config]
+   [org-crud.api :as org-crud]
    [clojure.string :as string]))
 
 (defn rename-handler
@@ -26,12 +27,14 @@
 
 (defn all-workspaces []
   (->>
-    (org/fname->items "workspaces.org")
-    (map (fn [{:keys [name] :as org-wsp}]
+    "workspaces.org"
+    (#(str (config/org-dir) "/" %))
+    (org-crud/path->flattened-items)
+    (map (fn [{:keys [org/name] :as org-wsp}]
            ;; TODO move to namespaced fields
-           {:org/item     org-wsp
-            :awesome/tag  (awm/tag-for-name name)
-            :i3/workspace (i3/workspace-for-name name)}))))
+           (merge org-wsp
+                  {:awesome/tag  (awm/tag-for-name name)
+                   :i3/workspace (i3/workspace-for-name name)})))))
 
 (defn for-name [name]
   (some->> (all-workspaces)
@@ -102,6 +105,33 @@
    ["Creates a new workspace based on workspaces.org and rofi input."]
    :handler       start-workspace-handler})
 
+
+(defcom awesome-create-tag
+  {:name          "awesome-create-tag"
+   :one-line-desc "Creates a new tag in your _Awesome_ Window Manager."
+   :description   []
+   :handler
+   (fn [_ {:keys [arguments]}]
+     (println "arguments" arguments)
+     (if-let [tag-name (some-> arguments first)]
+
+       (do
+         (println "found args, tag-name" tag-name)
+         (awm/create-tag! tag-name))
+
+       ;; no tag, get from rofi
+       (let [existing-tag-names (->> (awm/all-tags) (map :name) set)]
+         (println "starting rofi")
+         (println "existing" existing-tag-names)
+         (rofi/rofi
+           {:msg       "New Tag Name?"
+            :on-select awm/create-tag!}
+           (->>
+             (all-workspaces)
+             (map :org/name)
+             (remove #(contains? existing-tag-names %))
+             seq)))))})
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; open? helper
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -147,3 +177,5 @@
    :handler        i3-scratchpad-push-handler})
 
 
+
+(comment)

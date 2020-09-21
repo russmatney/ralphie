@@ -1,9 +1,8 @@
 (ns ralphie.awesome
   (:require
-   ;; [ralphie.rofi :as rofi]
-   ;; [ralphie.workspace :as workspace]
    [ralphie.command :refer [defcom]]
    [ralphie.config :as config]
+   [ralphie.notify :as notify]
    [ralphie.item :as item]
    [clojure.pprint]
    [org-crud.core :as org-crud]
@@ -204,8 +203,7 @@ window= c.window,
 
 (comment
   (->> (all-tags)
-       (map #(dissoc % :clients)))
-  )
+       (map #(dissoc % :clients))))
 
 (defn tag-for-name [name]
   (some->>
@@ -272,27 +270,13 @@ first_tag= c.first_tag.name,
     awm-cli))
 
 (defn create-tag! [name]
+  (println "create-tag!" name)
+  (notify/notify {:subject (str "creating new awesome tag: " name)
+                  :body    "layout? availble clients? status? last-checkup?"})
   (awm-cli (awful-tag-add name {})))
 
-;; (defcom awesome-create-tag
-;;   {:name          "awesome-create-tag"
-;;    :one-line-desc "Creates a new tag in your _Awesome_ Window Manager."
-;;    :description   []
-;;    :handler
-;;    (fn [_ {:keys [arguments]}]
-;;      (if-let [tag-name (some-> arguments first)]
-;;        (create-tag! tag-name)
-
-;;        ;; no tag, get from rofi
-;;        (let [existing-tag-names (->> (all-tags) (map :name) set)]
-;;          (rofi/rofi
-;;            {:msg "New Tag Name?"}
-;;            (->>
-;;              ;; TODO pull in repos.org
-;;              (workspace/all-workspaces)
-;;              (map (comp :name :org/item))
-;;              (remove #(contains? existing-tag-names %))
-;;              create-tag!)))))})
+(comment
+  (create-tag! "new-tag"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Delete current tag
@@ -340,9 +324,9 @@ first_tag= c.first_tag.name,
   {:tag-names (->>
                 (config/workspaces-file)
                 org-crud/path->nested-item
-                :items
+                :org/items
                 initial-tags-for-awesome
-                (map :name)
+                (map :org/name)
                 seq)})
 
 (defn init-tags

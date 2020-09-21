@@ -40,7 +40,7 @@
 (defn watching? [item]
   (has-prop? item :watching))
 
-(defn workspace-key [item] (some-> item :props :workspace-key
+(defn workspace-key [item] (some-> item :org.prop/workspace-key
                                    Integer/parseInt))
 
 (comment
