@@ -21,11 +21,11 @@
               (string? wsp) (workspace/for-name wsp)
               :else         wsp)]
     (cond
-      (-> wsp :org/item :props :initial-file)
+      (-> wsp :org.prop/initial-file)
       (emacs/open wsp)
 
-      (-> wsp :org/item :props :exec)
-      (let [exec (-> wsp :org/item :props :exec
+      (-> wsp :org.prop/exec)
+      (let [exec (-> wsp :org.prop/exec
                      (string/split #" "))
             pb   (doto (ProcessBuilder. exec)
                    (.inheritIO))]
@@ -41,6 +41,7 @@
 
   (sh/sh "exec" "sleep" "4")
   (r.sh/bash "nohup sleep 2")
+  (create-client "journal")
   (create-client "org-crud")
   (create-client "yodo-app")
   ;; TODO web holds onto process - needs to be disowned somehow

@@ -8,22 +8,22 @@
 
 (defn has-deps-edn? [repo]
   (-> repo
-      :name
+      :org/name
       (#(str (config/home-dir) "/" % "/deps.edn"))
       fs/exists?
       ))
 
 (comment
-  (has-deps-edn? {:name "russmatney/yodo"}))
+  (has-deps-edn? {:org/name "russmatney/yodo"}))
 
 (defn watched-repos []
   (->>
     (config/repos-file)
     org-crud/path->nested-item
-    :items
-    (map #(dissoc % :items :tags :status :id :raw-headline :source-file
-                  :body :level))
-    (filter #(-> % :props :watching))))
+    :org/items
+    (map #(dissoc % :org/items :org/tags :org/status :org/id :org/raw-headline
+                  :org/source-file :org/body :org/level))
+    (filter #(-> % :org.prop/watching))))
 
 (defcom any-outdated
   {:name          "any-outdated"
@@ -34,3 +34,5 @@
        (->> (watched-repos)
             (filter has-deps-edn?)
             (map outdated/check-deps-for-repo))))})
+
+(comment)

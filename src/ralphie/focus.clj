@@ -23,7 +23,7 @@
   (->> (parse-current-todos)
        (filter item/focused-at)
        ;; not yet a true date comparison
-       (sort-by (comp :focused-at :props))
+       (sort-by item/focused-at)
        (reverse)))
 
 (comment
@@ -67,3 +67,5 @@
    :one-line-desc "Returns your current focused todos"
    :description   ["Supports a json parameter: `ralphie focus json`."]
    :handler       set-focus-handler})
+
+(comment)

@@ -8,18 +8,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn has-tag? [item tag]
-  (-> item :tags set (contains? tag)))
+  (-> item :org/tags set (contains? tag)))
 
 (defn has-status? [item status]
-  (-> item :status (= status)))
-
-(defn has-prop?
-  ([item prop]
-   (-> item :props (get prop)))
-
-  ([item prop value]
-   (-> item :props (get prop) (= value))
-   ))
+  (-> item :org/status (= status)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Public
@@ -32,19 +24,19 @@
   (has-tag? item "cancelled"))
 
 (defn focused-at [item]
-  (has-prop? item :focused-at))
+  (-> item :org.prop/focused-at))
 
 (defn awesome-tag-parent? [item]
-  (has-prop? item :child-tag "awesometag"))
+  (-> item :org.prop/child-tag (= "awesometag")))
 
 (defn watching? [item]
-  (has-prop? item :watching))
+  (-> item :org.prop/watching))
 
 (defn workspace-key [item] (some-> item :org.prop/workspace-key
                                    Integer/parseInt))
 
 (comment
-  (workspace-key {:props {:workspace-key "0 "}}))
+  (workspace-key {:org.prop/workspace-key "0 "}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parse Helper
@@ -52,19 +44,18 @@
 
 (defn ->level-1-list [root-item pred]
   (some->> root-item
-           :items
+           :org/items
            (filter pred)
            first
-           :items))
+           :org/items))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Item data
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(def props :props)
+(defn path [item] (-> item :org.prop/path))
 
-(defn path [item] (-> item :props :path))
-
+;; TODO namespace the rofi fields (:rofi/label, :rofi/on-select)
 (defn ->rofi-item
   "Preps an item for rofi display.
 
@@ -83,17 +74,16 @@
 
 (defn latest-date
   [item]
-  (some-> item :props
+  (some-> item
           ((fn [ps]
              (or
-               (:created-at ps)
-               (:updated-at ps)
-               (:started-at ps)
-               (:finished-at ps)
-               (:seen-at ps))))))
+               (:org.prop/created-at ps)
+               (:org.prop/updated-at ps)
+               (:org.prop/started-at ps)
+               (:org.prop/finished-at ps)
+               (:org.prop/seen-at ps))))))
 
 (comment
-
   (->>
     (reduce
       (fn [items path]
@@ -110,6 +100,6 @@
     first
     )
 
-  (latest-date {:props {:created-at "hi"}})
+  (latest-date {:org.prop/created-at "hi"})
   )
 

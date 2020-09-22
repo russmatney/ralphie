@@ -24,7 +24,6 @@
    [ralphie.notes]
    [ralphie.notify]
    [ralphie.picom]
-   [ralphie.pomodoro]
    [ralphie.prompts]
    [ralphie.read]
    [ralphie.readme]
