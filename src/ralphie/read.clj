@@ -9,7 +9,7 @@
 
 (defn org-item->rofi-urls
   [item]
-  (->> item :urls
+  (->> item :org/urls
        (map (fn [u]
               {:label
                (str (:org/name item)
@@ -34,9 +34,9 @@
   ([] (find-read-handler nil nil))
   ([_config _parsed]
    (let [reads (org-crud/path->flattened-items (config/reads-file))
-         ct    (->> reads (mapcat :urls) count)]
+         ct    (->> reads (mapcat :org/urls) count)]
      (some->> reads
-              (filter (comp seq :urls))
+              (filter (comp seq :org/urls))
               (mapcat org-item->rofi-urls)
               (rofi/rofi {:msg (str "Read Urls (" ct ")")})
               :url
@@ -59,9 +59,9 @@
   ([] (find-watch-handler nil nil))
   ([_config _parsed]
    (let [watches (org-crud/path->flattened-items (config/watches-file))
-         ct      (->> watches (mapcat :urls) count)]
+         ct      (->> watches (mapcat :org/urls) count)]
      (some->> watches
-              (filter (comp seq :urls))
+              (filter (comp seq :org/urls))
               (mapcat org-item->rofi-urls)
               (rofi/rofi {:msg (str "Watch Urls (" ct ")")})
               :url
