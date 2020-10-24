@@ -60,7 +60,8 @@
    ;; the alacritty window is closed. Not sure if there's a better
    ;; way to disown the process.
    ($ alacritty --title ~name -e tmux new-session -A
-      ~(when directory (str "-c " directory)))))
+      ~(when directory (str "-c " directory))
+      -s ~name)))
 
 (comment
   (open-session {:name "name"}))
