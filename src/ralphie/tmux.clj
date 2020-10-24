@@ -1,7 +1,8 @@
 (ns ralphie.tmux
   (:require
-   [clojure.java.shell :as sh]
+   [babashka.process :refer [$ check]]
    [ralphie.rofi :as rofi]
+   [ralphie.notify :refer [notify]]
    [ralphie.command :refer [defcom]]))
 
 (defn ->fire-session-name [workspace-name]
@@ -12,26 +13,30 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn has-session? [name]
-  (->
-    (sh/sh "tmux" "has-session" "-t" name)
-    :exit
-    (= 0)))
+  (-> @($ tmux has-session -t ~name)
+      :exit
+      (= 0)
+      ))
 
 (comment
-  (has-session? "new"))
+  (has-session? "new")
+  (has-session? "ralphie")
+  )
 
-(defn new-session [{:keys [name dir]}]
+(defn new-session [{:keys [name dir] :as opts}]
+  (notify "Attempt to create new tmux session" opts)
   (when name
-    (->>
-      ["tmux" "new-session"
-       "-d" ;; do not attach
-       "-c" (if dir dir "~") ;; set working dir
-       "-s" name ;; session name
-       "-n" name ;; window name
-       ]
-      (apply sh/sh))))
+    (-> ($ tmux new-session -d -c ~(if dir dir "~") -s ~name -n ~name)
+        check
+        :out
+        slurp)
+    (notify "Created new tmux session" opts)))
 
-(defn create-background-session
+(comment
+  (new-session {:name "new"})
+  (has-session? {:name "ralphie"}))
+
+(defn ensure-background-session
   "Creates a tmux session in the background."
   [{:keys [name] :as opts}]
   (if (has-session? name)
@@ -39,7 +44,7 @@
     (new-session opts)))
 
 (comment
-  (create-background-session {:name "mysess"}))
+  (ensure-background-session {:name "mysess"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; New window
@@ -48,19 +53,17 @@
 (defn open-session
   "Creates a session in a new alacritty window."
   ([] (open-session {:name "ralphie-fallback" :directory "~/."}))
-  ([{:keys [name directory]}]
-   (let [args ["tmux" "-c"
-               (str "alacritty --title " name
-                    " -e tmux new-session -A "
-                    (when directory (str " -c " directory))
-                    " -s "
-                    name
-                    " & disown")]]
-     (println args)
-     (apply sh/sh args))))
+  ([{:keys [name directory] :as opts}]
+   (notify "Creating new alacritty window with tmux session" opts)
+
+   ;; note that `check`ing or derefing this won't release until
+   ;; the alacritty window is closed. Not sure if there's a better
+   ;; way to disown the process.
+   ($ alacritty --title ~name -e tmux new-session -A
+      ~(when directory (str "-c " directory)))))
 
 (comment
-  (open-session {:name "yodo"}))
+  (open-session {:name "name"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fire command
@@ -68,24 +71,20 @@
 
 (defn fire
   "Aka send-keys.
-  Defaults to firing into a 'tmux' workspace, which results in the
-  'tmux-fire' session.
+  Fires keys into a 'tmux' workspace, which defaults to the
+  'ralphie-fallback' session.
 
   Useful in that the output is accessible in a tmux session, somewhere.
 
-  I'm tempted to mark it DEPRECATED in favor of using bb/process.
-  "
-  ([cmd-str]
-   (fire cmd-str {:session "ralphie-fallback"}))
+  Should probably be DEPRECATED in favor of using bb/process directly."
+  ([cmd-str] (fire cmd-str {:session "ralphie-fallback"}))
   ([cmd-str opts]
-   (let [name (:session opts)]
-     (create-background-session {:name name})
-     (println "sessions created?")
-     (sh/sh "tmux" "send-keys"
-            "-t"  (str name ".0")
-            ;; "-t"  name
-            cmd-str
-            "C-m"))))
+   (let [session-name (:session opts)]
+     (ensure-background-session {:name session-name})
+     ($ tmux send-keys "-t"
+        ;; .0 specifies the first window in the session
+        ~(str session-name ".0")
+        ~cmd-str C-m))))
 
 (comment
   (fire "echo sup" {:session "ralphie"}))
