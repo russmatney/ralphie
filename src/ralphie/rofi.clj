@@ -1,6 +1,6 @@
 (ns ralphie.rofi
   (:require
-   [ralphie.sh :as sh]
+   [babashka.process :refer [$ check]]
    [clojure.string :as string]
    [ralphie.config :as config]
    [ralphie.command :as command :refer [defcom]]))
@@ -15,8 +15,10 @@
 (defn rofi
   "Expects `xs` to be a coll of maps with a `:label` key.
   `msg` is displayed to the user.
+
   Upon selection, if the user-input matches a label, that `x`
   is selected and retuned.
+
   If a no match is found, the user input is returned.
   If on-select is passed, it is called with the selected input.
 
@@ -31,16 +33,17 @@
                                ) xs)
          msg    (or msg message)
 
-         res
-         ;; TODO remove ralphie/sh dep
-         (sh/sh "rofi" "-i"
-                (if require-match? "-no-custom" "")
-                "-markup-rows"
-                "-dmenu" "-mesg" msg "-sync" "-p" "*"
-                :in (string/join "\n" labels))
-
-         selected-label (:out res)]
-
+         selected-label
+         (some->
+           ^{:in (string/join "\n" labels)}
+           ($ rofi -i
+              ~(if require-match? "-no-custom" "")
+              -markup-rows
+              -dmenu -mesg ~msg -sync -p *)
+           check
+           :out
+           slurp
+           string/trim)]
      (when (seq selected-label)
        ;; TODO use index-by, or just make a map
        (let [selected-x (if maps?
@@ -57,13 +60,15 @@
 
 
 (comment
-  (sh/sh
-    "rofi" "-i" "-dmenu" "-mesg" "Select bookmark to open" "-sync" "-p" "*"
-    :in "11  iiii\n22 IIIIII\n33 33333")
+  (->
+    ^{:in "11  iiii\n22 IIIIII\n33 33333"}
+    ($ rofi -i -dmenu -mesg "Select bookmark to open" -sync -p *)
+    check
+    :out
+    slurp)
 
   (rofi
-    {:msg
-     "message"}
+    {:msg "message"}
     [{:label "iii" :url "urlllll"}
      {:label "333" :url "something"}
      {:label "jkjkjkjkjkjkjkjkjkjkjkjkjkjkjk" :url "w/e"}
