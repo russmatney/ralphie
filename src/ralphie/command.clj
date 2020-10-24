@@ -9,7 +9,10 @@
 
 (defn call-handler
   [cmd config parsed]
-  ((:handler cmd) config parsed))
+  (if (and cmd (:handler cmd))
+    ((:handler cmd) config parsed)
+    ;; TODO get logging lib
+    (println "No cmd or cmd without handler passed to call-handler" cmd)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; defcom and command registry

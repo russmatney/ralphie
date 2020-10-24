@@ -42,7 +42,8 @@
       (println "404! Command not found.")
       (help/help-handler config passed-args))
 
-    (command/call-handler command config args)))
+    (when command
+      (command/call-handler command config args))))
 
 (comment
   (->>
