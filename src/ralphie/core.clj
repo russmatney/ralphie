@@ -1,10 +1,3 @@
-#!/bin/sh
-#_(
-   "cd" "/home/russ/russmatney/ralphie"
-   "exec" "bb" "--classpath" "$(clojure -Spath)" "-m" "ralphie.core" "$@"
-   )
-;; TODO un-hardcode the dirname
-
 (ns ralphie.core
   (:require
    [ralphie.autojump]
@@ -71,7 +64,3 @@
   (:summary -res)
 
   (println *file*))
-
-;; Local Variables:
-;; mode: clojure
-;; End:
