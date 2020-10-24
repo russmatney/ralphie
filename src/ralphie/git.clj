@@ -1,5 +1,6 @@
 (ns ralphie.git
   (:require
+   [babashka.process :refer [$ process check]]
    [cheshire.core :as json]
    [ralphie.tmux :as tmux]
    [ralphie.rofi :as rofi]
@@ -47,10 +48,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn clone [{:keys [repo-id]}]
-  (->> (str "hub clone " repo-id " " (str (config/home-dir) "/" repo-id))
-       tmux/fire
-       str
-       (sh/sh "notify-send" "Clone attempt")))
+  (->> ($ hub clone ~repo-id ~(str (config/home-dir) "/" repo-id))
+       check
+       :out
+       slurp
+       ;; (sh/sh "notify-send" "Clone attempt")
+       ))
+
+(comment
+  (clone {:repo-id "metosin/eines"})
+  (clone {:repo-id "russmatney/ink-mode"})
+  )
 
 (defn clone-from-stars []
   (->> (fetch-stars)
@@ -101,3 +109,5 @@
    :one-line-desc "gprom"
    :description   [""]
    :handler       gprom-handler})
+
+(comment)

@@ -1,8 +1,16 @@
 (ns ralphie.sh
+  "This namespace should mostly go away, especially now that bb/process provides
+  a better/more direct interface for processes."
   (:require
+   [babashka.process :refer [$ process]]
    [clojure.java.shell :as clj-sh]
    [clojure.string :as string]))
 
+(comment
+  (-> (process '[ls]) :out slurp)
+  (slurp (:out (process '[ls])))
+  (-> ($ ls) :out slurp)
+  (slurp (:out ($ "ls"))))
 
 (defn- first-or-list
   [x]

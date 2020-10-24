@@ -1,10 +1,28 @@
 (ns ralphie.notify
-  (:require [clojure.java.shell :as sh]))
+  (:require
+   [babashka.process :refer [$ check]]))
 
-(defn notify [{:keys [subject body]}]
-  (sh/sh "notify-send" subject (str body)))
+(defn notify
+  ([notice]
+   (cond (string? notice) (notify notice "No body")
+
+         (map? notice)
+         (let [{:keys [subject body]} notice]
+           (notify subject body))
+
+         :else
+         (notify "Malformed notify call" "Expected string or map.")
+         ))
+
+  ([subject body]
+   (-> ($ notify-send ~subject ~body)
+       check
+       :out
+       slurp)))
 
 (comment
+  (notify "subj" "body\nbody\nbody")
   (notify {:subject "subj" :body {:value "v" :label "laaaa"}})
   (notify {:subject "subj" :body "BODY"})
-  (sh/sh "notify-send" "subj" "body"))
+  (-> ($ notify-send subj body)
+      check))

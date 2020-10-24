@@ -69,7 +69,12 @@
 (defn fire
   "Aka send-keys.
   Defaults to firing into a 'tmux' workspace, which results in the
-  'tmux-fire' session."
+  'tmux-fire' session.
+
+  Useful in that the output is accessible in a tmux session, somewhere.
+
+  I'm tempted to mark it DEPRECATED in favor of using bb/process.
+  "
   ([cmd-str]
    (fire cmd-str {:session "ralphie-fallback"}))
   ([cmd-str opts]
