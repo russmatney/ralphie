@@ -1,14 +1,13 @@
 (ns ralphie.git
   (:require
-   [babashka.process :refer [$ process check]]
+   [babashka.process :refer [$ check]]
    [cheshire.core :as json]
-   [ralphie.tmux :as tmux]
+   [ralphie.notify :refer [notify]]
    [ralphie.rofi :as rofi]
    [ralphie.config :as config]
    [ralphie.clipboard :as clipboard]
    [ralphie.re :as re]
-   [ralphie.command :refer [defcom]]
-   [clojure.java.shell :as sh]))
+   [ralphie.command :refer [defcom]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; transforms
@@ -48,12 +47,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn clone [{:keys [repo-id]}]
+  (notify (str "Clone attempt: " repo-id))
   (->> ($ hub clone ~repo-id ~(str (config/home-dir) "/" repo-id))
        check
        :out
        slurp
-       ;; (sh/sh "notify-send" "Clone attempt")
-       ))
+       (notify (str "Successful clone: " repo-id))))
 
 (comment
   (clone {:repo-id "metosin/eines"})

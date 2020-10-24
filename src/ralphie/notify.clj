@@ -4,7 +4,7 @@
 
 (defn notify
   ([notice]
-   (cond (string? notice) (notify notice "No body")
+   (cond (string? notice) (notify notice nil)
 
          (map? notice)
          (let [{:keys [subject body]} notice]
