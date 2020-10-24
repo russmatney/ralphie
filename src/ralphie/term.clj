@@ -18,7 +18,6 @@
      (tmux/open-session opts))))
 
 (comment
-  (println "hi")
   (open-term)
   (open-term "notes")
   (open-term "ralphie")

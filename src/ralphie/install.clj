@@ -1,16 +1,21 @@
 (ns ralphie.install
   (:require
-   [clojure.java.shell :as sh]
+   [babashka.process :refer [$ check]]
    [ralphie.command :refer [defcom]]
+   [ralphie.notify :refer [notify]]
    [ralphie.config :as config]))
 
 (defn symlink
   [source target]
-  (sh/sh "ln" "-s" source target))
+  (-> ($ ln -s ~source ~target)
+      check))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Install-dev
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn add-dev-bin-to-path []
   (let [executable (str (config/project-dir) "/src/ralphie/core.clj")]
-    ;; TODO probably a better default bin dir
     (symlink executable (str (config/home-dir) "/.local/bin/ralphie-dev"))))
 
 (defn install-cmd [_config _parsed]
@@ -33,19 +38,25 @@
 ;; bb -cp $(clojure -Spath) -m ralphie.core --uberscript ralphie-script.clj
 
 (defn build-uberscript []
-  (let [cp (:out (sh/sh "clojure" "-Spath" :dir (config/project-dir)))]
-    (sh/sh "bb"
-           "-cp" cp
-           "-m" "ralphie.core"
-           "--uberscript" "ralphie-script.clj"
-           :dir (config/project-dir))))
+  (notify "Re-Building Ralphie Uberscript")
+  (let [cp (-> ^{:dir (config/project-dir)}
+               ($ clojure -Spath)
+               check :out slurp)]
+    (-> ^{:dir (config/project-dir)}
+        ($ bb -cp ~cp -m ralphie.core --uberscript ralphie-script.clj)
+        check)
+    (notify "Ralphie Uberscript Rebuilt.")))
+
+(comment
+  (build-uberscript)
+  (-> ^{:dir "/home/russ/dotfiles"} ($ ls) :out slurp))
 
 (defn install-uberscript []
   (spit "/home/russ/.local/bin/ralphie"
         (str "#!/bin/sh
-cd /home/russ/russmatney/ralphie
-exec bb ralphie-script.clj $@"))
-  (sh/sh "chmod" "+x" "/home/russ/.local/bin/ralphie"))
+exec bb /home/russ/russmatney/ralphie/ralphie-script.clj $@"))
+  ($ chmod +x ~(config/ralphie-bin-path))
+  (notify "Re-created wrapper shell script"))
 
 (defn build-uberscript-handler
   ([] (build-uberscript-handler nil nil))

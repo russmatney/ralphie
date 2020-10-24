@@ -6,6 +6,7 @@
 (defn home-dir [] (expand "~"))
 
 (defn project-dir [] (expand "~/russmatney/ralphie"))
+(defn ralphie-bin-path [] (expand "~/.local/bin/ralphie"))
 (defn awesome-config-org-path [] (expand "~/russmatney/dotfiles/config.org"))
 
 (defn github-username [] "russmatney")
