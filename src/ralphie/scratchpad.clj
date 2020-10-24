@@ -4,10 +4,9 @@
    [ralphie.emacs :as emacs]
    [ralphie.workspace :as workspace]
    [ralphie.awesome :as awm]
-   [ralphie.sh :as r.sh]
-   [clojure.string :as string]
-   [clojure.java.shell :as sh])
-  (:import java.lang.ProcessBuilder))
+   [ralphie.notify :refer [notify]]
+   [babashka.process :refer [process check]]
+   [clojure.string :as string]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Create client
@@ -16,36 +15,29 @@
 (defn create-client
   "Creates clients for a given workspace"
   [wsp]
-  (let [wsp (cond
-              (nil? wsp)    (workspace/current-workspace)
-              (string? wsp) (workspace/for-name wsp)
-              :else         wsp)]
+  (let [wsp  (cond
+               (nil? wsp)    (workspace/current-workspace)
+               (string? wsp) (workspace/for-name wsp)
+               :else         wsp)
+        exec (-> wsp :org.prop/exec)
+        ]
     (cond
       (-> wsp :org.prop/initial-file)
       (emacs/open wsp)
 
-      (-> wsp :org.prop/exec)
-      (let [exec (-> wsp :org.prop/exec
-                     (string/split #" "))
-            pb   (doto (ProcessBuilder. exec)
-                   (.inheritIO))]
-        (.start pb)))))
+      exec
+      (do
+        (notify "Starting new client" exec)
+        (-> exec
+            (string/split #" ")
+            process
+            check)
+        (notify "New client started" exec)))))
 
 (comment
-  (let [pb (ProcessBuilder. ["echo" "hi"])]
-    (.start pb))
-
-  (let [pb (doto (ProcessBuilder. ["gtk-launch" "yodo-electron.desktop"])
-             (.inheritIO))]
-    (.start pb))
-
-  (sh/sh "exec" "sleep" "4")
-  (r.sh/bash "nohup sleep 2")
   (create-client "journal")
   (create-client "org-crud")
   (create-client "yodo-app")
-  ;; TODO web holds onto process - needs to be disowned somehow
-  (workspace/for-name "web")
   (create-client "web"))
 
 (defn create-client-handler
