@@ -1,35 +1,30 @@
 (ns ralphie.emacs
   (:require
    [ralphie.workspace :as workspace]
-   [ralphie.notify :as notify]
-   [clojure.java.shell :as sh]
+   [ralphie.notify :refer [notify]]
+   [babashka.process :refer [$ check]]
    [ralphie.command :refer [defcom]]))
 
 (defn open
   ([] (open (workspace/current-workspace)))
   ([wsp]
-   (let [;; these should be org/name and org/props
-         name         (-> wsp :org/name)
-         initial-file (-> wsp :org.prop/initial-file)
+   (let [wsp-name     (-> wsp :org/name)
+         initial-file (-> wsp :org.prop/initial-file)]
 
-         args ["emacsclient"
-               "--no-wait"
-               "--create-frame"
-               "-F" (str "((name . \"" name "\"))")
-               "--display=:0"
-               "--eval"
-               (str "(progn (russ/open-workspace \"" name "\") "
-                    (if initial-file
-                      (str "(find-file \"" initial-file "\")")
-                      "")
-                    ")")]]
-     (notify/notify {:subject "open-emacs"
-                     :body    (str args)})
-     (apply sh/sh args))))
+     (notify "Attempting new emacs client" (:org/name wsp))
+     (-> ($ emacsclient --no-wait --create-frame
+            -F ~(str "((name . \"" wsp-name "\"))")
+            --display=:0
+            --eval
+            ~(str "(progn (russ/open-workspace \"" wsp-name "\") "
+                  (if initial-file
+                    (str "(find-file \"" initial-file "\")") "") ")"))
+         check)
+     (notify "Created new emacs client" (:org/name wsp)))))
 
 (comment
   (open (workspace/for-name "journal"))
-  (open "yodo"))
+  (open (workspace/for-name "ralphie")))
 
 (defn open-handler [_config parsed]
   (if-let [name (some-> parsed :arguments first)]
