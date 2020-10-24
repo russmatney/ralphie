@@ -7,7 +7,7 @@
    [clojure.pprint]
    [org-crud.core :as org-crud]
    [clojure.string :as string]
-   [clojure.java.shell :as sh]))
+   [babashka.process :refer [$ check]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; awesome-client helpers
@@ -31,7 +31,6 @@
     ;; convert to clojure data structure
     load-string))
 
-
 (defn awm-cli
   "Prefixes the passed lua code with common requires and local vars."
   ([cmd] (awm-cli {:pp? true :parse? true} cmd))
@@ -48,25 +47,23 @@
        (clojure.pprint/pprint "<awesome-client INPUT>")
        (clojure.pprint/pprint (string/split-lines full-cmd)))
      (let [res
-           (sh/sh "awesome-client" full-cmd)]
+           (-> ($ awesome-client ~full-cmd) check :out slurp)]
        (when pp?
          (clojure.pprint/pprint "<awesome-client OUTPUT>")
          (clojure.pprint/pprint res))
        (if parse?
-         (awm-cli-parse-output (:out res))
+         (awm-cli-parse-output res)
          res)))))
 
 (comment
   (awm-cli
     (str
       "return view(lume.map(client.get(), "
-      "function (t) return {name= t.name
-} end))"))
+      "function (t) return {name= t.name} end))"))
 
   (println "hello")
   (awm-cli "print('hello')")
-  (awm-cli "return view(lume.map(s.tags, function (t) return {name= t.name} end))")
-  (awm-cli "add_all_tags()"))
+  (awm-cli "return view(lume.map(s.tags, function (t) return {name= t.name} end))"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; converts a clojure map to a lua table
