@@ -1,10 +1,13 @@
 (ns ralphie.clipboard
   (:require
    [clojure.string :as string]
-   [clojure.java.shell :as sh]))
+   [babashka.process :refer [$ check]]))
 
 (defn get-clip [clipboard-name]
-  (-> (sh/sh "xclip" "-o" "-selection" clipboard-name) :out))
+  (-> ($ xclip -o -selection clipboard-name)
+      check
+      :out
+      slurp))
 
 (defn get-all
   "Returns a list of things on available clipboards."
@@ -20,3 +23,6 @@
        vals
        (map string/trim)
        (remove empty?)))
+
+(comment
+  (values))

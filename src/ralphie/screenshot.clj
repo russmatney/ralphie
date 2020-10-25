@@ -2,18 +2,26 @@
   (:require
    [ralphie.command :refer [defcom]]
    [ralphie.rofi :as rofi]
-   [clojure.java.shell :as sh]))
+   [ralphie.notify :refer [notify]]
+   [babashka.process :refer [$ check]]))
 
 (defn select-region
   "Depends on ~/.local/bin/screenshot-region"
   []
-  (sh/sh "screenshot-region"))
+  (-> ($ screenshot-region)
+      check)
+  (notify "Selected region screenshot captured"))
 
 ;; TODO optionally disable transparency before shot
 (defn full-screen
-  "Depends on ~/.local/bin/screenshot"
+  "Depends on ~/.local/bin/screenshot
+  TODO make sure this script reports an error when it fails
+  and consider moving the script logic into clj
+  "
   []
-  (sh/sh "screenshot"))
+  (-> ($ screenshot)
+      check)
+  (notify "Fullscreen screenshot captured"))
 
 (defn take-screenshot [_config parsed]
   (let [arg (some-> parsed :arguments first)]

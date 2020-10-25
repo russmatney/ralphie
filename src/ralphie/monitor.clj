@@ -2,7 +2,7 @@
   (:require
    [ralphie.command :refer [defcom]]
    [ralphie.rofi :as rofi]
-   [clojure.java.shell :as sh]))
+   [babashka.process :refer [$ check]]))
 
 ;; TODO refactor rest of script into here, show dimensions in desc
 (defn set-monitor-resolution-handler [_config {:keys [arguments]}]
@@ -15,7 +15,8 @@
                                     {:label "home-monitor-only"}
                                     {:label "algo"}]))]
     (when label
-      (sh/sh "set-monitor-config" label))))
+      (-> ($ set-monitor-config ~label)
+          check))))
 
 (defcom set-monitor-resolution-cmd
   {:name          "set-monitor-resolution"

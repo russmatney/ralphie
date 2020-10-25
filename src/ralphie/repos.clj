@@ -8,29 +8,37 @@
    [ralphie.rofi :as rofi]
    [org-crud.core :as org-crud]
    [clojure.string :as string]
-   [clojure.java.shell :as sh]))
+   [babashka.process :refer [$ check]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Repo helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn ignore-dirty? [item]
-  (-> item item/path (string/includes? "Dropbox")))
+  (some-> item item/path (string/includes? "Dropbox")))
 
 (defn is-clean? [item]
   (if (ignore-dirty? item)
     true
-    (let [{:keys [out exit err]}
-          (sh/sh "git" "diff" "HEAD" :dir (item/path item))]
-      (and
-        (= out "")
-        (= err "")
-        (= exit 0)))))
+    (when (item/path item)
+      (some-> ^{:dir (item/path item)}
+              ($ git diff HEAD)
+              check
+              :out
+              slurp
+              (= "")))))
 
 (comment
-  (is-clean? {:props {:path "/home/russ/Dropbox/todo"}})
-  (is-clean? {:props {:path "/home/russ/russmatney/ralphie"}})
-  )
+  (-> ^{:dir "/home/russ/russmatney/ralphie"}
+      ($ git diff HEAD)
+      check
+      :out
+      slurp
+      (= ""))
+
+  (is-clean? {:org.prop/path "/home/russ/Dropbox/todo"})
+  (is-clean? {:org.prop/path "/home/russ/russmatney/yodo"})
+  (is-clean? {:org.prop/path "/home/russ/russmatney/ralphie"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fetch repos from org file

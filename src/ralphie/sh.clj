@@ -2,7 +2,7 @@
   "This namespace should mostly go away, especially now that bb/process provides
   a better/more direct interface for processes."
   (:require
-   [babashka.process :refer [$ process]]
+   [babashka.process :refer [$ process check]]
    [clojure.java.shell :as clj-sh]
    [clojure.string :as string]))
 
@@ -36,9 +36,6 @@
     (when (not= "" err) (on-fail err))
     {:out out :err err :exit exit}))
 
-(comment
-  (sh "echo" "hi\nhi"))
-
 (defn bash [command]
   (clj-sh/sh "bash" "-c" command))
 
@@ -46,13 +43,12 @@
   (println args)
   (apply clj-sh/sh "zsh" "-c" args))
 
-(comment
-  (zsh "/usr/bin/gtk-launch firefox.desktop")
-  )
-
-
 (defn expand
   [path]
   (-> (str "echo -n " path)
       (bash)
       :out))
+
+(comment
+  (-> ($ echo -n "~")
+      check :out slurp))

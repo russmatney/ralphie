@@ -1,9 +1,11 @@
-;; pulled from https://github.com/borkdude/babashka/blob/master/examples/outdated.clj
+;; originally pulled from https://github.com/borkdude/babashka/blob/master/examples/outdated.clj
 ;; https://github.com/borkdude/babashka/blob/945de0c5be9640d2ca42039531b315b8773badc5/examples/outdated.clj#L1
+;; 'Inspired by an idea from @seancorfield on Clojurians Slack'
+
 (ns ralphie.outdated
   (:require
    [clojure.edn :as edn]
-   [clojure.java.shell :refer [sh]]
+   [babashka.process :refer [$ check]]
    [ralphie.config :as config]
    [clojure.string :as str]))
 
@@ -24,8 +26,10 @@
                (vals deps))))
 
 (defn deps->versions [deps]
-  (let [res       (sh "clojure" "-Sdeps" (str {:deps deps}) "-Stree")
-        tree      (:out res)
+  (let [tree      (-> ($ clojure -Sdeps ~(str {:deps deps}) -Stree)
+                       check
+                       :out
+                       slurp)
         lines     (str/split tree #"\n")
         top-level (remove #(str/starts-with? % " ") lines)
         deps      (map #(str/split % #" ") top-level)]
@@ -43,9 +47,8 @@
     (doseq [[dep version] (version-map deps)
             :let          [new-version (get (new-version-map deps) dep)]
             :when         (not= version new-version)]
-      (println dep "can be upgraded from" version "to" new-version))))
-
-;; Inspired by an idea from @seancorfield on Clojurians Slack
+      (println dep "can be upgraded from" version "to" new-version))
+    (println "\nFinished checking deps for repo: " (:name repo))))
 
 (comment
   (check-deps-for-repo {:name "russmatney/yodo"}))
