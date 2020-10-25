@@ -26,15 +26,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn all-workspaces []
-  (->>
-    "workspaces.org"
-    (#(str (config/org-dir) "/" %))
-    (org-crud/path->flattened-items)
-    (map (fn [{:keys [org/name] :as org-wsp}]
-           ;; TODO move to namespaced fields
-           (merge org-wsp
-                  {:awesome/tag  (awm/tag-for-name name)
-                   :i3/workspace (i3/workspace-for-name name)})))))
+  (let [awm-all-tags (awm/all-tags)]
+    (->>
+      "workspaces.org"
+      (#(str (config/org-dir) "/" %))
+      (org-crud/path->flattened-items)
+      (map (fn [{:keys [org/name] :as org-wsp}]
+             ;; TODO move to namespaced fields
+             (merge org-wsp
+                    {:awesome/tag (awm/tag-for-name name awm-all-tags)
+                     ;; :i3/workspace (i3/workspace-for-name name)
+                     }))))))
 
 (defn for-name [name]
   (some->> (all-workspaces)

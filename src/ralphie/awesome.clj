@@ -203,11 +203,13 @@ window= c.window,
   (->> (all-tags)
        (map #(dissoc % :clients))))
 
-(defn tag-for-name [name]
-  (some->>
-    (all-tags)
-    (filter (comp #(= % name) :name))
-    first))
+(defn tag-for-name
+  ([name] (tag-for-name name (all-tags)))
+  ([name all-tags]
+   (some->>
+     all-tags
+     (filter (comp #(= % name) :name))
+     first)))
 
 (comment
   (tag-for-name "yodo-dev"))
