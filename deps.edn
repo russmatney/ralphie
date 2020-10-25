@@ -5,11 +5,16 @@
   cheshire/cheshire         {:mvn/version "5.10.0"}
   org.clojars.ogrim/organum {:mvn/version "0.2.0"}
 
-  teknql/wing               {:local/root "../../teknql/wing"}
+  teknql/wing {:local/root "../../teknql/wing"}
+
   babashka/babashka         {:local/root "../../borkdude/babashka"}
   babashka/babashka.pods    {:local/root "../../babashka/pods"}
   babashka/babashka.process {:local/root "../../babashka/process"}
-  russmatney/org-crud       {:local/root "../org-crud"}}
+  babashka/pod-babashka-filewatcher
+  {:git/url "https://github.com/babashka/pod-babashka-filewatcher"
+   :sha     "a0f6c96376ff03d8f8b04d6338a016c174480392"}
+
+  russmatney/org-crud {:local/root "../org-crud"}}
 
  :aliases
  {:run {:main-opts "-m ralphie.core"}
