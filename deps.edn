@@ -1,20 +1,22 @@
 {:paths ["src"]
 
  :deps
- {org.clojure/core.async    {:mvn/version "1.1.587"}
-  cheshire/cheshire         {:mvn/version "5.10.0"}
-  org.clojars.ogrim/organum {:mvn/version "0.2.0"}
+ {org.clojure/core.async {:mvn/version "1.1.587"}
+  cheshire/cheshire      {:mvn/version "5.10.0"}
 
-  teknql/wing {:local/root "../../teknql/wing"}
+  teknql/wing
+  {:git/url "https://github.com/teknql/wing"
+   :sha     "26c525b7ec6c65d9f71d6b8a26315e5b118ab501"}
 
-  babashka/babashka         {:local/root "../../borkdude/babashka"}
-  babashka/babashka.pods    {:local/root "../../babashka/pods"}
-  babashka/babashka.process {:local/root "../../babashka/process"}
-  babashka/pod-babashka-filewatcher
-  {:git/url "https://github.com/babashka/pod-babashka-filewatcher"
-   :sha     "a0f6c96376ff03d8f8b04d6338a016c174480392"}
+  borkdude/babashka {:mvn/version "0.2.3"}
+  ;; babashka/babashka.pods {:mvn/version "0.0.1-SNAPSHOT"}
+  ;; babashka/pod-babashka-filewatcher
+  ;; {:git/url "https://github.com/babashka/pod-babashka-filewatcher"
+  ;;  :sha     "a0f6c96376ff03d8f8b04d6338a016c174480392"}
 
-  russmatney/org-crud {:local/root "../org-crud"}}
+  russmatney/org-crud
+  {:git/url "https://github.com/russmatney/org-crud"
+   :sha     "d06b2686a6832e715d34ed5c8ce515a7a2748e32"}}
 
  :aliases
  {:run {:main-opts "-m ralphie.core"}
@@ -23,4 +25,10 @@
   {:classpath-overrides {org.clojure/spec.alpha       nil
                          org.clojure/core.specs.alpha nil}}
 
-  }}
+  :carve {:jvm-opts ["-XX:-OmitStackTraceInFastThrow"]
+
+          :extra-deps
+          {borkdude/carve
+           {:git/url "https://github.com/borkdude/carve"
+            :sha     "8e9a29b9b985a89ce0aa0b7f4117e072a07bed44"}}
+          :main-opts ["-m" "carve.main"]}}}

@@ -31,3 +31,10 @@
 
 (comment
   (println "hi"))
+
+(defn find-command [commands command-name]
+  (->> commands
+       (group-by :name)
+       (map (fn [[k v]] [k (first v)]))
+       (into {})
+       (#(get % command-name))))

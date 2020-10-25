@@ -29,6 +29,7 @@
     string/join
 
     ;; convert to clojure data structure
+    ;; TODO: use edn/read-string?
     load-string))
 
 (defn awm-cli

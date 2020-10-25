@@ -15,18 +15,10 @@
             [short long one-line-desc])
           (:commands config))))
 
-(defn find-command [config arg]
-  (->> config
-       :commands
-       (group-by :name)
-       (map (fn [[k v]] [k (first v)]))
-       (into {})
-       (#(get % arg))))
-
 (defn parse-command [config parsed]
   (let [args      (:arguments parsed)
         first-arg (first args)
-        command   (find-command config first-arg)]
+        command   (command/find-command (:commands config) first-arg)]
     {:command command
      :args    (assoc parsed :arguments (rest args))}))
 
