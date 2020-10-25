@@ -87,6 +87,32 @@ exec bb /home/russ/russmatney/ralphie/ralphie-script.clj $@"))
 ;; Micros
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; current micro creation process, to be automated
+
+;; 1. add -main for desired command to ns (ex: ralphie.scratchpad)
+;; (defn -main [& args]
+;;   (toggle-scratchpad-handler nil {:arguments args}))
+;; 2. build uberscript with this ns as the main
+;; bb -cp $(clojure -Spath) -m ralphie.scratchpad --uberscript toggle-scratchpad.clj
+;; 3. remove all comment forms
+;; carve doesn't yet ignore comments - this increases yield from the next step
+;; this should go away as a contribution to carve
+;; 4. carve it up
+;; clj -A:carve --opts '{:aggressive true :paths ["toggle-scratchpad.clj"]}'
+;; 5. install it
+;; create a wrapper sh on your path (see `install-uberscript` for example)
+;; 6. profit
+
+(defn install-toggle-scratchpad []
+  (spit "/home/russ/.local/bin/toggle-scratchpad"
+        (str "#!/bin/sh
+exec bb /home/russ/russmatney/ralphie/toggle-scratchpad.clj $@"))
+  ($ chmod +x "/home/russ/.local/bin/toggle-scratchpad")
+  (notify "Re-created toggle-scratchpad wrapper script"))
+
+(comment
+  (install-toggle-scratchpad))
+
 ;; (defn -main [& _args]
 ;;   ((command/get-handler cmd) nil {:arguments *command-line-args*}))
 ;; (defn -main [& args]
