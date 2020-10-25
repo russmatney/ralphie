@@ -27,13 +27,9 @@ whether there are bears near Pulaski's or not.
 Untested on other machines, and not yet configurable. You could clone and modify
 it to work, but this is not a plug-n-play tool yet.
 
-One blocker: a different approach to running the tool is necessary, as it
-currently changes into a hard-coded directory to run. I thought Babashaka's
-`--uberscript` option would suffice for this, but my attempts have not yet made
-that work.
-
-Another blocker: the paths in `ralphie.config` are hard-coded for now, but
-could/should be read from a config somewhere.
+If you try to work with it, especially note the paths in `ralphie.config` are
+hard-coded - theoretically things should work if you update a few spots in
+there.
 
 # Background
 
@@ -46,8 +42,8 @@ Ralphie provides a registry-macro `defcom` which can be used to create a
 command. It then exposes all of its commands both on the command line and via
 [rofi](https://github.com/davatorium/rofi).
 
-My current setup includes firing ralphie commands from i3, and mapping `ralphie
-rofi` to `super+x`. I hope to treat it like `M-x` in Emacs.
+My current setup includes firing ralphie commands from awesomeWM, and mapping
+`ralphie rofi` to `super+x`, which is a sort of OS-level `M-x` emacs-y metaphor.
 
 I like to think of `ralphie` as a clojure version of the use-case
 [Alfred](https://www.alfredapp.com/) filled on OSX.
