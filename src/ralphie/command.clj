@@ -23,15 +23,16 @@
 
 (defmacro defcom
   [command-name opts]
-  `(let [ns#      ~(-> *ns* ns-name name)
-         key#     ~(keyword (-> *ns* ns-name name) (name command-name))
-         fn-name# ~(keyword (-> *ns* ns-name name) (name (:handler opts)))
-         opts#    (assoc ~opts
-                         ::registry-key key#
-                         :fn-name fn-name#
-                         :ns ns#)]
-     (swap! command-registry assoc key# opts#)
-     nil))
+  (let [handler (:handler opts)]
+    `(let [ns#      ~(-> *ns* ns-name name)
+           key#     ~(keyword (-> *ns* ns-name name) (name command-name))
+           fn-name# ~(keyword (-> *ns* ns-name name) (name handler))
+           opts#    (assoc ~opts
+                           ::registry-key key#
+                           :fn-name fn-name#
+                           :ns ns#)]
+       (swap! command-registry assoc key# opts#)
+       nil)))
 
 (defn commands [] (vals @command-registry))
 

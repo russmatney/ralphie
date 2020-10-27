@@ -1,6 +1,7 @@
 (ns ralphie.install
   (:require
    [babashka.process :refer [$ check]]
+   [clojure.java.shell :as sh :refer [with-sh-dir]]
    [ralphie.command :refer [defcom] :as command]
    [ralphie.notify :refer [notify]]
    [ralphie.config :as config]
@@ -86,7 +87,14 @@ exec bb /home/russ/russmatney/ralphie/ralphie-script.clj $@"))
   [_cmd] (str (config/src-dir) "/ralphie/temp.clj"))
 
 (defn temp-uberscript-path
-  [cmd] (str (config/project-dir) "/uberscripts/" (:name cmd) "_uberscript.clj"))
+  ([cmd]
+   (temp-uberscript-path cmd :abs))
+  ([cmd abs-or-rel]
+   (str
+     (when (= :abs abs-or-rel)
+       (str (config/project-dir) "/"))
+     "uberscripts/" (:name cmd) ".clj")))
+
 
 (defn command-bin-path [cmd]
   (str (config/local-bin-dir) "/" "ralphie-" (:name cmd)))
@@ -117,12 +125,14 @@ exec bb /home/russ/russmatney/ralphie/ralphie-script.clj $@"))
 
 (defn carve-temp-uberscript [cmd]
   (notify "Carving temp uberscript" (:name cmd))
-  (let [opts {:paths            [(temp-uberscript-path cmd)]
+  (let [opts {:paths            [(temp-uberscript-path cmd :relative)]
               :aggressive       true
               :clj-kondo/config {:skip-comments true}}]
-    (->
-      ^{:dir (config/project-dir)}
-      ($ clj -A:carve --opts ~opts)))
+    (with-sh-dir (config/project-dir)
+      (sh/sh "clj" "-A:carve" "--opts" (str opts))))
+  ;; (-> ^{:dir }
+  ;;     ($ clj -A:carve --opts ~opts)
+  ;;     check :out slurp)
   (notify "Carved temp uberscript" (:name cmd)))
 
 (defn install-temp-uberscript [cmd]
@@ -140,9 +150,9 @@ exec bb " (temp-uberscript-path cmd) " $@"))
                      (#(command/find-command (:commands config) %)))
          cmd (or cmd (rofi/rofi {:msg "Select command to install"}
                                 (rofi/config->rofi-commands config)))]
-     (notify (str "Installing micro handler for: " (:name cmd)) cmd)
      (if cmd
        (do
+         (notify (str "Installing micro handler for: " (:name cmd)) cmd)
          ;; write dummy file with -main fn calling command's handler
          (write-temp-main-ns cmd)
          ;; create uberscript for new-file's namespace
@@ -161,11 +171,10 @@ exec bb " (temp-uberscript-path cmd) " $@"))
 
 (defcom install-micro-cmd
   {:name          "install-micro"
-   :one-line-desc "Creates a slimmed down script based on a subset of commands."
-   :description   ["Intended to create as small an uberscript as possible."
-                   "Can be thought of as ejecting a command from the rest of ralphie,"
-                   "but into a usable binary."
-                   "Uses carve and static analysis to build a custom bundle of namespaces as an uberscript."
+   :one-line-desc "Creates and installs a minimal uberscript for the passed command"
+   :description   ["Intended to create a small and fast executable for one command."
+                   "Can be thought of as ejecting a command from the rest of ralphie."
+                   "Uses carve to remove unused code."
                    "Intended to support ui-scripts like move-focus and toggle-scratchpad."
                    "Needs to be fast."]
    :handler       install-micro-handler})
