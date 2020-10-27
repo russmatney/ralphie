@@ -14,6 +14,11 @@
   ;; {:git/url "https://github.com/babashka/pod-babashka-filewatcher"
   ;;  :sha     "a0f6c96376ff03d8f8b04d6338a016c174480392"}
 
+  borkdude/carve
+  {:local/root "../../borkdude/carve"}
+  ;; {:git/url "https://github.com/borkdude/carve"
+  ;;  :sha     "8e9a29b9b985a89ce0aa0b7f4117e072a07bed44"}
+
   russmatney/org-crud
   {:git/url "https://github.com/russmatney/org-crud"
    :sha     "d06b2686a6832e715d34ed5c8ce515a7a2748e32"}}
@@ -25,10 +30,5 @@
   {:classpath-overrides {org.clojure/spec.alpha       nil
                          org.clojure/core.specs.alpha nil}}
 
-  :carve {:jvm-opts ["-XX:-OmitStackTraceInFastThrow"]
-
-          :extra-deps
-          {borkdude/carve
-           {:git/url "https://github.com/borkdude/carve"
-            :sha     "8e9a29b9b985a89ce0aa0b7f4117e072a07bed44"}}
+  :carve {:jvm-opts  ["-XX:-OmitStackTraceInFastThrow"]
           :main-opts ["-m" "carve.main"]}}}

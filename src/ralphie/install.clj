@@ -3,7 +3,9 @@
    [babashka.process :refer [$ check]]
    [ralphie.command :refer [defcom] :as command]
    [ralphie.notify :refer [notify]]
-   [ralphie.config :as config]))
+   [ralphie.config :as config]
+   [ralphie.rofi :as rofi]
+   [ralphie.util :as util]))
 
 (defn symlink
   [source target]
@@ -37,16 +39,9 @@
 
 ;; bb -cp $(clojure -Spath) -m ralphie.core --uberscript ralphie-script.clj
 
-(defn get-cp
-  "Builds a classpath in a directory."
-  [dir]
-  (-> ^{:dir dir}
-      ($ clojure -Spath)
-      check :out slurp))
-
 (defn build-uberscript []
   (notify "Re-Building Ralphie Uberscript")
-  (let [cp (get-cp (config/project-dir))]
+  (let [cp (util/get-cp (config/project-dir))]
     (-> ^{:dir (config/project-dir)}
         ($ bb -cp ~cp -m ralphie.core --uberscript ralphie-script.clj)
         check)
@@ -84,113 +79,85 @@ exec bb /home/russ/russmatney/ralphie/ralphie-script.clj $@"))
 (comment)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Micros
+;; Mini-uberscripts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; current micro creation process, to be automated
+(defn temp-ns-path
+  [_cmd] (str (config/src-dir) "/ralphie/temp.clj"))
 
-;; 1. add -main for desired command to ns (ex: ralphie.scratchpad)
-;; (defn -main [& args]
-;;   (toggle-scratchpad-handler nil {:arguments args}))
-;; 2. build uberscript with this ns as the main
-;; bb -cp $(clojure -Spath) -m ralphie.scratchpad --uberscript toggle-scratchpad.clj
-;; 3. remove all comment forms
-;; carve doesn't yet ignore comments - this increases yield from the next step
-;; this should go away as a contribution to carve
-;; 4. carve it up
-;; clj -A:carve --opts '{:aggressive true :paths ["toggle-scratchpad.clj"]}'
-;; 5. install it
-;; create a wrapper sh on your path (see `install-uberscript` for example)
-;; 6. profit
+(defn temp-uberscript-path
+  [cmd] (str (config/project-dir) "/uberscripts/" (:name cmd) "_uberscript.clj"))
 
-(defn install-toggle-scratchpad []
-  (spit "/home/russ/.local/bin/toggle-scratchpad"
-        (str "#!/bin/sh
-exec bb /home/russ/russmatney/ralphie/toggle-scratchpad.clj $@"))
-  ($ chmod +x "/home/russ/.local/bin/toggle-scratchpad")
-  (notify "Re-created toggle-scratchpad wrapper script"))
+(defn command-bin-path [cmd]
+  (str (config/local-bin-dir) "/" "ralphie-" (:name cmd)))
+
+(defn write-temp-main-ns [cmd]
+  (notify "Writing temp ns" (:name cmd))
+  (spit (temp-ns-path cmd)
+        (str "(ns ralphie.temp (:require ["
+             (:ns cmd) "])) "
+             "(defn -main [& args] ("
+             (apply str (next (str (:fn-name cmd))))
+             " nil {:arguments args}))"))
+  (notify "Wrote temp ns" (:name cmd)))
 
 (comment
-  (install-toggle-scratchpad))
+  (apply str (next (str :some.name/space))))
 
-;; (defn -main [& _args]
-;;   ((command/get-handler cmd) nil {:arguments *command-line-args*}))
-;; (defn -main [& args]
-;;   (toggle-scratchpad-handler nil {:arguments args}))
-
-(defn carve [{:keys [dir paths]}]
-  (let [opts {:report  {:format :text}
-              :out-dir dir
-              :paths   paths}]
-    (->
-      ^{:dir (config/project-dir)}
-      ($ clj -A:carve --opts ~opts)
-      check :out slurp
-      ;; edn/read-string
-      )))
-
-(comment
-  (carve
-    {:dir   (str (config/project-dir) "/scratchpad")
-     :paths [
-             "src/ralphie/scratchpad.clj"
-             "src/ralphie/command.clj"
-             "src/ralphie/emacs.clj"
-             "src/ralphie/workspace.clj"
-             "src/ralphie/awesome.clj"
-             "src/ralphie/notify.clj"
-             "src/ralphie/config.clj"
-             "src/ralphie/sh.clj"
-
-             "src/ralphie/i3.clj"
-             "src/ralphie/rofi.clj"
-
-             ;; ugh, would rather exclude these
-             ;; transitive deps, not technically required
-             ]})
-
-  ;; (defn -main [& args]
-  ;;   (toggle-scratchpad-handler nil {:arguments args}))
-
-  (println "hi")
-
-  )
-
-(defn create-minimal-uberscript []
-  (notify "Creating minimal uberscript")
+(defn create-temp-uberscript [cmd]
+  (notify "Creating temp uberscript" (:name cmd))
   (-> ^{:dir (config/project-dir)}
-      ($ bb -cp ~(get-cp (config/project-dir))
-         -m ralphie.core
-         --uberscript some-uberscript.clj)
+      ($ bb -cp ~(util/get-cp (config/project-dir))
+         -m ralphie.temp
+         --uberscript (temp-uberscript-path cmd))
       check
       :out
       slurp)
-  (notify "Created uberscript"))
+  (notify "Created temp uberscript" (:name cmd)))
 
-(comment
-  (create-minimal-uberscript))
+(defn carve-temp-uberscript [cmd]
+  (notify "Carving temp uberscript" (:name cmd))
+  (let [opts {:paths            [(temp-uberscript-path cmd)]
+              :aggressive       true
+              :clj-kondo/config {:skip-comments true}}]
+    (->
+      ^{:dir (config/project-dir)}
+      ($ clj -A:carve --opts ~opts)))
+  (notify "Carved temp uberscript" (:name cmd)))
+
+(defn install-temp-uberscript [cmd]
+  (spit (command-bin-path cmd)
+        (str "#!/bin/sh
+exec bb " (temp-uberscript-path cmd) " $@"))
+  ($ chmod +x (command-bin-path cmd))
+  (notify "Created wrapper script" (:name cmd)))
 
 (defn install-micro-handler
   ([] (install-micro-handler nil nil))
   ([config {:keys [arguments]}]
-   (let [micro-name (first arguments)
-         cmd        (command/find-command (:commands config) micro-name)]
-     (if micro-name
+   (let [cmd (some-> arguments
+                     first
+                     (#(command/find-command (:commands config) %)))
+         cmd (or cmd (rofi/rofi {:msg "Select command to install"}
+                                (rofi/config->rofi-commands config)))]
+     (notify (str "Installing micro handler for: " (:name cmd)) cmd)
+     (if cmd
        (do
-         ;; get namespace of command
-         ;; get requires for namespace
-         ;; get misc required namespaces (core, cli, command: ralphie-core nsps)
-         ;; use carve to write bare minimum to temp dir
-         ;; create uberscript from that output
-         ;; write to 'binary' based on included command name
-         (prn "cmd")
-         (prn cmd))
-       (notify (str "No command found for micro name: " micro-name))))))
+         ;; write dummy file with -main fn calling command's handler
+         (write-temp-main-ns cmd)
+         ;; create uberscript for new-file's namespace
+         (create-temp-uberscript cmd)
+         ;; carve file
+         (carve-temp-uberscript cmd)
+         ;; install bash wrapper to local/bin
+         (install-temp-uberscript cmd)
+         )
+       (notify (str "No command selected for installation"))))))
 
 (comment
   (install-micro-handler
     {:commands (command/commands)}
-    {:arguments ["toggle-scratchpad"]}))
+    {:arguments ["fire"]}))
 
 (defcom install-micro-cmd
   {:name          "install-micro"
@@ -202,5 +169,3 @@ exec bb /home/russ/russmatney/ralphie/toggle-scratchpad.clj $@"))
                    "Intended to support ui-scripts like move-focus and toggle-scratchpad."
                    "Needs to be fast."]
    :handler       install-micro-handler})
-
-(comment)

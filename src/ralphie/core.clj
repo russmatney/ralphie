@@ -31,8 +31,7 @@
    [ralphie.watch]
    [ralphie.window]
    [ralphie.workspace]
-   [ralphie.yodo]
-   [clojure.string :as string]))
+   [ralphie.yodo]))
 
 
 (defn debug-log [log]
@@ -42,25 +41,5 @@
           :append true)))
 
 (defn -main [& args]
-  (let [args (if (= args *command-line-args*)
-               args
-               (apply (partial conj *command-line-args*) args))
-        args (if (and (some? args)
-                      (or
-                        (string/ends-with? (first args) "core.clj")
-                        (string/ends-with? (first args) "ralphie")))
-               (rest args)
-               args)]
-    (debug-log args)
-    ;; (println "\nNew Log running: " (dates/now))
-
-    (apply cli/run args)))
-
-(comment
-  (def -res
-    (-main "rofi")
-    )
-
-  (:summary -res)
-
-  (println *file*))
+  (debug-log args)
+  (apply cli/run args))

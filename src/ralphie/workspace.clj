@@ -78,32 +78,32 @@
    ["Creates a new workspace based on workspaces.org and rofi input."]
    :handler       start-workspace-handler})
 
+(defn awesome-create-tag-handler
+  [_ {:keys [arguments]}]
+  (println "arguments" arguments)
+  (if-let [tag-name (some-> arguments first)]
+
+    (do
+      (println "found args, tag-name" tag-name)
+      (awm/create-tag! tag-name))
+
+    ;; no tag, get from rofi
+    (let [existing-tag-names (->> (awm/all-tags) (map :name) set)]
+      (println "starting rofi")
+      (println "existing" existing-tag-names)
+      (rofi/rofi
+        {:msg       "New Tag Name?"
+         :on-select awm/create-tag!}
+        (->>
+          (all-workspaces)
+          (map :org/name)
+          (remove #(contains? existing-tag-names %))
+          seq)))) )
 
 (defcom awesome-create-tag
   {:name          "awesome-create-tag"
    :one-line-desc "Creates a new tag in your _Awesome_ Window Manager."
    :description   []
-   :handler
-   (fn [_ {:keys [arguments]}]
-     (println "arguments" arguments)
-     (if-let [tag-name (some-> arguments first)]
-
-       (do
-         (println "found args, tag-name" tag-name)
-         (awm/create-tag! tag-name))
-
-       ;; no tag, get from rofi
-       (let [existing-tag-names (->> (awm/all-tags) (map :name) set)]
-         (println "starting rofi")
-         (println "existing" existing-tag-names)
-         (rofi/rofi
-           {:msg       "New Tag Name?"
-            :on-select awm/create-tag!}
-           (->>
-             (all-workspaces)
-             (map :org/name)
-             (remove #(contains? existing-tag-names %))
-             seq)))))})
-
+   :handler       awesome-create-tag-handler})
 
 (comment)

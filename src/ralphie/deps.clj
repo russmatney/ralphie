@@ -25,14 +25,15 @@
                   :org/source-file :org/body :org/level))
     (filter #(-> % :org.prop/watching))))
 
+(defn any-outdated-handler [_ _]
+  (doall
+    (->> (watched-repos)
+         (filter has-deps-edn?)
+         (map outdated/check-deps-for-repo))))
+
 (defcom any-outdated
   {:name          "any-outdated"
    :one-line-desc "Checks if watched repos have any outdated deps."
-   :handler
-   (fn [_ _]
-     (doall
-       (->> (watched-repos)
-            (filter has-deps-edn?)
-            (map outdated/check-deps-for-repo))))})
+   :handler       any-outdated-handler})
 
 (comment)

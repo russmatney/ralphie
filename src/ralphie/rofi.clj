@@ -1,8 +1,9 @@
 (ns ralphie.rofi
   (:require
-   [babashka.process :refer [$ check]]
+   [babashka.process :refer [$ process check]]
    [clojure.string :as string]
    [ralphie.config :as config]
+   [ralphie.util :as util]
    [ralphie.command :as command :refer [defcom]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -140,3 +141,35 @@
 (comment
   (zsh-history)
   (rofi {:msg "zsh history"} (zsh-history)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ralphie dev
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn rofi-dev-handler
+  ([] (rofi-dev-handler nil nil))
+  ([_config _parsed]
+   (let [cp (util/get-cp (config/project-dir))]
+     (->
+       (process ["bb" "-cp" cp "-m" "ralphie.core" "rofi"]
+                {:dir (config/project-dir)})
+       check
+       :out
+       slurp))))
+
+(comment
+  (let [foo "bar"]
+    (-> (process ["echo" foo])
+        check
+        :out
+        slurp)))
+
+(defcom rofi-dev-cmd
+  {:name          "rofi-dev"
+   :one-line-desc "Runs a dev version of rofi, using the local source code."
+   :description   ["Runs rofi via ralphie's local code."
+                   "Allows you to run code as you write it, without needing to
+install or jump into a shell to test it."  ]
+   :handler       rofi-dev-handler})
+
+(comment)

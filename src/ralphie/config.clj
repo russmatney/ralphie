@@ -6,6 +6,9 @@
 (defn home-dir [] (expand "~"))
 
 (defn project-dir [] (expand "~/russmatney/ralphie"))
+(defn src-dir [] (expand "~/russmatney/ralphie/src"))
+
+(defn local-bin-dir [] (expand "~/.local/bin"))
 (defn ralphie-bin-path [] (expand "~/.local/bin/ralphie"))
 (defn awesome-config-org-path [] (expand "~/russmatney/dotfiles/config.org"))
 

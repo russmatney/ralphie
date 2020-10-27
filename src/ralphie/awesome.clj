@@ -288,12 +288,15 @@ first_tag= c.first_tag.name,
 (comment
   (delete-current-tag!))
 
+(defn delete-current-tag-handler [_ _]
+  (delete-current-tag!))
+
 (defcom awesome-delete-current-tag
   {:name          "awesome-delete-current-tag"
    :one-line-desc "Deletes the current focused tag."
    :description
    ["Deletes current tag if there are no clients exclusively attached."]
-   :handler       (fn [_ _] (delete-current-tag!))})
+   :handler       delete-current-tag-handler})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Reapply rules to all clients
