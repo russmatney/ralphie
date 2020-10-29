@@ -183,10 +183,10 @@ index= t.index,
 geometry= s.geometry})")))
 
 (defn all-tags []
-  (awm-cli
-    {:parse? true}
-    (str "return view(lume.map(root.tags(), "
-         "function (t) return {
+  (->> (awm-cli
+         {:parse? true}
+         (str "return view(lume.map(root.tags(), "
+              "function (t) return {
 name= t.name,
 selected= t.selected,
 index= t.index,
@@ -197,7 +197,9 @@ name= c.name,
 ontop=c.ontop,
 window= c.window,
 } end),
-} end))")))
+} end))"))
+       (map (fn [t]
+              (update t :clients #(into [] %))))))
 
 (comment
   (->> (all-tags)
@@ -270,10 +272,9 @@ first_tag= c.first_tag.name,
     awm-cli))
 
 (defn create-tag! [name]
-  (println "create-tag!" name)
-  (notify/notify {:subject (str "creating new awesome tag: " name)
-                  :body    "layout? availble clients? status? last-checkup?"})
-  (awm-cli (awful-tag-add name {})))
+  (notify/notify (str "creating new awesome tag: " name))
+  (awm-cli
+    (str "awful.tag.add(\"" name "\"," "{layout=awful.layout.suit.tile});")))
 
 (comment
   (create-tag! "new-tag"))
