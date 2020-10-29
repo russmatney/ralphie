@@ -65,6 +65,8 @@ exec bb /home/russ/russmatney/ralphie/ralphie-script.clj $@"))
    (build-uberscript)
    (install-uberscript)))
 
+;; TODO consider extending this fn to also rebuild micro-ubers for opt-in commands
+;; TODO doctor test for this: only rollover after the script is health-checked
 (defcom build-uberscript-cmd
   {:name          "build-and-install-uberscript"
    :one-line-desc "Builds an uberscript for ralphie, and symlinks to `ralphie`"
@@ -74,7 +76,8 @@ exec bb /home/russ/russmatney/ralphie/ralphie-script.clj $@"))
     "Acts as a 'release' of sorts."
     "Writes an executable to ~/.local/bin/ralphie"
     "Note that this script can fall behind the repo code, "
-    "and may need to be updated regularly."]
+    "and may need to be updated regularly."
+    ]
    :handler       build-uberscript-handler})
 
 (comment)
