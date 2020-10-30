@@ -93,7 +93,7 @@
 
     ;; no tag, get from rofi
     (let [existing-tag-names (->> (awm/all-tags) (map :name) set)
-          selected-wsp
+          selected-wsp-name
           (rofi/rofi
             {:msg "New Tag Name?"}
             (->>
@@ -101,8 +101,9 @@
               (map :org/name)
               (remove #(contains? existing-tag-names %))
               seq))]
-      (-> selected-wsp awm/create-tag!)
-      (notify (str "Created new workspace: " selected-wsp)))))
+      (-> selected-wsp-name awm/create-tag!)
+      (-> selected-wsp-name awm/focus-tag!)
+      (notify (str "Created new workspace: " selected-wsp-name)))))
 
 (defcom awesome-create-tag
   {:name          "create-workspace"
@@ -151,3 +152,32 @@
    :one-line-desc "Groups active workspaces closer together"
    :description   ["Moves active workspaces to the front of the list."]
    :handler       consolidate-workspaces-handler})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; clean up workspaces
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn clean-up-workspaces
+  "Closes workspaces with 0 clients."
+  []
+  (->>
+    (all-workspaces)
+    (filter :awesome/tag)
+    (filter (comp #(= % 0) count :clients :awesome/tag))
+    (map
+      (fn [{:keys [:awesome/tag]}]
+        (let [{:keys [name]} tag]
+          (awm/delete-tag! name))))))
+
+(comment
+  (clean-up-workspaces))
+
+(defn clean-up-workspaces-handler
+  ([] (clean-up-workspaces-handler nil nil))
+  ([_config _parsed] (clean-up-workspaces)))
+
+(defcom clean-up-workspaces-cmd
+  {:name          "clean-up-workspaces"
+   :one-line-desc "Closes workspaces that have no active clients"
+   :description   []
+   :handler       clean-up-workspaces-handler})

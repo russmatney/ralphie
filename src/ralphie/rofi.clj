@@ -84,44 +84,6 @@
      {:label "xxxxxxxx" :url "--------------"}]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; cli/command
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn config->rofi-commands
-  [config]
-  (->> config
-       :commands
-       (filter (comp seq :name))
-       (map #(assoc % :label
-                    ;; TODO command icons
-                    (str
-                      "<span >" (:name %) " </span> "
-                      "<span color='gray'>" (:one-line-desc %) "</span> "
-                      "<span>"
-                      (string/join " " (:description %))
-                      "</span>;")))))
-
-(defn rofi-handler
-  "Returns the selected xs if there is no handler."
-  [config parsed]
-  (when-let [cmd (some->> config
-                          config->rofi-commands
-                          (rofi {:require-match? true
-                                 :msg            "All commands"}))]
-    (command/call-handler cmd config parsed)))
-
-(comment
-  (rofi-handler nil nil))
-
-(defcom command
-  {:name          "rofi"
-   :one-line-desc "Select a command to run via rofi."
-   :description   ["Open Rofi for each command."
-                   "Fires the selected command."
-                   "Expects rofi to exist on the path."]
-   :handler       rofi-handler})
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Suggestion helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -173,3 +135,44 @@ install or jump into a shell to test it."  ]
    :handler       rofi-dev-handler})
 
 (comment)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; cli/command
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn config->rofi-commands
+  [config]
+  (->> config
+       :commands
+       (filter (comp seq :name))
+       (map #(assoc % :label
+                    ;; TODO command icons
+                    (str
+                      "<span >" (:name %) " </span> "
+                      "<span color='gray'>" (:one-line-desc %) "</span> "
+                      "<span>"
+                      (string/join " " (:description %))
+                      "</span>;")))))
+
+(defn rofi-handler
+  "Returns the selected xs if there is no handler."
+  [config parsed]
+  (when-let [cmd (some->> config
+                          config->rofi-commands
+                          (rofi {:require-match? true
+                                 :msg            "All commands"}))]
+    (command/call-handler cmd config parsed)))
+
+(comment
+  (rofi-handler nil nil)
+  (rofi-handler {:commands (command/commands)} nil)
+  )
+
+(defcom select-command-via-rofi
+  {:name          "rofi"
+   :one-line-desc "Select a command to run via rofi."
+   :description   ["Open Rofi for each command."
+                   "Fires the selected command."
+                   "Expects rofi to exist on the path."]
+   :handler       rofi-handler})
