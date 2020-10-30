@@ -11,7 +11,7 @@
 
 (defn repo->deps [repo]
   (-> repo
-      :name
+      :org/name
       (#(str (config/home-dir) "/" % "/deps.edn"))
       slurp
       edn/read-string
@@ -43,12 +43,12 @@
 
 (defn check-deps-for-repo [repo]
   (let [deps (repo->deps repo)]
-    (println "\nChecking deps for repo: " (:name repo))
+    (println "\nChecking deps for repo: " (:org/name repo))
     (doseq [[dep version] (version-map deps)
             :let          [new-version (get (new-version-map deps) dep)]
             :when         (not= version new-version)]
       (println dep "can be upgraded from" version "to" new-version))
-    (println "\nFinished checking deps for repo: " (:name repo))))
+    (println "\nFinished checking deps for repo: " (:org/name repo))))
 
 (comment
   (check-deps-for-repo {:name "russmatney/yodo"}))
