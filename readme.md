@@ -29,7 +29,8 @@ it to work, but this is not a plug-n-play tool yet.
 
 If you try to work with it, especially note the paths in `ralphie.config` are
 hard-coded - theoretically things should work if you update a few spots in
-there.
+there. You'll also need whatever tools each command depends on, which is not
+documented but should be possible to surmise from the code.
 
 # Background
 
@@ -51,6 +52,7 @@ I like to think of `ralphie` as a clojure version of the use-case
 # Features
 
 TODO: implement feature that writes `docs/features.org` for each command.
+TODO: include dependencies per command
 
 Coming soon... `docs/features.org`
 
