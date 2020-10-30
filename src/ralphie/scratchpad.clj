@@ -141,7 +141,4 @@
    :description   [""]
    :handler       toggle-scratchpad-handler})
 
-(defn -main [& args]
-  (toggle-scratchpad-handler nil {:arguments args}))
-
 (comment)
