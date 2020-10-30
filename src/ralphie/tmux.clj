@@ -3,7 +3,9 @@
    [babashka.process :refer [$ check]]
    [ralphie.rofi :as rofi]
    [ralphie.notify :refer [notify]]
-   [ralphie.command :refer [defcom]]))
+   [ralphie.command :refer [defcom]]
+   [ralphie.sh :as r.sh]
+   [ralphie.config :as config]))
 
 (defn ->fire-session-name [workspace-name]
   (str workspace-name "-fire"))
@@ -52,19 +54,23 @@
 
 (defn open-session
   "Creates a session in a new alacritty window."
-  ([] (open-session {:name "ralphie-fallback" :directory "~/."}))
+  ([] (open-session {:name "ralphie-fallback" :directory "~"}))
   ([{:keys [name directory] :as opts}]
-   (notify "Creating new alacritty window with tmux session" opts)
+   (let [directory (if directory
+                     (r.sh/expand directory)
+                     (config/home-dir))]
+     (notify "Creating new alacritty window with tmux session" opts)
 
-   ;; note that `check`ing or derefing this won't release until
-   ;; the alacritty window is closed. Not sure if there's a better
-   ;; way to disown the process.
-   ($ alacritty --title ~name -e tmux new-session -A
-      ~(when directory (str "-c " directory))
-      -s ~name)))
+     ;; NOTE `check`ing or derefing this won't release until
+     ;; the alacritty window is closed. Not sure if there's a better
+     ;; way to disown the process without skipping error handling
+     (-> ($ alacritty --title ~name -e tmux "new-session" -A
+            ~(when directory "-c") ~(when directory directory)
+            -s ~name)))))
 
 (comment
-  (open-session {:name "name"}))
+  (open-session {:name "name"})
+  (open-session {:name "name" :directory "~/russmatney"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fire command

@@ -8,13 +8,11 @@
 (defn open-term
   ([] (open-term (workspace/current-workspace)))
   ([wsp]
-   (let [wsp  (if (string? wsp) (workspace/for-name wsp)
-                  wsp)
+   (let [wsp  (if (string? wsp) (workspace/for-name wsp) wsp)
          opts {:name (-> wsp :org/name)}
          opts (if-let [dir (-> wsp :org.prop/directory)]
                 (assoc opts :directory dir)
                 opts)]
-     (println opts)
      (tmux/open-session opts))))
 
 (comment
