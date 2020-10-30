@@ -54,6 +54,38 @@ TODO: implement feature that writes `docs/features.org` for each command.
 
 Coming soon... `docs/features.org`
 
+### Carved, single-command Uberscripts for speed
+
+Some of ralphie's features are WM-level functions, and thus necessitate speed -
+`toggle-scratchpad` is probably the best example of a feature that I want to be
+as fast as possible, others might be `open-term`/`open-emacs` or the old
+universal-move-focus command (not yet re-implemented).
+
+Babashka supports building uberscripts/uberjars to aid distribution and speed up
+startup time (vs running as a multi-file project). Some brief experiments have
+led me to prefer the uberscripts for their speed, though there are some
+incompatibilities that are better baked into jars. My experiments were mostly
+just building both and wrapping a few calls with `time` - more could be done
+here....
+
+[Carve](https://github.com/borkdude/carve) is yet another borkdude project that
+can identify and remove unused variables and functions from your project - this
+makes for a nice match for trimming uberscripts down to only the required
+pieces, which speeds up execution time just by reducing the amount of code that
+needs to be processed at startup.
+
+I've put together a pipeline for creating a minimized uberscript for individual
+commands in the ralphie.install namespace - it first creates a
+`src/ralphie/temp.clj` file with a main function that skips ralphie's routing
+completely, calling only the command's handler. This is used as the base for an
+uberscript (created in the `uberscripts/` directory) which is then carved to its
+minimum. The script is then wrapped in a small bash script that's written
+directly to `~/.local/bin/ralphie-<cmd-name>`, and this runs the script in
+`uberscripts` via bb.
+
+Scripts can be created, carved, and installed via ralphie's `install-micro`
+command.
+
 # Development
 
 Ralphie expects to be run as a babashka process, but it can be developed as a

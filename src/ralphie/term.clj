@@ -2,8 +2,7 @@
   (:require
    [ralphie.tmux :as tmux]
    [ralphie.workspace :as workspace]
-   [ralphie.command :refer [defcom]]
-   ))
+   [ralphie.command :refer [defcom]]))
 
 (defn open-term
   ([] (open-term (workspace/current-workspace)))
@@ -19,8 +18,7 @@
   (open-term)
   (open-term "notes")
   (open-term "ralphie")
-  (open-term "gamedev")
-  )
+  (open-term "gamedev"))
 
 (defn open-term-handler
   ([] (open-term-handler nil nil))

@@ -17,13 +17,11 @@
 (defn has-session? [name]
   (-> @($ tmux has-session -t ~name)
       :exit
-      (= 0)
-      ))
+      (= 0)))
 
 (comment
   (has-session? "new")
-  (has-session? "ralphie")
-  )
+  (has-session? "ralphie"))
 
 (defn new-session [{:keys [name dir] :as opts}]
   (notify "Attempt to create new tmux session" opts)
