@@ -56,6 +56,80 @@ TODO: include dependencies per command
 
 Coming soon... `docs/features.org`
 
+### Parses org files for state via org-crud
+
+Tired of moving rewriting configuration when moving between window managers,
+Ralphie consumes and applies commands based on parsed org files. This mostly
+boils down to workspaces.org and repos.org.
+
+#### workspaces.org
+
+This file supports the ralphie.workspace namespace, as well as
+`toggle-scratchpad`, `open-term`, `open-emacs`, probably a few others.
+
+The properties are optional, but help to tell these commands how to create the
+initial workspace. `open-term` and `open-emacs` will each create a tmux session
+and emacs workspace using the workspace name - the directory and initial-file
+help determine where to start when a term/emacs is opened in any workspace.
+`exec` is executed is used to start an app in the workspace, if the name is
+passed to `toggle-scratchpad`.
+
+- TODO trackdown + document other workspaces.org features
+- TODO: support `pinned-apps` for sticky applications
+- TODO: derive workspaces from found repos, or repos.org
+
+```org
+* spotify
+:PROPERTIES:
+:directory: /home/russ/
+:pinned-apps: spotify
+:workspace-key: 1
+:initial-file: /home/russ/.config/spicetify/config.ini
+:END:
+* slack
+:PROPERTIES:
+:directory: /home/russ/
+:pinned-apps: slack
+:pinned-apps+: discord
+:workspace-key: 2
+:END:
+* web
+:PROPERTIES:
+:directory: /home/russ/
+:exec: /usr/bin/gtk-launch firefox.desktop
+:workspace-key: 3
+:END:
+* dotfiles
+:PROPERTIES:
+:directory: /home/russ/dotfiles
+:workspace-key: 4
+:initial-file: /home/russ/dotfiles/readme.org
+:END:
+```
+
+#### repos.org
+
+`ralphie.repos` supports a few repos commands, notably a quick way to list
+dirty ones via `list-dirty-repos`.
+
+These org items looks like:
+
+```org
+* russmatney/scratch
+:PROPERTIES:
+:id: 326b24a4-72de-4d8e-b822-538c4f6b847f
+:seen-at: 2020-07-24T12:26:39-04:00[America/New_York]
+:updated-at: 2020-08-18T18:54:59.175-04:00[America/New_York]
+:watching: true
+:END:
+```
+
+Note that mostly this file is generated/consumed by external apps/commands.
+
+- TODO impl watch/stop-watching repos
+- TODO append to repos.org from `ralphie clone`
+- TODO impl snoozable reminder/notifier for watched, dirty repos
+
 ### Carved, single-command Uberscripts for speed
 
 Some of ralphie's features are WM-level functions, and thus necessitate speed -

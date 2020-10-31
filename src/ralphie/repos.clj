@@ -4,6 +4,7 @@
    [ralphie.item :as item]
    [ralphie.config :as config]
    [ralphie.awesome :as awm]
+   [ralphie.notify :refer [notify]]
    [ralphie.fs :as fs]
    [ralphie.rofi :as rofi]
    [org-crud.core :as org-crud]
@@ -21,6 +22,7 @@
   (if (ignore-dirty? item)
     true
     (when (item/path item)
+      (notify "checking if path is clean" (item/path item))
       (some-> ^{:dir (item/path item)}
               ($ git diff HEAD)
               check
@@ -64,8 +66,7 @@
 
 (comment
   (->> (dirty-repos)
-       (map :name)
-       (println))
+       (map :org/name))
   (count (dirty-repos)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -92,13 +93,14 @@
   ([] (list-dirty-repos-handler nil nil))
   ([_config _parsed]
    (->> (dirty-repos)
-        (map (fn [x] (assoc x :label (:name x))))
+        (map (fn [x] (assoc x :label (:org/name x))))
         (rofi/rofi {:msg "Dirty Repos"})
+        ;; TODO follow up commands for the chosen repo: open-in-workspace, remove-watch/ignore-dirty
         )))
 
 (defcom list-dirty-repos-cmd
   {:name          "list-dirty-repos"
-   :one-line-desc "Updates the dirty repos used by misc widgets."
+   :one-line-desc "Returns dirty repos in a rofi list."
    :handler       list-dirty-repos-handler})
 
 (comment)
