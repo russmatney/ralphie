@@ -55,6 +55,8 @@
 
 (defn path [item] (-> item :org.prop/path))
 
+(defn name [item] (-> item :org/name))
+
 ;; TODO namespace the rofi fields (:rofi/label, :rofi/on-select)
 (defn ->rofi-item
   "Preps an item for rofi display.

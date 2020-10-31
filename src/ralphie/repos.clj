@@ -92,11 +92,23 @@
 (defn list-dirty-repos-handler
   ([] (list-dirty-repos-handler nil nil))
   ([_config _parsed]
-   (->> (dirty-repos)
-        (map (fn [x] (assoc x :label (:org/name x))))
-        (rofi/rofi {:msg "Dirty Repos"})
-        ;; TODO follow up commands for the chosen repo: open-in-workspace, remove-watch/ignore-dirty
-        )))
+   (let [reps (dirty-repos)]
+     (if (> (count reps) 0)
+       (when-let [selected-repo (->> reps
+                                     (map (fn [x] (assoc x :label (:org/name x))))
+                                     (rofi/rofi {:msg "Dirty Repos"}))]
+         (rofi/rofi {:msg (str "For dirty repo" (item/name selected-repo))}
+                    [{:label     "Open in workspace"
+                      :on-select (fn [_]
+                                   (notify "Open in workspace"
+                                           ;; TODO impl
+                                           "Not yet implemented"))}
+                     {:label     "Remove watch/Ignore dirty"
+                      :on-select (fn [_]
+                                   (notify "Remove watch/Ignore dirty"
+                                           ;; TODO impl
+                                           "Not yet implemented"))}]))
+       (notify "No dirty repos!")))))
 
 (defcom list-dirty-repos-cmd
   {:name          "list-dirty-repos"
