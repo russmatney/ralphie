@@ -181,3 +181,66 @@
    :one-line-desc "Closes workspaces that have no active clients"
    :description   []
    :handler       clean-up-workspaces-handler})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; swap workspaces indexes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; (defn awm-cli-fnl [fnl args]
+;;   (println "run this fnl plz" fnl)
+;;   (println "with these args" args))
+
+;; (defn swap-workspace
+;;   "Swaps the current awesome workspace in the given direction"
+;;   [dir]
+;;   (let [up?   (= dir "up")
+;;         down? (= dir "down")]
+;;     (if (or up? down?)
+;;       (awm-cli-fnl
+;;         '[(let [tags          (. (awful.screen.focused) :tags)
+;;                 current-tag   (. (awful.screen.focused) :tag)
+;;                 current-index (. current-tag :index)
+;;                 new-index     (+ current-index %)
+;;                 new-tag       (. tags new-index)
+;;                 ]
+;;             (if new-tag
+;;               (: current-tag :swap new-tag)))]
+;;         (cond up? 1 down? -1))
+;;       (notify "swap-workspace called without 'up' or 'down'!")))
+;;   )
+
+
+(defn swap-workspace
+  "Swaps the current awesome workspace in the given direction"
+  [dir]
+  (let [up?   (= dir "up")
+        down? (= dir "down")]
+    (if (or up? down?)
+      (awm/awm-cli
+        (str
+          "tags = awful.screen.focused().tags; "
+          "current_index = s.selected_tag.index; "
+          "new_index = current_index " (cond up? "+ 1" down? "- 1" ) "; "
+          "new_tag = tags[new_index]; "
+          "if new_tag then s.selected_tag:swap(new_tag) end; "
+          ))
+      (notify "swap-workspace called without 'up' or 'down'!"))))
+
+(comment
+  (println "hi")
+  (swap-workspace "up"))
+
+(defn swap-workspace-index-handler
+  ([] (swap-workspace-index-handler nil nil))
+  ([_config {:keys [arguments]}]
+   (let [[dir & _rest] arguments]
+     (swap-workspace dir))))
+
+(defcom swap-workspace-index-cmd
+  {:name          "swap-workspace-index"
+   ;; TODO *keys-pressed* as a dynamic var/macro or partially applied key in your keybinding
+   ;; TODO support keybindings right here
+   :keybinding    "ctrl-shift-p"
+   :one-line-desc "Swaps a workspace up or down an index."
+   :description   ["Intended to feel like dragging a workspace in a direction."]
+   :handler       swap-workspace-index-handler})
