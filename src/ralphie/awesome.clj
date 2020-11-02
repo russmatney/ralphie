@@ -285,6 +285,11 @@ first_tag= c.first_tag.name,
     (str "local tag = awful.tag.find_by_name(nil, \"" tag-name "\");
 tag:view_only(); ")))
 
+(defn toggle-tag [tag-name]
+  ;; viewtoggle tag
+  (awm-cli
+    (str "awful.tag.viewtoggle(awful.tag.find_by_name(s, \"" tag-name "\"));")))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Delete current tag
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

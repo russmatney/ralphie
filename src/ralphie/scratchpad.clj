@@ -79,11 +79,6 @@
       "_G.client.focus = c;"
       "end; ")))
 
-(defn toggle-tag [tag-name]
-  ;; viewtoggle tag
-  (awm/awm-cli
-    (str "awful.tag.viewtoggle(awful.tag.find_by_name(s, \"" tag-name "\"));")))
-
 (defn toggle-scratchpad [wsp]
   (let [wsp      (cond
                    (nil? wsp)    (workspace/current-workspace)
@@ -98,13 +93,13 @@
         (println "found selected tag, client for:" wsp-name)
         (if (:ontop client)
           ;; TODO also set client ontop false ?
-          (toggle-tag wsp-name)
+          (awm/toggle-tag wsp-name)
           (ontop-and-focused client)))
 
       (and tag client (not (:selected tag)))
       (do
         (println "found unselected tag, client for:" wsp-name)
-        (toggle-tag wsp-name)
+        (awm/toggle-tag wsp-name)
         (ontop-and-focused client))
 
       ;; tag exists, no client
@@ -117,6 +112,7 @@
       (not tag)
       (do
         (awm/create-tag! wsp-name)
+        (awm/toggle-tag wsp-name)
         (create-client wsp)))))
 
 (comment
