@@ -16,7 +16,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn ignore-dirty? [item]
-  (some-> item item/path (string/includes? "Dropbox")))
+  false ;; check ALL
+  ;; (some-> item item/path (string/includes? "Dropbox"))
+  )
 
 (defn is-clean? [item]
   (if (ignore-dirty? item)
