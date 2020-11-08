@@ -4,6 +4,7 @@
    [ralphie.rofi :as rofi]
    [ralphie.command :refer [defcom]]
    [ralphie.config :as config]
+   [ralphie.repos :as repos]
    [ralphie.notify :refer [notify]]
    [org-crud.api :as org-crud]
    [clojure.string :as string]))
@@ -98,6 +99,8 @@
             {:msg "New Tag Name?"}
             (->>
               (all-workspaces)
+              ;; TODO support optionally via :mod :shift :s
+              ;; (concat (repos/fetch-repos))
               (map :org/name)
               (remove #(contains? existing-tag-names %))
               seq))]
