@@ -4,6 +4,7 @@
    [clojure.string :as string]
    [ralphie.config :as config]
    [ralphie.util :as util]
+   [ralphie.zsh :as zsh]
    [ralphie.command :as command :refer [defcom]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -92,13 +93,10 @@
   TODO cache/speed up/trim allowed entries
   "
   []
-  (->> "/.zsh_history"
-       (str (config/home-dir))
-       slurp
-       string/split-lines
-       (map (fn [l] (some-> l (string/split #";" 2) second)))
-       (remove nil?)
-       (map (fn [l] {:label l :on-select :label}))))
+  (->> (zsh/history)
+       (sort-by :timestamp >)
+       (map (fn [{:keys [line]}]
+              {:label line :on-select :label}))))
 
 (comment
   (zsh-history)
