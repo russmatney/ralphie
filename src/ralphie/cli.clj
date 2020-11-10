@@ -5,8 +5,9 @@
    [ralphie.command :as command]
    [clojure.tools.cli :refer [parse-opts]]))
 
+;; DEPRECATED commands should parse args themselves
 (defn config->opts
-  "Converts config into bb's parse-opt's expected form.
+  "Converts config into parse-opt's expected form.
   see `clojure.tools.cli/parse-opts`"
   [config]
   (into []

@@ -31,7 +31,8 @@
    [ralphie.watch]
    [ralphie.window]
    [ralphie.workspace]
-   [ralphie.yodo]))
+   [ralphie.yodo]
+   [ralphie.zsh]))
 
 
 (defn debug-log [log]
