@@ -11,7 +11,10 @@
   (-> item :org/tags set (contains? tag)))
 
 (defn has-status? [item status]
-  (-> item :org/status (= status)))
+  (-> item :org/status #{status} some?))
+
+(comment
+  (has-status? {:org/status :status/hi} :status/bye))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Public

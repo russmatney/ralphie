@@ -196,15 +196,16 @@
 ;;   (let [up?   (= dir "up")
 ;;         down? (= dir "down")]
 ;;     (if (or up? down?)
+;;       ;; TODO hook up clj kondo hook
 ;;       (awm-cli-fnl
-;;         '[(let [tags          (. (awful.screen.focused) :tags)
-;;                 current-tag   (. (awful.screen.focused) :tag)
-;;                 current-index (. current-tag :index)
-;;                 new-index     (+ current-index %)
-;;                 new-tag       (. tags new-index)
-;;                 ]
-;;             (if new-tag
-;;               (: current-tag :swap new-tag)))]
+;;         (let [tags          (. (awful.screen.focused) :tags)
+;;               current-tag   (. (awful.screen.focused) :tag)
+;;               current-index (. current-tag :index)
+;;               new-index     (+ current-index %)
+;;               new-tag       (. tags new-index)
+;;               ]
+;;           (if new-tag
+;;             (:> current-tag :swap new-tag)))
 ;;         (cond up? 1 down? -1))
 ;;       (notify "swap-workspace called without 'up' or 'down'!")))
 ;;   )

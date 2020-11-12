@@ -11,7 +11,7 @@
   (reduce (fn [todos path]
             (->> path
                  (org-crud/path->flattened-items)
-                 (filter (comp #(= % 2) :level))
+                 (filter (comp #{2} :org/level))
                  (remove item/done?)
                  (remove item/cancelled?)
                  (concat todos)))
@@ -27,7 +27,6 @@
        (reverse)))
 
 (comment
-
   (count (focuses)))
 
 ;; (defn update-focus-widget [focus]
