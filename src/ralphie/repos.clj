@@ -64,6 +64,8 @@
   (count (fetch-repos)))
 
 (defn dirty-repos []
+  ;; TODO expand to identify untracked files
+  ;; TODO expand to fetch/identify remote updates
   (->> (fetch-repos)
        (filter item/watching?)
        (map (fn [repo]
