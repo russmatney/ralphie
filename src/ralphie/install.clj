@@ -42,7 +42,8 @@
 (defn zsh-completion-path []
   (str (config/home-dir) "/.zsh/completion/_ralphie"))
 
-(defn install-zsh-completion [commands]
+(defn install-zsh-completion
+  [commands]
   (let [cmds-string
         (->> commands
              (map :name)
@@ -66,7 +67,8 @@ _arguments -C \\
 (defcom install-zsh-completion-cmd
   {:name          "install-zsh-completion"
    :one-line-desc "Installs a zsh completion script for all ralphie commands."
-   :description   ["Writes to `(zsh-completion-path)`"]
+   :description   ["Writes to `(zsh-completion-path)`."
+                   "Note that you need to create a new shell for this to take effect."]
    :handler       install-zsh-completion-handler})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
