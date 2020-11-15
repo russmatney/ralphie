@@ -303,69 +303,68 @@ tag:delete(); ")))
   (awm-cli "s.selected_tag:delete()"))
 
 (comment
-(delete-current-tag!))
+  (delete-current-tag!))
 
 (defn delete-current-tag-handler [_ _]
-(delete-current-tag!))
+  (delete-current-tag!))
 
 (defcom awesome-delete-current-tag
-{:name          "awesome-delete-current-tag"
- :one-line-desc "Deletes the current focused tag."
- :description
- ["Deletes current tag if there are no clients exclusively attached."]
- :handler       delete-current-tag-handler})
+  {:name          "awesome-delete-current-tag"
+   :one-line-desc "Deletes the current focused tag."
+   :description
+   ["Deletes current tag if there are no clients exclusively attached."]
+   :handler       delete-current-tag-handler})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Reapply rules to all clients
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn reapply-rules-handler [_config _parsed]
-(awm-cli "reapply_rules();"))
+  (awm-cli "reapply_rules();"))
 
 (defcom reapply-rules-cmd
-{:name          "reapply-rules"
- :one-line-desc "Reapplies rules to all clients"
- :description   ["Reapplies rules to clients."
+  {:name          "reapply-rules"
+   :one-line-desc "Reapplies rules to all clients"
+   :description   ["Reapplies rules to clients."
                  "When tags are re-created without metadata, clients get lost."
                  "This should re-run the rules, so they get reattached."]
- :handler       reapply-rules-handler})
+   :handler       reapply-rules-handler})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Init Tags
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn initial-tags-for-awesome [items]
-(->> items
-     ;; TODO rename to workspace number
-     (filter item/workspace-key)
-     (sort-by item/workspace-key)))
+  (->> items
+       ;; TODO rename to workspace number
+       (filter item/workspace-key)
+       (sort-by item/workspace-key)))
 
 (defn init-tags-config []
-{:tag-names (->>
-              (config/workspaces-file)
-              org-crud/path->nested-item
-              :org/items
-              initial-tags-for-awesome
-              (map :org/name)
-              seq)})
+  {:tag-names (->>
+                (config/workspaces-file)
+                org-crud/path->nested-item
+                :org/items
+                initial-tags-for-awesome
+                (map :org/name)
+                seq)})
 
 (defn init-tags
-([] (init-tags nil nil))
-([_config _parsed]
- (->> (init-tags-config)
-      (awm-fn "init_tags")
-      awm-cli
-      )))
+  ([] (init-tags nil nil))
+  ([_config _parsed]
+   (->> (init-tags-config)
+        (awm-fn "init_tags")
+        awm-cli)))
 
 (comment
-(init-tags))
+  (init-tags))
 
 (defcom init-tags-cmd
-{:name          "init-tags"
- :one-line-desc "Recreates the current AwesomeWM tags"
- :description   ["Recreates the current AwesomeWM tags."
-                 "Pulls the latest from your `config.org`"]
- :handler       init-tags})
+  {:name          "init-tags"
+   :one-line-desc "Recreates the current AwesomeWM tags"
+   :description   ["Recreates the current AwesomeWM tags."
+                   "Pulls the latest from your `config.org`"]
+   :handler       init-tags})
 
 (comment
 nil)

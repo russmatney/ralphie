@@ -8,7 +8,7 @@
    [ralphie.fs :as fs]
    [ralphie.rofi :as rofi]
    [org-crud.core :as org-crud]
-   [clojure.string :as string]
+   ;; [clojure.string :as string]
    [babashka.process :refer [$ check]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -56,7 +56,12 @@
               (let [path (str (config/home-dir) "/" (:org/name repo))]
                 (-> repo
                     (assoc :org.prop/path path)))))
-       (filter (comp fs/exists? item/path))))
+       (filter (comp fs/exists? item/path))
+       ;; only keep if this is a .git dir
+       (filter (comp fs/exists? #(-> % item/path (str "/.git"))))))
+
+(comment
+  (count (fetch-repos)))
 
 (defn dirty-repos []
   (->> (fetch-repos)
@@ -81,6 +86,13 @@
    (->> (dirty-repos)
         (awm/awm-fn "update_repos_widget")
         awm/awm-cli)))
+
+(comment
+
+  (->> (dirty-repos)
+       (awm/awm-fn "update_repos_widget")
+       awm/awm-cli)
+  )
 
 (defcom update-repos-cmd
   {:name          "update-dirty-repos"
