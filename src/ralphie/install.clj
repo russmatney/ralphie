@@ -6,7 +6,8 @@
    [ralphie.notify :refer [notify]]
    [ralphie.config :as config]
    [ralphie.rofi :as rofi]
-   [ralphie.util :as util]))
+   [ralphie.util :as util]
+   [clojure.string :as string]))
 
 (defn symlink
   [source target]
@@ -33,6 +34,40 @@
     "Useful for debugging."
     "Install and run the uberscript version for better performance."]
    :handler       install-cmd})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Install zsh completion
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn zsh-completion-path []
+  (str (config/home-dir) "/.zsh/completion/_ralphie"))
+
+(defn install-zsh-completion [commands]
+  (let [cmds-string
+        (->> commands
+             (map :name)
+             (string/join " \\
+"))
+        completion-file (str "#compdef _ralphie ralphie
+
+_arguments -C \\
+  \"1: :(
+" cmds-string ")\"")]
+    (spit (zsh-completion-path) completion-file)))
+
+(comment
+  (install-zsh-completion (command/commands)))
+
+(defn install-zsh-completion-handler
+  ([] (install-zsh-completion-handler nil nil))
+  ([config _parsed]
+   (install-zsh-completion (:commands config))))
+
+(defcom install-zsh-completion-cmd
+  {:name          "install-zsh-completion"
+   :one-line-desc "Installs a zsh completion script for all ralphie commands."
+   :description   ["Writes to `(zsh-completion-path)`"]
+   :handler       install-zsh-completion-handler})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Build uberscript
