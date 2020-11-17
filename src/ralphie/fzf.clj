@@ -1,39 +1,35 @@
-;; (ns ralphie.fzf
-;;   (:require
-;;    [ralphie.command :refer [defcom]]
-;;    [babashka.process :refer [$ process check]]
-;;    [clojure.java.shell :as sh]))
+(ns ralphie.fzf
+  (:require
+   [ralphie.command :refer [defcom] :as command]
+   [babashka.process :refer [process]]
+   [clojure.string :as string]))
 
+(defn fzf [xs]
+  (let [labels         (->> xs (map :fzf/label))
+        proc           (process ["fzf" "-m"]
+                                {:in  (string/join "\n" labels)
+                                 :err :inherit
+                                 :out :string})
+        selected-label (-> @proc :out string/trim)]
+    (when (seq selected-label)
+      (println selected-label)
+      (some->> xs
+               (filter (comp #{selected-label} :fzf/label))
+               first))))
 
+(defn fzf-handler
+  ([] (fzf-handler nil nil))
+  ([config parsed]
+   (when-let [cmd (->> config
+                       :commands
+                       (filter (comp seq :name))
+                       (map (fn [cmd] (assoc cmd :fzf/label (:name cmd))))
+                       fzf)]
+     ;; TODO trim parsed to remove fzf argument
+     (command/call-handler cmd config parsed))))
 
-;; (defn fzf-handler
-;;   ([] (fzf-handler nil nil))
-;;   ([_config _parsed]
-;;    (->
-;;      (process '[fzf]
-;;               {:in  :inherit
-;;                :out :inherit})
-;;      check :out slurp)
-;;    ))
-
-;; (comment
-;;   (->
-;;     (process '[fzf]
-;;              {:out :inherit})
-;;     check :out slurp)
-;;   (sh/sh "fzf" "hi\nthere\npeanut\nbear")
-;;   (sh/sh "echo" "hi")
-;;   )
-
-;; (defcom fzf-cmd
-;;   {:name          "fzf"
-;;    :one-line-desc "An fzf via bb debugger"
-;;    :handler       fzf-handler})
-
-;; (require '[babashka.process :refer [$ process check]])
-
-;; (->
-;;   (process '[fzf]
-;;            {:in  :inherit
-;;             :out :inherit})
-;;   check)
+(defcom fzf-cmd
+  {:name          "fzf"
+   :one-line-desc "Select a ralphie command via fzf."
+   :description   "Expects to be called on the command line."
+   :handler       fzf-handler})
