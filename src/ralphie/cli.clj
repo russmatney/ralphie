@@ -1,8 +1,9 @@
 (ns ralphie.cli
   (:require
-   [ralphie.help :as help]
+   ;; [ralphie.help :as help]
    [ralphie.doctor :as doctor]
    [ralphie.command :as command]
+   [ralphie.fzf :as fzf]
    [clojure.tools.cli :refer [parse-opts]]))
 
 ;; DEPRECATED commands should parse args themselves
@@ -32,8 +33,10 @@
       (doctor/checkup-handler config args))
 
     (when-not command
-      (println "404! Command not found.")
-      (help/help-handler config passed-args))
+      (println "404! Command not found. Falling back to fzf-select")
+      (fzf/fzf-handler config passed-args)
+      ;; (help/help-handler config passed-args)
+      )
 
     (when command
       (command/call-handler command config args))))
