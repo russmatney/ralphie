@@ -8,6 +8,7 @@
    [ralphie.emacs]
    [ralphie.deps]
    [ralphie.focus]
+   [ralphie.fzf]
    [ralphie.git]
    [ralphie.help]
    [ralphie.install]
