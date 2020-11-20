@@ -1,13 +1,16 @@
 (ns ralphie.clipboard
   (:require
    [clojure.string :as string]
-   [babashka.process :refer [$ check]]))
+   [babashka.process :as p]
+   [clojure.java.shell :as sh]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Read the clipboard
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn get-clip [clipboard-name]
-  (-> ($ xclip -o -selection clipboard-name)
-      check
-      :out
-      slurp))
+  (-> (sh/sh "xclip" "-o" "-selection" clipboard-name)
+      :out))
 
 (defn get-all
   "Returns a list of things on available clipboards."
@@ -26,3 +29,21 @@
 
 (comment
   (values))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Write to the clipboard
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn set-clip [s]
+  (-> (p/process '[xclip -i -selection clipboard]
+                 {:in s})
+      p/check
+      :out
+      slurp))
+
+(comment
+  (set-clip "hello\ngoodbye")
+  (get-clip "primary")
+  (sh/sh "xclip" "-o" "-selection" "primary")
+  (get-all)
+  )
