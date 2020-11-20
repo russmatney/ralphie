@@ -10,6 +10,7 @@
    ;; TODO determine focused app
    ;; probably via awm-fnl/clawe
    ;; TODO dispatch to the client's open-console api
+   ;; probably just a send-keys
    (notify/notify "open-console: Not Yet Impled")
    (-> ($ "echo" "open-console: Not Yet Impled")
        check

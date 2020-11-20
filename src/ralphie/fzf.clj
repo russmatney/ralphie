@@ -6,7 +6,7 @@
 
 (defn fzf [xs]
   (let [labels         (->> xs (map :fzf/label))
-        proc           (process ["fzf" "-m"]
+        proc           (process ["fzf"]
                                 {:in  (string/join "\n" labels)
                                  :err :inherit
                                  :out :string})

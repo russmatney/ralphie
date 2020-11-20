@@ -26,11 +26,12 @@
 
   Supports :require-match? in `opts`.
   "
+  ;; TODO move opts and xs over to :rofi/prefixed keys
   ([opts] (rofi opts (:xs opts)))
   ([{:keys [msg message on-select require-match?]} xs]
    (let [maps?  (-> xs first map?)
          labels (if maps? (->> xs
-                               (map :label)
+                               (map (some-fn :label :rofi/label))
                                (map escape-rofi-label)
                                ) xs)
          msg    (or msg message)
@@ -51,11 +52,13 @@
        (let [selected-x (if maps?
                           (->> xs
                                (filter #(= selected-label
-                                           (escape-rofi-label (:label %))))
+                                           (escape-rofi-label
+                                             ((some-fn :label :rofi/label) %))))
                                first)
                           selected-label)]
          (if selected-x
-           (if-let [on-select (or (:on-select selected-x) on-select)]
+           (if-let [on-select (or ((some-fn :rofi/on-select :on-select)
+                                   selected-x) on-select)]
              (on-select selected-x)
              selected-x)
            selected-label))))))
