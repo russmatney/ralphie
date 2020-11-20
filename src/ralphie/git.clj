@@ -6,6 +6,7 @@
    [ralphie.rofi :as rofi]
    [ralphie.config :as config]
    [ralphie.clipboard :as clipboard]
+   [ralphie.browser :as browser]
    [ralphie.re :as re]
    [ralphie.command :refer [defcom]]))
 
@@ -14,7 +15,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn repo->rofi-x [{:keys [repo-id language description] :as repo}]
-  (assoc repo :label (str repo-id " | " language " | " description)))
+  (assoc repo :rofi/label (str repo-id " | " language " | " description)))
 
 (defn star->repo [star]
   (let [owner     (get-in star ["owner" "login"])
@@ -66,11 +67,18 @@
        (concat (->> (clipboard/values)
                     (map (fn [v]
                            (when-let [repo-id (re/url->repo-id v)]
-                             {:repo-id repo-id
-                              :label   repo-id})))
+                             {:repo-id    repo-id
+                              ;; TODO pango markup describing source (clipboard)
+                              :rofi/label repo-id})))
+                    (filter :repo-id))
+               (->> (browser/tabs)
+                    (map (fn [t]
+                           (when-let [repo-id (re/url->repo-id (:tab/url t))]
+                             {:repo-id    repo-id
+                              ;; TODO pango markup describing source (open tab)
+                              :rofi/label repo-id})))
                     (filter :repo-id)))
-       (rofi/rofi {:message   "Select repo to clone"
-                   :on-select clone})))
+       (rofi/rofi {:message "Select repo to clone" :on-select clone})))
 
 (comment
   (dorun (map println (clone-from-stars))))
