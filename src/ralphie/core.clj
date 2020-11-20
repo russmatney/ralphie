@@ -2,6 +2,7 @@
   (:require
    [ralphie.autojump]
    [ralphie.awesome]
+   [ralphie.browser]
    [ralphie.cli :as cli]
    [ralphie.dates]
    [ralphie.doctor]
