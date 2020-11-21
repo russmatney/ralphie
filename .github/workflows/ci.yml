@@ -28,7 +28,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
       - name: Run Tests
-        run: clj -M:test
+        run: clojure -M:test
 
   lint:
     runs-on: ubuntu-latest
