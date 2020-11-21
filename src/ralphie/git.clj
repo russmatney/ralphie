@@ -8,7 +8,7 @@
    [ralphie.clipboard :as clipboard]
    [ralphie.browser :as browser]
    [ralphie.re :as re]
-   [ralphie.command :refer [defcom]]))
+   [ralph.defcom :refer [defcom]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; transforms

@@ -1,6 +1,6 @@
 (ns ralphie.dates
   (:require
-   [ralphie.command :refer [defcom]]))
+   [ralph.defcom :refer [defcom]]))
 
 (defn now []
   (let [

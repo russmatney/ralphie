@@ -3,7 +3,7 @@
    [ralphie.workspace :as workspace]
    [ralphie.notify :refer [notify]]
    [babashka.process :refer [$ check]]
-   [ralphie.command :refer [defcom]]))
+   [ralph.defcom :refer [defcom]]))
 
 (defn open
   ([] (open (workspace/current-workspace)))

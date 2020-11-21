@@ -1,6 +1,6 @@
 (ns ralphie.scratchpad
   (:require
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [ralphie.emacs :as emacs]
    [ralphie.workspace :as workspace]
    [ralphie.awesome :as awm]

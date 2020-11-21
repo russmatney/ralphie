@@ -2,48 +2,35 @@
   (:require
    ;; [ralphie.help :as help]
    [ralphie.doctor :as doctor]
-   [ralphie.command :as command]
+   [ralph.defcom :as defcom]
    [ralphie.fzf :as fzf]
    [clojure.tools.cli :refer [parse-opts]]))
-
-;; DEPRECATED commands should parse args themselves
-(defn config->opts
-  "Converts config into parse-opt's expected form.
-  see `clojure.tools.cli/parse-opts`"
-  [config]
-  (into []
-        (map
-          (fn [{:keys [short long one-line-desc]}]
-            [short long one-line-desc])
-          (:commands config))))
 
 (defn parse-command [config parsed]
   (let [args      (:arguments parsed)
         first-arg (first args)
-        command   (command/find-command (:commands config) first-arg)]
+        command   (defcom/find-command (:commands config) first-arg)]
     {:command command
      :args    (assoc parsed :arguments (rest args))}))
 
 (defn run [& passed-args]
-  (let [config                 {:commands (command/commands)}
-        parsed                 (parse-opts passed-args (config->opts config))
+  (let [config                 {:commands (defcom/commands)}
+        parsed                 (parse-opts passed-args [])
         {:keys [command args]} (parse-command config parsed)
         debug                  false]
     (when debug
       (doctor/checkup-handler config args))
 
-    (when-not command
-      (println "404! Command not found. Falling back to fzf-select")
-      (fzf/fzf-handler config passed-args)
-      ;; (help/help-handler config passed-args)
-      )
-
-    (when command
-      (command/call-handler command config args))))
+    (if command
+      (defcom/call-handler command config args)
+      (do
+        (println "404! Command not found. Falling back to fzf-select")
+        ;; (help/help-handler config passed-args)
+        (fzf/fzf-handler config passed-args)))))
 
 (comment
   (->>
-    (command/commands)
+    (defcom/commands)
     (map :name))
   (def -res
     (run "help"))

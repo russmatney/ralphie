@@ -3,7 +3,7 @@
    [ralphie.config :as config]
    [ralphie.item :as item]
    [ralphie.rofi :as rofi]
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [org-crud.create :as org-crud.create]
    [clojure.string :as string]
    [org-crud.core :as org-crud]))

@@ -1,6 +1,6 @@
 (ns ralphie.screenshot
   (:require
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [ralphie.rofi :as rofi]
    [ralphie.notify :refer [notify]]
    [babashka.process :refer [$ check]]))

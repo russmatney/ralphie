@@ -1,6 +1,6 @@
 (ns ralphie.focus
   (:require
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [ralphie.rofi :as rofi]
    [ralphie.item :as item]
    [ralphie.config :as config]

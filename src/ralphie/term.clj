@@ -2,7 +2,7 @@
   (:require
    [ralphie.tmux :as tmux]
    [ralphie.workspace :as workspace]
-   [ralphie.command :refer [defcom]]))
+   [ralph.defcom :refer [defcom]]))
 
 (defn open-term
   ([] (open-term (workspace/current-workspace)))

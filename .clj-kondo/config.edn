@@ -1,4 +1,5 @@
 {:linters
  {:unresolved-symbol {:exclude [(babashka.process/$)]}}
  :lint-as
- {ralphie.command/defcom clojure.core/def}}
+ {ralph.defcom/defcom    clojure.core/def
+  ralphie.command/defcom clojure.core/def}}

@@ -5,7 +5,7 @@
    [ralphie.config :as config]
    [ralphie.util :as util]
    [ralphie.zsh :as zsh]
-   [ralphie.command :as command :refer [defcom]]))
+   [ralph.defcom :as defcom :refer [defcom]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; rofi-general
@@ -163,11 +163,11 @@ install or jump into a shell to test it."  ]
                           config->rofi-commands
                           (rofi {:require-match? true
                                  :msg            "All commands"}))]
-    (command/call-handler cmd config parsed)))
+    (defcom/call-handler cmd config parsed)))
 
 (comment
   (rofi-handler nil nil)
-  (rofi-handler {:commands (command/commands)} nil)
+  (rofi-handler {:commands (defcom/commands)} nil)
   )
 
 (defcom select-command-via-rofi

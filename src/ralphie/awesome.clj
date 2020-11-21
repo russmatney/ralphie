@@ -1,6 +1,6 @@
 (ns ralphie.awesome
   (:require
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [ralphie.config :as config]
    [ralphie.notify :as notify]
    [ralphie.item :as item]

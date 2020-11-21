@@ -1,6 +1,6 @@
 (ns ralphie.browser
   (:require [babashka.process :as p]
-            [ralphie.command :refer [defcom]]
+            [ralph.defcom :refer [defcom]]
             [clojure.string :as string]
             [ralphie.rofi :as rofi]
             [ralphie.notify :as notify]

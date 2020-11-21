@@ -1,7 +1,7 @@
 (ns ralphie.story
   (:require
    [ralphie.rofi :as rofi]
-   [ralphie.command :refer [defcom]]))
+   [ralph.defcom :refer [defcom]]))
 
 (defn person [name]
   {:name name})

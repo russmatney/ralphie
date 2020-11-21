@@ -1,6 +1,6 @@
 (ns ralphie.doctor
   (:require
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [clojure.string :as string]))
 
 (defn missing-for-key

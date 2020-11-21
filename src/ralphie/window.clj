@@ -2,7 +2,7 @@
   (:require
    [ralphie.rofi :as rofi]
    [ralphie.i3 :as i3]
-   [ralphie.command :refer [defcom]]))
+   [ralph.defcom :refer [defcom]]))
 
 (def window-size-options
   [{:label  "small-centered"

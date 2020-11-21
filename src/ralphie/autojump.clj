@@ -1,7 +1,7 @@
 (ns ralphie.autojump
   (:require
    [clojure.string :as string]
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [ralphie.tmux :as tmux]
    [ralphie.config :as config]
    [ralphie.workspace :as workspace]

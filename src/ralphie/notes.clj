@@ -1,6 +1,6 @@
 (ns ralphie.notes
   (:require
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [ralphie.config :as config]
    [ralphie.fs :as fs]
    [org-crud.markdown :as org.markdown]))

@@ -1,6 +1,6 @@
 (ns ralphie.repos
   (:require
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [ralphie.item :as item]
    [ralphie.config :as config]
    [ralphie.awesome :as awm]

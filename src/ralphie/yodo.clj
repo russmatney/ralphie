@@ -1,6 +1,6 @@
 (ns ralphie.yodo
   (:require
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [ralphie.rofi :as rofi]
    [ralphie.config :as config]
    [ralphie.tmux :as tmux]))

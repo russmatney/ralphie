@@ -2,7 +2,7 @@
   (:require
    [babashka.process :refer [$ check]]
    [clojure.java.shell :as sh :refer [with-sh-dir]]
-   [ralphie.command :refer [defcom] :as command]
+   [ralph.defcom :refer [defcom] :as defcom]
    [ralphie.notify :refer [notify]]
    [ralphie.config :as config]
    [ralphie.rofi :as rofi]
@@ -25,9 +25,10 @@
 (defn install-cmd [_config _parsed]
   (add-dev-bin-to-path))
 
-(defcom command
+(defcom install-ralphie
   {:name          "install-dev"
    :one-line-desc "Installs ralphie-dev via symlink."
+   :status        :not-used
    :description
    ["Symlinks the project's src/ralphie.core.clj into ~/.local/bin/ralphie-dev"
     "This 'dev' command runs the latest version of the code everytime."
@@ -56,8 +57,8 @@ _arguments -C \\
 " cmds-string ")\"")]
     (spit (zsh-completion-path) completion-file)))
 
-(comment
-  (install-zsh-completion (command/commands)))
+;; (comment
+;;   (install-zsh-completion (command/commands)))
 
 (defn install-zsh-completion-handler
   ([] (install-zsh-completion-handler nil nil))
@@ -104,7 +105,7 @@ exec bb /home/russ/russmatney/ralphie/ralphie-script.clj $@"))
 
 ;; TODO consider extending this fn to also rebuild micro-ubers for opt-in commands
 ;; TODO doctor test for this: only rollover after the script is health-checked
-(defcom build-uberscript-cmd
+(defcom build-and-install-ralphie-uberscript
   {:name          "build-and-install-uberscript"
    :one-line-desc "Builds an uberscript for ralphie, and symlinks to `ralphie`"
    :description
@@ -187,7 +188,7 @@ exec bb " (temp-uberscript-path cmd) " $@"))
   ([config {:keys [arguments]}]
    (let [cmd (some-> arguments
                      first
-                     (#(command/find-command (:commands config) %)))
+                     (#(defcom/find-command (:commands config) %)))
          cmd (or cmd (rofi/rofi {:msg "Select command to install"}
                                 (rofi/config->rofi-commands config)))]
      (if cmd
@@ -204,10 +205,10 @@ exec bb " (temp-uberscript-path cmd) " $@"))
          )
        (notify (str "No command selected for installation"))))))
 
-(comment
-  (install-micro-handler
-    {:commands (command/commands)}
-    {:arguments ["fire"]}))
+;; (comment
+;;   (install-micro-handler
+;;     {:commands (command/commands)}
+;;     {:arguments ["fire"]}))
 
 (defcom install-micro-cmd
   {:name          "install-micro"

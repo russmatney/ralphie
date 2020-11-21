@@ -4,7 +4,7 @@
    [ralphie.item :as item]
    [ralphie.rofi :as rofi]
    [ralphie.config :as config]
-   [ralphie.command :refer [defcom]]))
+   [ralph.defcom :refer [defcom]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fetch items

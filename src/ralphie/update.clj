@@ -1,6 +1,6 @@
 (ns ralphie.update
   (:require
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [ralphie.tmux :as tmux]))
 
 (defn update-doom-handler [_config _parsed]

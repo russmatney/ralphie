@@ -4,7 +4,7 @@
    [ralphie.config :as config]
    [org-crud.core :as org-crud]
    [clojure.string :as string]
-   [ralphie.command :refer [defcom]])
+   [ralph.defcom :refer [defcom]])
   (:import java.lang.ProcessBuilder))
 
 (defn org-item->rofi-urls

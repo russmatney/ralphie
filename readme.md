@@ -191,7 +191,7 @@ A command can be added at a new namespace with somethine like:
 ```
 (ns ralphie.my-new-ns
  (:require
-  [ralphie.command :refer [defcom]]))
+  [ralph.defcom :refer [defcom]]))
 
 (defn my-new-handler
   ([] (my-new-handler nil nil))
@@ -240,7 +240,7 @@ like:
 # condition: t
 # --
 (:require
-   [ralphie.command :refer [defcom]])
+   [ralph.defcom :refer [defcom]])
 
 (defn $1-handler
   ([] ($1-handler nil nil))

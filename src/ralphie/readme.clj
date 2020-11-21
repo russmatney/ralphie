@@ -1,7 +1,7 @@
 (ns ralphie.readme
   (:require
    [ralphie.config :refer [project-dir]]
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [clojure.string :as string]))
 
 (def readme-path (str (project-dir) "/readme.md"))

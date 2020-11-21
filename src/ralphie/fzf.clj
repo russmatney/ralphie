@@ -1,6 +1,6 @@
 (ns ralphie.fzf
   (:require
-   [ralphie.command :refer [defcom] :as command]
+   [ralph.defcom :refer [defcom] :as defcom]
    [babashka.process :refer [process]]
    [clojure.string :as string]))
 
@@ -12,7 +12,6 @@
                                  :out :string})
         selected-label (-> @proc :out string/trim)]
     (when (seq selected-label)
-      (println selected-label)
       (some->> xs
                (filter (comp #{selected-label} :fzf/label))
                first))))
@@ -26,7 +25,7 @@
                        (map (fn [cmd] (assoc cmd :fzf/label (:name cmd))))
                        fzf)]
      ;; TODO trim parsed to remove fzf argument
-     (command/call-handler cmd config parsed))))
+     (defcom/call-handler cmd config parsed))))
 
 (defcom fzf-cmd
   {:name          "fzf"

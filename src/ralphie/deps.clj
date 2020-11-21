@@ -3,7 +3,7 @@
    [ralphie.config :as config]
    [ralphie.outdated :as outdated]
    [ralphie.fs :as fs]
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [org-crud.core :as org-crud]))
 
 (defn has-deps-edn? [repo]

@@ -1,6 +1,6 @@
 (ns ralphie.watch
   (:require
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    ;; [babashka.pods :as pods]
    ))
 

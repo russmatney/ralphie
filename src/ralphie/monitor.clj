@@ -1,6 +1,6 @@
 (ns ralphie.monitor
   (:require
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [ralphie.rofi :as rofi]
    [babashka.process :refer [$ check]]))
 

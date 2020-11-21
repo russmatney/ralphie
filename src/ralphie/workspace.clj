@@ -2,7 +2,7 @@
   (:require
    [ralphie.awesome :as awm]
    [ralphie.rofi :as rofi]
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [ralphie.config :as config]
    [ralphie.repos :as repos]
    [ralphie.notify :refer [notify]]

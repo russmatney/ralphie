@@ -1,6 +1,6 @@
 (ns ralphie.help
   (:require
-   [ralphie.command :refer [defcom]]))
+   [ralph.defcom :refer [defcom]]))
 
 (defn help-handler [config parsed]
   (print "\nHelp Command Called\n")

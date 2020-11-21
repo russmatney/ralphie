@@ -1,6 +1,6 @@
 (ns ralphie.web
   (:require
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [babashka.process :refer [$ check]]
    [ralphie.notify :as notify]))
 

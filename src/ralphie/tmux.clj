@@ -3,7 +3,7 @@
    [babashka.process :refer [$ check]]
    [ralphie.rofi :as rofi]
    [ralphie.notify :refer [notify]]
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [ralphie.sh :as r.sh]
    [ralphie.config :as config]))
 

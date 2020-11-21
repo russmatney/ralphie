@@ -1,11 +1,7 @@
-(ns ralphie.command)
+(ns ralph.defcom)
 
 (defn ->keys [{:keys [name short command aka]}]
   (set (filter seq (conj [] name short command aka))))
-
-(defn ->rofi-x [cmd]
-  {:label (:name cmd)
-   :x     cmd})
 
 (defn call-handler
   [cmd config parsed]
@@ -18,7 +14,6 @@
 ;; defcom and command registry
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; TODO convert to multi-method
 (defonce command-registry (atom {}))
 
 (defmacro defcom
@@ -34,14 +29,7 @@
        (swap! command-registry assoc key# opts#)
        nil)))
 
-(comment
-  (-> *ns* str)
-  )
-
 (defn commands [] (vals @command-registry))
-
-(comment
-  (println "hi"))
 
 (defn find-command [commands command-name]
   (->> commands

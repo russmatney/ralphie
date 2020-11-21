@@ -1,6 +1,6 @@
 (ns ralphie.zsh
   (:require
-   [ralphie.command :refer [defcom]]
+   [ralph.defcom :refer [defcom]]
    [ralphie.sh :as r.sh]
    [clojure.edn :as edn]
    [clojure.string :as string]
