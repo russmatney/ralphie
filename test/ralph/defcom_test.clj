@@ -11,6 +11,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (deftest defcom#macro
+  (sut/clear-registry)
   (sut/defcom my-command {:name "my-command"})
   (sut/defcom my-other-command {:name "my-other-command"})
   (sut/defcom my-defcom-keyed-command {:defcom/name "defcom-keyed"})

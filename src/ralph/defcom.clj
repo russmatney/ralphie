@@ -1,5 +1,4 @@
-(ns ralph.defcom
-  (:require [ralph.defcom :as defcom]))
+(ns ralph.defcom)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; registry

@@ -25,6 +25,10 @@
  :aliases
  {:run {:main-opts "-m ralphie.core"}
 
+  :test {:extra-deps
+         {nubank/matcher-combinators {:mvn/version "3.1.4"}
+          lambdaisland/kaocha        {:mvn/version "1.0.700"}}}
+
   :remove-spec
   {:classpath-overrides {org.clojure/spec.alpha       nil
                          org.clojure/core.specs.alpha nil}}

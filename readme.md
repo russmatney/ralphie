@@ -184,7 +184,16 @@ rlwrap bb -cp $(clojure -Spath) --nrepl-server 1667
 
 Then `cider-connect`ing from emacs.
 
-## Creating commands
+## Running tests
+
+Tests are usually run fully in cider, but you can also run them on the command
+line via kaocha:
+
+```sh
+./bin/kaocha --watch
+```
+
+# Creating commands
 
 A command can be added at a new namespace with somethine like:
 
@@ -227,7 +236,7 @@ anyway), you can also call `ralphie build-and-install-uberscript` (via cli or
 global rofi, which is typically key-bound) to update the global uberjar, which
 will then make `my-new-cmd` available via your typical `ralphie rofi` as well.
 
-### `defcom` yasnippet
+## `defcom` yasnippet
 
 I use a `defcom` snippet to quickly add a new command, which looks something
 like:
