@@ -146,7 +146,7 @@ exec bb /home/russ/russmatney/ralphie/ralphie-script.clj $@"))
         (str "(ns ralphie.temp (:require ["
              (:ns cmd) "])) "
              "(defn -main [& args] ("
-             (apply str (next (str (:fn-name cmd))))
+             (apply str (str (:fn-name cmd)))
              " nil {:arguments args}))"))
   (notify "Wrote temp ns" (:name cmd)))
 
