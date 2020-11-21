@@ -25,7 +25,8 @@
  :aliases
  {:run {:main-opts "-m ralphie.core"}
 
-  :test {:extra-deps
+  :test {:main-opts ["-m" "kaocha.runner"]
+         :extra-deps
          {nubank/matcher-combinators {:mvn/version "3.1.4"}
           lambdaisland/kaocha        {:mvn/version "1.0.700"}}}
 
