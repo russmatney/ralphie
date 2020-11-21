@@ -15,7 +15,7 @@
 ;; Repo helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn ignore-dirty? [item]
+(defn ignore-dirty? [_item]
   false ;; check ALL
   ;; (some-> item item/path (string/includes? "Dropbox"))
   )
@@ -113,7 +113,7 @@
        (when-let [selected-repo (->> reps
                                      (map (fn [x] (assoc x :label (:org/name x))))
                                      (rofi/rofi {:msg "Dirty Repos"}))]
-         (rofi/rofi {:msg (str "For dirty repo" (item/name selected-repo))}
+         (rofi/rofi {:msg (str "For dirty repo" (item/label selected-repo))}
                     [{:label     "Open in workspace"
                       :on-select (fn [_]
                                    (notify "Open in workspace"

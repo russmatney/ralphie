@@ -4,7 +4,6 @@
    [ralphie.rofi :as rofi]
    [ralph.defcom :refer [defcom]]
    [ralphie.config :as config]
-   [ralphie.repos :as repos]
    [ralphie.notify :refer [notify]]
    [org-crud.api :as org-crud]
    [clojure.string :as string]))

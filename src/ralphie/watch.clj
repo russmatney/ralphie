@@ -25,8 +25,9 @@
    :handler       watch-handler})
 
 (comment
-  (fw/watch "/home/russ/russmatney/scratch/main.lua"
-            (fn [event]
-              (println "something")
-              (prn event))
-            {:delay-ms 50}))
+  ;; (fw/watch "/home/russ/russmatney/scratch/main.lua"
+  ;;           (fn [event]
+  ;;             (println "something")
+  ;;             (prn event))
+  ;;           {:delay-ms 50})
+  )
