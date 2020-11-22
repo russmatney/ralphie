@@ -39,9 +39,13 @@
 (defn bash [command]
   (clj-sh/sh "bash" "-c" command))
 
-(defn zsh [& args]
-  (println args)
-  (apply clj-sh/sh "zsh" "-c" args))
+(defn zsh [command]
+  (println command)
+  (clj-sh/sh "zsh" "-c" command))
+
+(comment
+  (zsh (str "echo " "hi"))
+  )
 
 (defn expand
   [path]
