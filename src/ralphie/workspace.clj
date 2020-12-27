@@ -2,6 +2,7 @@
   (:require
    [ralphie.awesome :as awm]
    [ralphie.rofi :as rofi]
+   [ralphie.repos :as repos]
    [ralph.defcom :refer [defcom]]
    [ralphie.config :as config]
    [ralphie.notify :refer [notify]]
@@ -30,12 +31,21 @@
     (->>
       "workspaces.org"
       (#(str (config/org-dir) "/" %))
-      (org-crud/path->flattened-items)
+      org-crud/path->nested-item
+      :org/items
       (map (fn [{:keys [org/name] :as org-wsp}]
              (merge org-wsp
                     {:awesome/tag (awm/tag-for-name name awm-all-tags)}))))))
 
 (comment
+  (->>
+    "workspaces.org"
+    (#(str (config/org-dir) "/" %))
+    org-crud/path->nested-item
+    :org/items
+    (filter (comp #{"workspaces"} :org/name))
+    )
+
   (->>
     (all-workspaces)
     (filter :awesome/tag)))
@@ -84,7 +94,29 @@
 ;; New create workspace
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn awesome-create-tag-handler
+(defn choose-workspace []
+  (let [existing-tag-names (->> (awm/all-tags) (map :name) set)]
+    (rofi/rofi
+      {:msg "New Workspace Name?"}
+      (->>
+        (all-workspaces)
+        (concat
+          {:rofi/label     "Load repos?"
+           :rofi/on-select (fn []
+                             (rofi/rofi
+                               {:msg "New Workspace from repo?"}
+                               (repos/fetch-repos)))})
+        (map :org/name)
+        (remove #(contains? existing-tag-names %))
+        seq))))
+
+(comment
+  ;; is `keep` just `(comp map filter)`
+  (keep (fn [x] (when-not (= x 0) (- x 1)))
+        [1 2 3 4])
+  (choose-workspace))
+
+(defn create-workspace-handler
   [_ {:keys [arguments]}]
   (if-let [tag-name (some-> arguments first)]
     (do
@@ -92,28 +124,21 @@
       (awm/create-tag! tag-name))
 
     ;; no tag, get from rofi
-    (let [existing-tag-names (->> (awm/all-tags) (map :name) set)
-          selected-wsp-name
-          (rofi/rofi
-            {:msg "New Tag Name?"}
-            (->>
-              (all-workspaces)
-              ;; TODO support optionally via :mod :shift :s
-              ;; (concat (repos/fetch-repos))
-              (map :org/name)
-              (remove #(contains? existing-tag-names %))
-              seq))]
-      (-> selected-wsp-name awm/create-tag!)
-      (-> selected-wsp-name awm/focus-tag!)
-      (notify (str "Created new workspace: " selected-wsp-name)))))
+    (some-> (choose-workspace)
+            awm/create-tag!
+            awm/focus-tag!
+            ((fn [name]
+               (notify (str "Created new workspace: " name)))))
 
-(defcom awesome-create-tag
+    ))
+
+;; TODO need tests on this!!!
+(defcom create-workspace
   {:name          "create-workspace"
    :one-line-desc "Creates a new tag in your _Awesome_ Window Manager."
    :description   []
-   :handler       awesome-create-tag-handler})
+   :handler       create-workspace-handler})
 
-(comment)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; consolidate workspaces

@@ -79,41 +79,46 @@
       "_G.client.focus = c;"
       "end; ")))
 
-(defn toggle-scratchpad [wsp]
-  (let [wsp      (cond
-                   (nil? wsp)    (workspace/current-workspace)
-                   (string? wsp) (workspace/for-name wsp)
-                   :else         wsp)
-        wsp-name (-> wsp :org/name)
-        tag      (-> wsp :awesome/tag)
-        client   (some-> tag :clients first)]
-    (cond
-      (and tag client (:selected tag))
-      (do
-        (println "found selected tag, client for:" wsp-name)
-        (if (:ontop client)
-          ;; TODO also set client ontop false ?
-          (awm/toggle-tag wsp-name)
-          (ontop-and-focused client)))
+;; TODO write tests for this
+;; - this should be a ralph-level namespace
+;; - should support this as documenting an explicit feature-set
+(defn toggle-scratchpad
+  ([] (toggle-scratchpad (workspace/current-workspace)))
+  ([wsp]
+   (let [wsp      (cond
+                    (nil? wsp)    (workspace/current-workspace)
+                    (string? wsp) (workspace/for-name wsp)
+                    :else         wsp)
+         wsp-name (-> wsp :org/name)
+         tag      (-> wsp :awesome/tag)
+         client   (some-> tag :clients first)]
+     (cond
+       (and tag client (:selected tag))
+       (do
+         (println "found selected tag, client for:" wsp-name)
+         (if (:ontop client)
+           ;; TODO also set client ontop false ?
+           (awm/toggle-tag wsp-name)
+           (ontop-and-focused client)))
 
-      (and tag client (not (:selected tag)))
-      (do
-        (println "found unselected tag, client for:" wsp-name)
-        (awm/toggle-tag wsp-name)
-        (ontop-and-focused client))
+       (and tag client (not (:selected tag)))
+       (do
+         (println "found unselected tag, client for:" wsp-name)
+         (awm/toggle-tag wsp-name)
+         (ontop-and-focused client))
 
-      ;; tag exists, no client
-      (and tag (not client))
-      (do
-        (println "tag, but no client:" wsp-name)
-        (create-client wsp))
+       ;; tag exists, no client
+       (and tag (not client))
+       (do
+         (println "tag, but no client:" wsp-name)
+         (create-client wsp))
 
-      ;; tag does not exist, presumably no client either
-      (not tag)
-      (do
-        (awm/create-tag! wsp-name)
-        (awm/toggle-tag wsp-name)
-        (create-client wsp)))))
+       ;; tag does not exist, presumably no client either
+       (not tag)
+       (do
+         (awm/create-tag! wsp-name)
+         (awm/toggle-tag wsp-name)
+         (create-client wsp))))))
 
 (comment
   (println "hi")

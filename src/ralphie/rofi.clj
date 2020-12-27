@@ -5,7 +5,8 @@
    [ralphie.config :as config]
    [ralphie.util :as util]
    [ralphie.zsh :as zsh]
-   [ralph.defcom :as defcom :refer [defcom]]))
+   [ralph.defcom :as defcom :refer [defcom]]
+   [ralphie.doctor :as doctor]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; rofi-general
@@ -14,6 +15,7 @@
 (defn escape-rofi-label [label]
   (string/escape label {\& "&amp;"}))
 
+;; TODO Tests for this,especially that ensure the result is returned
 (defn rofi
   "Expects `xs` to be a coll of maps with a `:label` key.
   `msg` is displayed to the user.
@@ -29,6 +31,7 @@
   ;; TODO move opts and xs over to :rofi/prefixed keys
   ([opts] (rofi opts (:xs opts)))
   ([{:keys [msg message on-select require-match?]} xs]
+   (doctor/log "Rofi called with" (count xs) "xs.")
    (let [maps?  (-> xs first map?)
          labels (if maps? (->> xs
                                (map (some-fn :label :rofi/label))
@@ -37,6 +40,8 @@
          msg    (or msg message)
 
          selected-label
+         ;; TODO nil-punny error handling here
+         ;; (rather than throwing when nothing is selected)
          (some->
            ^{:in (string/join "\n" labels)}
            ($ rofi -i

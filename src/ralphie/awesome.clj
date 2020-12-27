@@ -271,10 +271,12 @@ first_tag= c.first_tag.name,
          ".name});")
     awm-cli))
 
+;; Test to ensure that these all pass tag-name through
 (defn create-tag! [tag-name]
   (notify/notify (str "creating new awesome tag: " tag-name))
   (awm-cli
-    (str "awful.tag.add(\"" tag-name "\"," "{layout=awful.layout.suit.tile});")))
+    (str "awful.tag.add(\"" tag-name "\"," "{layout=awful.layout.suit.tile});"))
+  tag-name)
 
 (comment
   (create-tag! "new-tag"))
@@ -283,12 +285,14 @@ first_tag= c.first_tag.name,
   (notify/notify (str "focusing awesome tag: " tag-name))
   (awm-cli
     (str "local tag = awful.tag.find_by_name(nil, \"" tag-name "\");
-tag:view_only(); ")))
+tag:view_only(); "))
+  tag-name)
 
 (defn toggle-tag [tag-name]
   ;; viewtoggle tag
   (awm-cli
-    (str "awful.tag.viewtoggle(awful.tag.find_by_name(s, \"" tag-name "\"));")))
+    (str "awful.tag.viewtoggle(awful.tag.find_by_name(s, \"" tag-name "\"));"))
+  tag-name)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Delete current tag

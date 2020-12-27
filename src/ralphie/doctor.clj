@@ -45,3 +45,13 @@
    :one-line-desc "Debug helper for sanity-checking"
    :description   ["Runs a sanity check on your built config, and logs a report."]
    :handler       checkup-handler})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Doctor log
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn log [& args]
+  (apply print (concat "\n" args "\n")))
+
+(comment
+  (log "Hello" "World"))
