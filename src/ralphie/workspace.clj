@@ -99,6 +99,8 @@
    (->> (dirty-workspaces)
         (map :org/name)
         (rofi/rofi {:msg "Dirty Workspaces"})
+        ;; TODO write awm func that creates+focuses or focuses if already created
+        awm/create-tag!
         awm/focus-tag!)
    ))
 
