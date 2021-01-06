@@ -224,6 +224,19 @@ window= c.window,
         (str "return view({name=s.selected_tag.name})"))
       :name))
 
+(defn current-tag-names
+  ""
+  []
+  (->> (awm-cli
+         {:parse? true}
+         (str "return view(lume.map(s.selected_tags,
+function (t) return {name= t.name} end))"))
+       (map :name)))
+
+(comment
+  (current-tag-names))
+
+
 (defn current-tag []
   (tag-for-name (current-tag-name)))
 

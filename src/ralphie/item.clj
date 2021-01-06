@@ -41,6 +41,9 @@
 (comment
   (workspace-key {:org.prop/workspace-key "0 "}))
 
+(defn scratchpad? [item]
+  (-> item :org.prop/scratchpad #{"true"}))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parse Helper
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

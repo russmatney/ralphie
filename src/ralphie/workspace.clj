@@ -7,7 +7,8 @@
    [ralphie.config :as config]
    [ralphie.notify :refer [notify]]
    [org-crud.api :as org-crud]
-   [clojure.string :as string]))
+   [clojure.string :as string]
+   [ralphie.item :as item]))
 
 ;; (defn rename-handler
 ;;   "Updates a selected workspace with the passed name."
@@ -62,8 +63,18 @@
   (for-name "yodo-dev"))
 
 (defn current-workspace
-  []
-  (for-name (awm/current-tag-name)))
+  "Returns the currently active workspace according to the current
+  selected awesome tags. If multiple tags are found, the non-scratchpad
+  workspace is preferred." []
+  (let [tag-names (awm/current-tag-names)
+        wkspcs    (map for-name tag-names)]
+    (->> wkspcs
+         ;; seems to sort scratchpads to the end... w/e!
+         (sort-by item/scratchpad?)
+         first)))
+
+(comment
+  (current-workspace))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; start workspace
