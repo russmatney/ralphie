@@ -25,12 +25,17 @@
     true
     (when (item/path item)
       (notify "checking if path is clean" (item/path item))
-      (some-> ^{:dir (item/path item)}
-              ($ git diff HEAD)
-              check
-              :out
-              slurp
-              (= "")))))
+      (try
+        (some-> ^{:dir (item/path item)
+                  :out :string}
+                ($ git diff HEAD)
+                check
+                :out
+                (= ""))
+        (catch Exception e
+          (let [msg (str "ERROR in: " (:org/name item) " is-clean? exception")]
+            (println msg e)
+            (notify msg e)))))))
 
 (comment
   (-> ^{:dir "/home/russ/russmatney/ralphie"}
@@ -38,6 +43,13 @@
       check
       :out
       slurp
+      (= ""))
+
+  (-> ^{:dir "/home/russ/Dropbox/todo"
+        :out :string}
+      ($ git diff HEAD)
+      check
+      :out
       (= ""))
 
   (is-clean? {:org.prop/path "/home/russ/Dropbox/todo"})
@@ -71,9 +83,17 @@
        (map (fn [repo]
               (-> repo
                   (assoc :clean? (is-clean? repo)))))
+       (remove nil?)
        (remove :clean?)))
 
 (comment
+  (println "hi")
+  (->> (fetch-repos)
+       (filter item/watching?)
+       (map (fn [repo]
+              (-> repo
+                  (assoc :clean? (is-clean? repo)))))
+       (map :org/name))
   (->> (dirty-repos)
        (map :org/name))
   (count (dirty-repos)))
