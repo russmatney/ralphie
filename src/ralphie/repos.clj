@@ -7,10 +7,8 @@
    [ralphie.notify :refer [notify]]
    [ralphie.fs :as fs]
    [ralphie.rofi :as rofi]
-   [org-crud.core :as org-crud]
-   ;; [clojure.string :as string]
-   [babashka.process :refer [$ check]]))
-
+   [ralphie.git :as git]
+   [org-crud.core :as org-crud]))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Repo helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -25,33 +23,9 @@
     true
     (when (item/path item)
       (notify "checking if path is clean" (item/path item))
-      (try
-        (some-> ^{:dir (item/path item)
-                  :out :string}
-                ($ git diff HEAD)
-                check
-                :out
-                (= ""))
-        (catch Exception e
-          (let [msg (str "ERROR in: " (:org/name item) " is-clean? exception")]
-            (println msg e)
-            (notify msg e)))))))
+      (-> item item/path git/is-clean?))))
 
 (comment
-  (-> ^{:dir "/home/russ/russmatney/ralphie"}
-      ($ git diff HEAD)
-      check
-      :out
-      slurp
-      (= ""))
-
-  (-> ^{:dir "/home/russ/Dropbox/todo"
-        :out :string}
-      ($ git diff HEAD)
-      check
-      :out
-      (= ""))
-
   (is-clean? {:org.prop/path "/home/russ/Dropbox/todo"})
   (is-clean? {:org.prop/path "/home/russ/russmatney/yodo"})
   (is-clean? {:org.prop/path "/home/russ/russmatney/ralphie"}))

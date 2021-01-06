@@ -117,4 +117,37 @@
    :description   [""]
    :handler       gprom-handler})
 
-(comment)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; is-clean?
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn is-clean?
+  "Returns true if there is no local diff in the passed path.
+  Expects a .git directory at <path>/.git"
+  [path]
+  (try
+    (some-> ^{:dir path
+              :out :string}
+            ($ git diff HEAD)
+            check
+            :out
+            (= ""))
+    (catch Exception e
+      (let [msg (str "ERROR for " path " in git/is-clean?")]
+        (println msg e)
+        (notify msg e)))))
+
+(comment
+  (-> ^{:dir "/home/russ/russmatney/ralphie"}
+      ($ git diff HEAD)
+      check
+      :out
+      slurp
+      (= ""))
+
+  (-> ^{:dir "/home/russ/Dropbox/todo"
+        :out :string}
+      ($ git diff HEAD)
+      check
+      :out
+      (= "")))

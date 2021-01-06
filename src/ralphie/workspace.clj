@@ -8,7 +8,9 @@
    [ralphie.notify :refer [notify]]
    [org-crud.api :as org-crud]
    [clojure.string :as string]
-   [ralphie.item :as item]))
+   [ralphie.item :as item]
+   [ralphie.git :as git]
+   [ralphie.fs :as fs]))
 
 ;; (defn rename-handler
 ;;   "Updates a selected workspace with the passed name."
@@ -76,6 +78,36 @@
 (comment
   (current-workspace))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; workspace repos
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn dirty-workspaces []
+  (->> (all-workspaces)
+       (filter :org.prop/directory)
+       (filter (fn [x]
+                 (let [path (-> x :org.prop/directory)]
+                   (and
+                     (fs/exists? path)
+                     (fs/exists? (str path "/.git"))))))
+       (remove (comp git/is-clean? :org.prop/directory))))
+
+(defn list-dirty-workspaces-handler
+  ([] (list-dirty-workspaces-handler nil nil))
+  ([_config _parsed]
+   (->> (dirty-workspaces)
+        (map :org/name)
+        (rofi/rofi {:msg "Dirty Workspaces"})
+        awm/focus-tag!)
+   ))
+
+(defcom list-dirty-workspaces-cmd
+  {:name          "list-dirty-workspaces"
+   :one-line-desc "Lists workspaces with dirty git repos"
+   :description   ["Selecting a workspace will open it up."]
+   :handler       list-dirty-workspaces-handler})
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; start workspace
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -135,6 +167,7 @@
       (awm/create-tag! tag-name))
 
     ;; no tag, get from rofi
+    ;; TODO support selecting already open wrkspc and just focusing
     (some-> (choose-workspace)
             awm/create-tag!
             awm/focus-tag!
