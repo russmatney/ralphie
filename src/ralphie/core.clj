@@ -1,9 +1,10 @@
 (ns ralphie.core
   (:require
+   [ralph.cli :as cli]
+
    [ralphie.autojump]
    [ralphie.awesome]
    [ralphie.browser]
-   [ralphie.cli :as cli]
    [ralphie.dates]
    [ralphie.doctor]
    [ralphie.emacs]
@@ -36,13 +37,11 @@
    [ralphie.yodo]
    [ralphie.zsh]))
 
+(defn -main [args]
+  (when-let [debug false]
+    (when debug
+      (spit "/home/russ/russmatney/ralphie/log"
+            (str args "\n")
+            :append true)))
 
-(defn debug-log [log]
-  (when false
-    (spit "/home/russ/russmatney/ralphie/log"
-          (str log "\n")
-          :append true)))
-
-(defn -main [& args]
-  (debug-log args)
-  (apply cli/run args))
+  (cli/run args))

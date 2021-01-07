@@ -57,7 +57,7 @@
 ;; public helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn commands
+(defn list-commands
   "Lists all commands in the `registry*`"
   [] (vals @registry*))
 

@@ -17,32 +17,32 @@
   (sut/defcom my-defcom-keyed-command {:defcom/name "defcom-keyed"})
 
   (testing "registered commands can be listed"
-    (is (= 3 (count (sut/commands)))))
+    (is (= 3 (count (sut/list-commands)))))
 
   (testing "registered commands can be found"
     (let [name  "my-command"
-          found (sut/find-command (sut/commands) name)]
+          found (sut/find-command (sut/list-commands) name)]
       (is found)
       (is (= name (:defcom/name found)))))
 
   (testing "defcom-keyed commands can be found"
     (let [name  "defcom-keyed"
-          found (sut/find-command (sut/commands) name)]
+          found (sut/find-command (sut/list-commands) name)]
       (is found)
       (is (= name (:defcom/name found)))))
 
   (testing "warns/throws on duplicate command-name"))
 
 (deftest defcom#clear-registry
-  (let [initial-count (count (sut/commands))]
+  (let [initial-count (count (sut/list-commands))]
     (sut/defcom com-1 {:name "com-1"})
     (sut/defcom com-2 {:name "com-2"})
     (sut/defcom com-3 {:defcom/name "com-3"})
 
     (testing "commands can be cleared"
-      (is (= (+ initial-count 3) (count (sut/commands))))
+      (is (= (+ initial-count 3) (count (sut/list-commands))))
       (sut/clear-registry)
-      (is (= 0 (count (sut/commands)))))))
+      (is (= 0 (count (sut/list-commands)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; call-handler

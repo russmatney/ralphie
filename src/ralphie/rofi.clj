@@ -172,7 +172,7 @@ install or jump into a shell to test it."  ]
 
 (comment
   (rofi-handler nil nil)
-  (rofi-handler {:commands (defcom/commands)} nil)
+  (rofi-handler {:commands (defcom/list-commands)} nil)
   )
 
 (defcom select-command-via-rofi

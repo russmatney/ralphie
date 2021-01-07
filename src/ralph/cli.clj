@@ -1,6 +1,5 @@
-(ns ralphie.cli
+(ns ralph.cli
   (:require
-   ;; [ralphie.help :as help]
    [ralphie.doctor :as doctor]
    [ralph.defcom :as defcom]
    [ralphie.fzf :as fzf]
@@ -14,7 +13,7 @@
      :args    (assoc parsed :arguments (rest args))}))
 
 (defn run [& passed-args]
-  (let [config                 {:commands (defcom/commands)}
+  (let [config                 {:commands (defcom/list-commands)}
         parsed                 (parse-opts passed-args [])
         {:keys [command args]} (parse-command config parsed)
         debug                  false]
