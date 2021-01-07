@@ -58,7 +58,7 @@ _arguments -C \\
     (spit (zsh-completion-path) completion-file)))
 
 ;; (comment
-;;   (install-zsh-completion (command/commands)))
+;;   (install-zsh-completion (defcom/list-commands)))
 
 (defn install-zsh-completion-handler
   ([] (install-zsh-completion-handler nil nil))

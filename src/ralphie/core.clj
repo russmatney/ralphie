@@ -1,6 +1,6 @@
 (ns ralphie.core
   (:require
-   [ralph.cli :as cli]
+   [ralph.defcom :as defcom]
 
    [ralphie.autojump]
    [ralphie.awesome]
@@ -43,5 +43,4 @@
       (spit "/home/russ/russmatney/ralphie/log"
             (str args "\n")
             :append true)))
-
-  (cli/run args))
+  (defcom/run args))

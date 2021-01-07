@@ -1,4 +1,6 @@
-(ns ralph.defcom)
+(ns ralph.defcom
+  (:require
+   [clojure.tools.cli :refer [parse-opts]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; registry
@@ -69,3 +71,33 @@
        (map (fn [[k v]] [k (first v)]))
        (into {})
        (#(get % command-name))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Cli run helper
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn parse-command [config parsed]
+  (let [args      (:arguments parsed)
+        first-arg (first args)
+        command   (find-command (:commands config) first-arg)]
+    {:command command
+     :args    (assoc parsed :arguments (rest args))}))
+
+(defn run [& passed-args]
+  (let [config                 {:commands (list-commands)}
+        parsed                 (parse-opts passed-args [])
+        {:keys [command args]} (parse-command config parsed)]
+
+    (if command
+      (call-handler command config args)
+      ;; TODO support registering a fallback command
+      (println "404! Command not found."))))
+
+(comment
+  (->>
+    (list-commands)
+    (map :name))
+  (def -res
+    (run "help"))
+
+  (:summary -res))
