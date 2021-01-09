@@ -37,10 +37,10 @@
    [ralphie.yodo]
    [ralphie.zsh]))
 
-(defn -main [args]
+(defn -main [& args]
   (when-let [debug false]
     (when debug
       (spit "/home/russ/russmatney/ralphie/log"
             (str args "\n")
             :append true)))
-  (defcom/run args))
+  (apply defcom/run args))

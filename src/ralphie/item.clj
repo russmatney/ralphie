@@ -20,6 +20,13 @@
 ;; Public
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn awesome-name [item]
+  (-> item :awesome/tag :name))
+
+(defn awesome-index [item]
+  (-> item :awesome/tag :index))
+
+
 (defn done? [item]
   (has-status? item :status/done))
 
