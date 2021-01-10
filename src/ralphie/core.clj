@@ -7,6 +7,7 @@
    [ralphie.browser]
    [ralphie.dates]
    [ralphie.doctor]
+   [ralphie.dashboard]
    [ralphie.emacs]
    [ralphie.deps]
    [ralphie.focus]
