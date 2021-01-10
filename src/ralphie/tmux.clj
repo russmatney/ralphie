@@ -5,10 +5,9 @@
    [ralphie.notify :refer [notify]]
    [ralph.defcom :refer [defcom]]
    [ralphie.sh :as r.sh]
-   [ralphie.config :as config]))
-
-(defn ->fire-session-name [workspace-name]
-  (str workspace-name "-fire"))
+   [ralphie.config :as config]
+   [ralphie.workspace :as workspace]
+   [clojure.string :as string]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tmux create background
@@ -76,26 +75,37 @@
 
 (defn fire
   "Aka send-keys.
-  Fires keys into a 'tmux' workspace, which defaults to the
-  'ralphie-fallback' session.
+  Fires keys into the current workspace's 'tmux' session.
 
-  Useful in that the output is accessible in a tmux session, somewhere.
-
-  Should probably be DEPRECATED in favor of using bb/process directly."
-  ([cmd-str] (fire cmd-str {:session "ralphie-fallback"}))
+  Useful because:
+  - the output is accessible in a tmux session, which might be desired
+  - the workspace's session is usually in the expected directory already
+  - commands can be fired from multiple places (emacs, a keybinding), and 'land'
+  in the same place."
+  ([cmd-str] (fire cmd-str nil))
   ([cmd-str opts]
-   (let [session-name (:session opts)]
-     (ensure-background-session {:name session-name})
-     ($ tmux send-keys "-t"
-        ;; .0 specifies the first window in the session
-        ~(str session-name ".0")
-        ~cmd-str C-m))))
+   (let [session-name       (:session opts)
+         {:keys [org/name]} (if session-name (workspace/for-name session-name)
+                                (workspace/current-workspace))
+         ]
+     (when-not name
+       (notify "Fire called, but no workspace found"))
+
+     (when name
+       (ensure-background-session {:name name})
+       (->
+         ;; could specify the directory here
+         ($ tmux send-keys "-t"
+            ;; .0 specifies the first window in the session
+            ~(str name ".0")
+            ~cmd-str C-m)
+         check)))))
 
 (comment
-  (fire "echo sup" {:session "ralphie"}))
+  (fire "echo sup"))
 
 (defn fire-handler [_config parsed]
-  (let [cmd (or (some-> parsed :arguments first)
+  (let [cmd (or (->> parsed :arguments (string/join " "))
                 (rofi/rofi {:msg "Command to fire"} (rofi/zsh-history)))]
     (fire cmd)))
 
