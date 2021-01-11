@@ -88,18 +88,17 @@
          {:keys [org/name]} (if session-name (workspace/for-name session-name)
                                 (workspace/current-workspace))
          ]
-     (when-not name
-       (notify "Fire called, but no workspace found"))
+     (notify "ralphie/fire!" {:name    name
+                              :cmd-str cmd-str})
 
-     (when name
-       (ensure-background-session {:name name})
-       (->
-         ;; could specify the directory here
-         ($ tmux send-keys "-t"
-            ;; .0 specifies the first window in the session
-            ~(str name ".0")
-            ~cmd-str C-m)
-         check)))))
+     (ensure-background-session {:name name})
+     (->
+       ;; could specify the directory here
+       ($ tmux send-keys "-t"
+          ;; .0 specifies the first window in the session
+          ~(str name ".0")
+          ~cmd-str C-m)
+       check))))
 
 (comment
   (fire "echo sup"))
@@ -115,4 +114,28 @@
    :description   [""]
    :handler       fire-handler})
 
-(comment)
+(comment
+  (println "here")
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; fire C-c
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn interrupt
+  ([] (interrupt nil))
+  ([opts]
+   (let [session-name       (:session opts)
+         {:keys [org/name]} (if session-name (workspace/for-name session-name)
+                                (workspace/current-workspace))]
+     (notify "ralphie/interrupt!" {:name name})
+
+     (-> ($ tmux send-keys "-t" ~(str name ".0") C-c)
+         check))))
+
+(defcom interrupt-cmd
+  {:name    "interrupt"
+   :handler (fn [_ _] (interrupt))})
+
+(comment
+  (interrupt))
