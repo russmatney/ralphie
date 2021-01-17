@@ -187,7 +187,7 @@
             :pp?    false}
            "
 _G.client.focus.ontop = true;
-_G.client.focus.above = true;") )
+_G.client.focus.above = true;"))
 
 
 (defcom set-above-and-ontop-cmd
@@ -213,74 +213,74 @@ index= t.index,
 geometry= s.geometry})")))
 
 (defn all-tags []
-(->> (awm-cli
-       {:parse? true}
-       (str "return view(lume.map(root.tags(), "
-            "function (t) return {
+  (->> (awm-cli
+         {:parse? true}
+         (str "return view(lume.map(root.tags(), "
+              "function (t) return {
 name= t.name,
 selected= t.selected,
 index= t.index,
 clients= lume.map(t:clients(),
-
 function (c) return {
 name= c.name,
 ontop=c.ontop,
 window= c.window,
 } end),
 } end))"))
-     (map (fn [t]
-            (update t :clients #(into [] %))))))
-
+       (map (fn [t]
+              (-> t
+                  (update t :clients #(into [] %))
+                  (assoc :empty (zero? (count (:clients t)))))))))
 (comment
-(->> (all-tags)
-     (map #(dissoc % :clients))))
+  (->> (all-tags)
+       (map #(dissoc % :clients))))
 
 (defn tag-for-name
-([name] (tag-for-name name (all-tags)))
-([name all-tags]
- (some->>
-   all-tags
-   (filter (comp #(= % name) :name))
-   first)))
+  ([name] (tag-for-name name (all-tags)))
+  ([name all-tags]
+   (some->>
+     all-tags
+     (filter (comp #(= % name) :name))
+     first)))
 
 (comment
-(tag-for-name "yodo-dev"))
+  (tag-for-name "yodo-dev"))
 
 (defn current-tag-name
-""
-[]
-(-> (awm-cli
-      {:parse? true}
-      (str "return view({name=s.selected_tag.name})"))
-    :name))
+  ""
+  []
+  (-> (awm-cli
+        {:parse? true}
+        (str "return view({name=s.selected_tag.name})"))
+      :name))
 
 (defn current-tag-names
-""
-[]
-(->> (awm-cli
-       {:parse? true}
-       (str "return view(lume.map(s.selected_tags,
+  ""
+  []
+  (->> (awm-cli
+         {:parse? true}
+         (str "return view(lume.map(s.selected_tags,
 function (t) return {name= t.name} end))"))
-     (map :name)))
+       (map :name)))
 
 (comment
-(current-tag-names))
+  (current-tag-names))
 
 
 (defn current-tag []
-(tag-for-name (current-tag-name)))
+  (tag-for-name (current-tag-name)))
 
 (defn visible-clients []
-(awm-cli
-  {:parse? true}
-  (str "return view(lume.map(awful.screen.focused().clients, "
-       "function (t) return {name= t.name} end))")))
+  (awm-cli
+    {:parse? true}
+    (str "return view(lume.map(awful.screen.focused().clients, "
+         "function (t) return {name= t.name} end))")))
 
 (defn all-clients []
-(awm-cli
-  {:parse? true}
-  (str "return view(lume.map(client.get(), "
-       "function (c) return {
+  (awm-cli
+    {:parse? true}
+    (str "return view(lume.map(client.get(), "
+         "function (c) return {
 name= c.name,
 geometry= c:geometry(),
 window= c.window,
@@ -294,107 +294,105 @@ first_tag= c.first_tag.name,
 } end))")))
 
 (comment
-(->> (all-clients)
-     (filter (comp #(= % "ralphie") :name))
-     )
-)
+  (->> (all-clients)
+       (filter (comp #(= % "ralphie") :name))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; create new tag
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn awful-tag-add [& args]
-(apply (partial awm-fn "awful.tag.add") args))
+  (apply (partial awm-fn "awful.tag.add") args))
 
 (comment
-(->
-  (str "return view({name= "
-       (awful-tag-add
-         "new-tag" {})
-       ".name});")
-  awm-cli))
+  (->
+    (str "return view({name= "
+         (awful-tag-add
+           "new-tag" {})
+         ".name});")
+    awm-cli))
 
 ;; Test to ensure that these all pass tag-name through
 (defn create-tag! [tag-name]
-(notify/notify (str "creating new awesome tag: " tag-name))
-(awm-cli
-  (str "awful.tag.add(\"" tag-name "\"," "{layout=awful.layout.suit.tile});"))
-tag-name)
+  (notify/notify (str "creating new awesome tag: " tag-name))
+  (awm-cli
+    (str "awful.tag.add(\"" tag-name "\"," "{layout=awful.layout.suit.tile});"))
+  tag-name)
 
 (comment
-(create-tag! "new-tag"))
+  (create-tag! "new-tag"))
 
 (defn focus-tag! [tag-name]
-(notify/notify (str "focusing awesome tag: " tag-name))
-(awm-cli
-  (str "local tag = awful.tag.find_by_name(nil, \"" tag-name "\");
+  (notify/notify (str "focusing awesome tag: " tag-name))
+  (awm-cli
+    (str "local tag = awful.tag.find_by_name(nil, \"" tag-name "\");
 tag:view_only(); "))
-tag-name)
+  tag-name)
 
 (defn toggle-tag [tag-name]
-;; viewtoggle tag
-(awm-cli
-  (str "awful.tag.viewtoggle(awful.tag.find_by_name(s, \"" tag-name "\"));"))
-tag-name)
+  ;; viewtoggle tag
+  (awm-cli
+    (str "awful.tag.viewtoggle(awful.tag.find_by_name(s, \"" tag-name "\"));"))
+  tag-name)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Delete current tag
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn delete-tag! [tag-name]
-(awm-cli
-  (str "local tag = awful.tag.find_by_name(nil, \"" tag-name "\");
+  (awm-cli
+    (str "local tag = awful.tag.find_by_name(nil, \"" tag-name "\");
 tag:delete(); ")))
 
 (defn delete-current-tag! []
-(awm-cli "s.selected_tag:delete()"))
+  (awm-cli "s.selected_tag:delete()"))
 
 (comment
-(delete-current-tag!))
+  (delete-current-tag!))
 
 (defn delete-current-tag-handler [_ _]
-(delete-current-tag!))
+  (delete-current-tag!))
 
 (defcom awesome-delete-current-tag
-{:name          "awesome-delete-current-tag"
- :one-line-desc "Deletes the current focused tag."
- :description
- ["Deletes current tag if there are no clients exclusively attached."]
- :handler       delete-current-tag-handler})
+  {:name          "awesome-delete-current-tag"
+   :one-line-desc "Deletes the current focused tag."
+   :description
+   ["Deletes current tag if there are no clients exclusively attached."]
+   :handler       delete-current-tag-handler})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Reapply rules to all clients
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn reapply-rules-handler [_config _parsed]
-(awm-cli "reapply_rules();"))
+  (awm-cli "reapply_rules();"))
 
 (defcom reapply-rules-cmd
-{:name          "reapply-rules"
- :one-line-desc "Reapplies rules to all clients"
- :description   ["Reapplies rules to clients."
-                 "When tags are re-created without metadata, clients get lost."
-                 "This should re-run the rules, so they get reattached."]
- :handler       reapply-rules-handler})
+  {:name          "reapply-rules"
+   :one-line-desc "Reapplies rules to all clients"
+   :description   ["Reapplies rules to clients."
+                   "When tags are re-created without metadata, clients get lost."
+                   "This should re-run the rules, so they get reattached."]
+   :handler       reapply-rules-handler})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Init Tags
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn initial-tags-for-awesome [items]
-(->> items
-     ;; TODO rename to workspace number
-     (filter item/workspace-key)
-     (sort-by item/workspace-key)))
+  (->> items
+       ;; TODO rename to workspace number
+       (filter item/scratchpad?)
+       (sort-by :org.prop/key)))
 
 (defn init-tags-config []
-{:tag-names (->>
-              (config/workspaces-file)
-              org-crud/path->nested-item
-              :org/items
-              initial-tags-for-awesome
-              (map :org/name)
-              seq)})
+  {:tag-names (->>
+                (config/workspaces-file)
+                org-crud/path->nested-item
+                :org/items
+                initial-tags-for-awesome
+                (map :org/name)
+                seq)})
 
 (defn init-tags
   ([] (init-tags nil nil))
@@ -413,5 +411,4 @@ tag:delete(); ")))
                    "Pulls the latest from your `config.org`"]
    :handler       init-tags})
 
-(comment
-  nil)
+(comment)
