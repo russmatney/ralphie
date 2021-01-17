@@ -26,6 +26,12 @@
 (defn awesome-index [item]
   (-> item :awesome/tag :index))
 
+(defn awesome-selected [item]
+  (-> item :awesome/tag :selected))
+
+(defn awesome-empty [item]
+  (-> item :awesome/tag :empty))
+
 
 (defn done? [item]
   (has-status? item :status/done))
