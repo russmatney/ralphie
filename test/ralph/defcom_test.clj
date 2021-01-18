@@ -31,7 +31,13 @@
       (is found)
       (is (= name (:defcom/name found)))))
 
-  (testing "warns/throws on duplicate command-name"))
+  ;; TODO "warns/throws on duplicate command-name"
+  (testing "warns/throws on duplicate command-name")
+
+  (testing "names anonymous functions after the defcom itself"
+    (sut/defcom my-add {:name    "my-add-com"
+                        :handler (fn [x] (- x 1))})
+    (is (= (my-add 1) 0))))
 
 (deftest defcom#clear-registry
   (let [initial-count (count (sut/list-commands))]

@@ -17,37 +17,53 @@
 (defmacro defcom
   "Registers a new command, with a name, documentation, dependencies, and configuration.
 
+  The handler function is also set as a new function defined by the
+  command-symbol, i.e.:
+
+  ```
+  (sut/defcom my-add {:name    \"my-add-com\"
+                      :handler (fn [x] (+ x 1))})
+  (my-add 3) ;; => 4
+  ```
+
   TODO support dependency validation, keybinding configuration, etc.
 
   Intended to create a data-driven command configuration for user actions."
   [command-symbol opts]
-  (let [qualified-symbol (symbol (str *ns*) (name command-symbol))
-        command-symbol   (with-meta (symbol (name command-symbol))
-                           (meta command-symbol))
-        ]
+  (let [handler-symbol (symbol (str *ns*) (name command-symbol))]
     `(let [handler# ~((some-fn :defcom/handler :handler) opts)]
-       (def ~command-symbol handler#)
+       ;; set defcom name as name of handler
+       ;; NOTE used by install-micro
+       (def ~handler-symbol handler#)
 
-       (let [ns#   ~(-> *ns* str)
-             key#  ~(keyword (-> *ns* str) (name command-symbol))
-             name# ~(or (:name opts) (:defcom/name opts))
-             opts# (assoc ~opts
-                          :defcom/name name#
-                          ::registry-key key#
-                          :defcom/handler-name ~qualified-symbol
-                          :fn-name ~qualified-symbol
-                          :ns ns#)]
+       (let [ns#      ~(-> *ns* str)
+             key#     ~(keyword (str *ns*) (name command-symbol))
+             fn-name# ~(str *ns* "/" (name command-symbol))
+             name#    ~(or (:name opts) (:defcom/name opts))
+             opts#    (assoc ~opts
+                             :defcom/name name#
+                             ::registry-key key#
+                             :defcom/handler-name fn-name#
+                             :ns ns#)]
 
          (swap! registry* assoc key# opts#)
 
          ;; returns the created command map
          opts#))))
 
+(comment
+  (defcom example-cmd
+    {:name    "example"
+     :handler (fn [x] (+ x 2))})
+  (example-cmd 2)
+  )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; call-handler
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn call-handler
+  ;; TODO consider 'hotswap' - reevaluate defcom
   [cmd config parsed]
   ;; TODO perform pre-hooks, hydration, get-context, w/e
   (if-let [handler (and cmd ((some-fn :handler :defcom/handler) cmd))]
