@@ -146,7 +146,8 @@ exec bb /home/russ/russmatney/ralphie/ralphie-script.clj $@"))
         (str "(ns ralphie.temp (:require ["
              (:ns cmd) "])) "
              "(defn -main [& args] ("
-             (apply str (str (:fn-name cmd)))
+             ;; call str on the fn-name keyword to drop the `:`
+             (:defcom/handler-name cmd)
              " nil {:arguments args}))"))
   (notify "Wrote temp ns" (:name cmd)))
 
@@ -194,14 +195,18 @@ exec bb " (temp-uberscript-path cmd) " $@"))
      (if cmd
        (do
          (notify (str "Installing micro handler for: " (:name cmd)) cmd)
-         ;; write dummy file with -main fn calling command's handler
-         (write-temp-main-ns cmd)
-         ;; create uberscript for new-file's namespace
-         (create-temp-uberscript cmd)
-         ;; carve file
-         (carve-temp-uberscript cmd)
-         ;; install bash wrapper to local/bin
-         (install-temp-uberscript cmd)
+         (try
+           ;; write dummy file with -main fn calling command's handler
+           (write-temp-main-ns cmd)
+           ;; create uberscript for new-file's namespace
+           (create-temp-uberscript cmd)
+           ;; carve file
+           (carve-temp-uberscript cmd)
+           ;; install bash wrapper to local/bin
+           (install-temp-uberscript cmd)
+           (catch Exception e
+             (notify "Error!" e)
+             (println e)))
          )
        (notify (str "No command selected for installation"))))))
 

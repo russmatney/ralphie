@@ -26,15 +26,13 @@
   (my-add 3) ;; => 4
   ```
 
-  TODO support dependency validation, keybinding configuration, etc.
-
   Intended to create a data-driven command configuration for user actions."
   [command-symbol opts]
-  (let [handler-symbol (symbol (str *ns*) (name command-symbol))]
+  (let [fn-symbol (symbol command-symbol)]
     `(let [handler# ~((some-fn :defcom/handler :handler) opts)]
        ;; set defcom name as name of handler
        ;; NOTE used by install-micro
-       (def ~handler-symbol handler#)
+       (def ~fn-symbol handler#)
 
        (let [ns#      ~(-> *ns* str)
              key#     ~(keyword (str *ns*) (name command-symbol))
@@ -55,8 +53,7 @@
   (defcom example-cmd
     {:name    "example"
      :handler (fn [x] (+ x 2))})
-  (example-cmd 2)
-  )
+  (example-cmd 2))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; call-handler

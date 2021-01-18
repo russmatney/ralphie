@@ -42,14 +42,6 @@
 
 (comment
   (->>
-    "workspaces.org"
-    (#(str (config/org-dir) "/" %))
-    org-crud/path->nested-item
-    :org/items
-    (filter (comp #{"workspaces"} :org/name))
-    )
-
-  (->>
     (all-workspaces)
     (filter :awesome/tag)))
 
@@ -282,7 +274,6 @@
 ;;         (cond up? 1 down? -1))
 ;;       (notify "swap-workspace called without 'up' or 'down'!")))
 ;;   )
-
 
 (defn swap-workspace
   "Swaps the current awesome workspace in the given direction"
