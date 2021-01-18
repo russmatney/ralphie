@@ -49,11 +49,15 @@
 
 (defn clone [{:keys [repo-id]}]
   (notify (str "Clone attempt: " repo-id))
-  (->> ($ hub clone ~repo-id ~(str (config/home-dir) "/" repo-id))
-       check
-       :out
-       slurp
-       (notify (str "Successful clone: " repo-id))))
+  (try
+    (->> ($ hub clone ~repo-id ~(str (config/home-dir) "/" repo-id))
+         check
+         :out
+         slurp
+         (notify (str "Successful clone: " repo-id)))
+    (catch Exception e
+      (notify "Error while cloning" e)
+      (println e))))
 
 (comment
   (clone {:repo-id "metosin/eines"})

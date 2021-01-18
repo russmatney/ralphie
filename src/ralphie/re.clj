@@ -22,7 +22,7 @@
   (re-get url-regex s))
 
 (def repo-id-regex
-  #"github.com/([a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+)")
+  #"github.com/([a-zA-Z0-9_-[.]]+/[a-zA-Z0-9_-[.]]+)")
 
 (defn url->repo-id [s]
   (re-get repo-id-regex s))
@@ -45,5 +45,11 @@
         (let [url     (->url s)
               repo-id (when url (url->repo-id url))
               repo-id (or repo-id
-                          (re-get #"(?!com)?([a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+)" s))]
+                          (re-get #"(?!com)?([a-zA-Z0-9_-[.]]+/[a-zA-Z0-9_-[.]]+)" s))]
           repo-id)))))
+(comment
+  (->repo-id "https://github.com/kikito/tween.lua")
+  (->repo-id "https://github.com/kikito.user/tween.lua")
+  (->repo-id "kikito/tween.lua")
+  (->repo-id "kikito.blah/tween.lua")
+  )
