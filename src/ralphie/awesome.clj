@@ -214,7 +214,8 @@ geometry= s.geometry})")))
 
 (defn all-tags []
   (->> (awm-cli
-         {:parse? true}
+         {:parse? true
+          :pp?    false}
          (str "return view(lume.map(root.tags(), "
               "function (t) return {
 name= t.name,
@@ -326,6 +327,7 @@ first_tag= c.first_tag.name,
 (defn focus-tag! [tag-name]
   (notify/notify (str "focusing awesome tag: " tag-name))
   (awm-cli
+    {:pp? false}
     (str "local tag = awful.tag.find_by_name(nil, \"" tag-name "\");
 tag:view_only(); "))
   tag-name)
@@ -343,11 +345,14 @@ tag:view_only(); "))
 
 (defn delete-tag! [tag-name]
   (awm-cli
+    {:pp? false}
     (str "local tag = awful.tag.find_by_name(nil, \"" tag-name "\");
 tag:delete(); ")))
 
 (defn delete-current-tag! []
-  (awm-cli "s.selected_tag:delete()"))
+  (awm-cli
+    {:pp? false}
+    "s.selected_tag:delete()"))
 
 (comment
   (delete-current-tag!))
