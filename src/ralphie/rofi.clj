@@ -4,6 +4,7 @@
    [clojure.string :as string]
    [ralphie.config :as config]
    [ralphie.util :as util]
+   [ralphie.notify :as notify]
    [ralphie.zsh :as zsh]
    [ralph.defcom :as defcom :refer [defcom]]
    [ralphie.doctor :as doctor]))
@@ -40,25 +41,42 @@
          msg    (or msg message)
 
          selected-label
-         ;; TODO nil-punny error handling here
-         ;; (rather than throwing when nothing is selected)
          (some->
-           ^{:in (string/join "\n" labels)}
+           ^{:in  (string/join "|" labels)
+             :out :string}
            ($ rofi -i
               ~(if require-match? "-no-custom" "")
+              -sep "|"
               -markup-rows
+              ;; -eh 2 ;; row height
+              ;; -dynamic
+              ;; -no-fixed-num-lines
               -dmenu -mesg ~msg -sync -p *)
-           check
-           :out
-           slurp
-           string/trim)]
+           ((fn [proc]
+              ;; check for type of error
+              (let [res @proc]
+                (cond
+                  (zero? (:exit res))
+                  (-> res :out string/trim)
+
+                  ;; TODO determine if simple nothing-selected or actual rofi error
+                  (= 1 (:exit res))
+                  (do
+                    (doctor/log "Rofi Nothing Selected (or Error)")
+                    nil)
+
+                  :else
+                  (do
+                    (println res)
+                    (check proc)))))))]
      (when (seq selected-label)
        ;; TODO use index-by, or just make a map
        (let [selected-x (if maps?
                           (->> xs
-                               (filter #(= selected-label
-                                           (escape-rofi-label
-                                             ((some-fn :label :rofi/label) %))))
+                               (filter (fn [x]
+                                         (-> (or (:rofi/label x) (:label x))
+                                             escape-rofi-label
+                                             (string/starts-with? selected-label))))
                                first)
                           selected-label)]
          (if selected-x
@@ -152,14 +170,29 @@ install or jump into a shell to test it."  ]
   (->> config
        :commands
        (filter (comp seq :name))
-       (map #(assoc % :label
-                    ;; TODO command icons
-                    (str
-                      "<span >" (:name %) " </span> "
-                      "<span color='gray'>" (:one-line-desc %) "</span> "
-                      "<span>"
-                      (string/join " " (:description %))
-                      "</span>;")))))
+       (map (fn [{:keys [name one-line-desc description] :as it}]
+              (assoc it :rofi/label
+                     ;; TODO command icons
+                     (str
+                       "<span>" name " </span> "
+                       (when one-line-desc
+                         (str "<span color='gray'>" one-line-desc "</span> "))
+                       (when description
+                         (apply str (->> description
+                                         (map (fn [d]
+                                                (-> d
+                                                    (string/replace #"\n" " ")
+                                                    (#(str "<small>" % "</small>")))))
+                                         ;; (string/join "\n")
+                                         )))))))))
+
+(comment
+  (->>
+    {:commands
+     (defcom/list-commands)}
+    config->rofi-commands
+    (map :rofi/label))
+  )
 
 (defn rofi-handler
   "Returns the selected xs if there is no handler."
