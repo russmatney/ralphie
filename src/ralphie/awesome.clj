@@ -316,6 +316,7 @@ first_tag= c.first_tag.name,
 (defn create-tag! [tag-name]
   (notify/notify (str "creating new awesome tag: " tag-name))
   (awm-cli
+    {:pp? false}
     (str "awful.tag.add(\"" tag-name "\"," "{layout=awful.layout.suit.tile});"))
   tag-name)
 
@@ -332,6 +333,7 @@ tag:view_only(); "))
 (defn toggle-tag [tag-name]
   ;; viewtoggle tag
   (awm-cli
+    {:pp? false}
     (str "awful.tag.viewtoggle(awful.tag.find_by_name(s, \"" tag-name "\"));"))
   tag-name)
 

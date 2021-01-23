@@ -64,7 +64,7 @@
 
   (awm/awm-cli
     {:parse? false
-     :pp?    true}
+     :pp?    false}
     (str
       ;; set all ontops false
       "for c in awful.client.iterate(function (c) return c.ontop end) do\n"
@@ -93,25 +93,22 @@
          tag      (-> wsp :awesome/tag)
          client   (some-> tag :clients first)]
      (cond
+       ;; "found selected tag, client for:" wsp-name
        (and tag client (:selected tag))
-       (do
-         (println "found selected tag, client for:" wsp-name)
-         (if (:ontop client)
-           ;; TODO also set client ontop false ?
-           (awm/toggle-tag wsp-name)
-           (ontop-and-focused client)))
+       (if (:ontop client)
+         ;; TODO also set client ontop false ?
+         (awm/toggle-tag wsp-name)
+         (ontop-and-focused client))
 
+       ;; "found unselected tag, client for:" wsp-name
        (and tag client (not (:selected tag)))
        (do
-         (println "found unselected tag, client for:" wsp-name)
          (awm/toggle-tag wsp-name)
          (ontop-and-focused client))
 
        ;; tag exists, no client
        (and tag (not client))
-       (do
-         (println "tag, but no client:" wsp-name)
-         (create-client wsp))
+       (create-client wsp)
 
        ;; tag does not exist, presumably no client either
        (not tag)
