@@ -44,4 +44,9 @@
       (spit "/home/russ/russmatney/ralphie/log"
             (str args "\n")
             :append true)))
-  (apply defcom/run args))
+  (println "[RALPHIE] start" args)
+  (let [start-time (System/currentTimeMillis)
+        res        (apply defcom/run args)
+        dt         (- (System/currentTimeMillis) start-time)]
+    (println "[RALPHIE] complete" args "in" dt "ms")
+    res))
