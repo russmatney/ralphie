@@ -187,21 +187,22 @@ install or jump into a shell to test it."  ]
   [parsed config]
   (->> config
        :commands
-       (filter (comp seq :name))
+       (filter (comp seq :defcom/name))
        (map (partial defcom->rofi parsed))))
 
 (comment
   (->>
-    {:commands
-     (defcom/list-commands)}
+    {:commands (defcom/list-commands)}
     (config->rofi-commands nil)
-    (map :rofi/label)))
+    (rofi {:msg "hi"})
+    ;; (map :rofi/label)
+    ))
 
 (defn rofi-handler
   "Returns the selected xs if there is no handler."
   [config parsed]
   (some->> config
-           (partial config->rofi-commands parsed)
+           (config->rofi-commands parsed)
            (rofi {:require-match? true
                   :msg            "All commands"})))
 
