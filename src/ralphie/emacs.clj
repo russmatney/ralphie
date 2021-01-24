@@ -72,8 +72,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn emacs-cli [cmd]
+  (notify cmd)
+  (println cmd)
   (-> ^{:out :string}
-      ($ emacsclient -e ~cmd)
+      ($ emacsclient -a false -e ~cmd)
       check
       :out))
 
@@ -84,5 +86,10 @@
 (defcom emacs-cli-cmd
   {:name          "emacs-cli"
    :one-line-desc "Passes the string to emacs."
-   :handler       (fn [_config parsed]
-                    (emacs-cli (:arguments parsed)))})
+   :handler
+   (fn [_config parsed]
+     (let [cmd (some-> parsed :arguments first)]
+       (if cmd
+         (emacs-cli cmd)
+         (notify "Emacs cli called without a command"
+                 "Expected an expression to pass to emacsclient via -e."))))})
