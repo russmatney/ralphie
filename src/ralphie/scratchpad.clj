@@ -22,21 +22,21 @@
         first-client
         (or (:org.prop/first-client wsp)
             (cond
-              (-> wsp :org.prop/exec)         "exec"
+              (-> wsp :org.prop/exec)         :create/exec
               ;; IDEA check file-type for special cases
-              (-> wsp :org.prop/initial-file) "emacs"
-              :else                           "none"))]
+              (-> wsp :org.prop/initial-file) :create/emacs
+              :else                           :create/none))]
 
     (case first-client
-      "emacs" (emacs/open wsp)
-      "app"   (let [exec (-> wsp :org.prop/exec)]
-                (notify "Starting new client" (-> wsp :org.prop/exec))
-                (-> exec
-                    (string/split #" ")
-                    process
-                    check)
-                (notify "New client started" exec))
-      "none"
+      :create/emacs (emacs/open wsp)
+      :create/exec  (let [exec (-> wsp :org.prop/exec)]
+                      (notify "Starting new client" (-> wsp :org.prop/exec))
+                      (-> exec
+                          (string/split #" ")
+                          process
+                          check)
+                      (notify "New client started" exec))
+      :create/none
       ;; NOTE maybe detect a readme in directories as well
       (notify "New workspace has no default client."
               "Try setting :initial-file or :exec"))))

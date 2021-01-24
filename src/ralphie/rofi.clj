@@ -183,7 +183,11 @@ install or jump into a shell to test it."  ]
          (fn [cmd] (defcom/call-handler cmd nil parsed))))
 
 (defn config->rofi-commands
-  "VERIFY: Rofi needs commands passed in vs. relying on defcom/list-commands"
+  "VERIFY: Rofi needs commands passed in vs. relying on defcom/list-commands
+  Feels like this could be rewritten to pull from defcom/list-commands,
+  so we stop passing this config around.
+  That's probably where the config got it, anyway.
+  "
   [parsed config]
   (->> config
        :commands

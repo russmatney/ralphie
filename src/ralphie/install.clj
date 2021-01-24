@@ -191,7 +191,9 @@ exec bb " (temp-uberscript-path cmd) " $@"))
                      first
                      (#(defcom/find-command (:commands config) %)))
          cmd (or cmd (rofi/rofi {:msg "Select command to install"}
-                                (rofi/config->rofi-commands config)))]
+                                (->> (rofi/config->rofi-commands nil config)
+                                     ;; remove callbacks so these don't actually run
+                                     (map #(dissoc % :rofi/on-select)))))]
      (if cmd
        (do
          (notify (str "Installing micro handler for: " (:name cmd)) cmd)
