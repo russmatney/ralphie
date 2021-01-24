@@ -66,3 +66,23 @@
    :one-line-desc "Opens emacs in the current workspace"
    :handler       open-handler})
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; cli
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn emacs-cli [cmd]
+  (-> ^{:out :string}
+      ($ emacsclient -e ~cmd)
+      check
+      :out))
+
+(comment
+  (emacs-cli "(org-clock-menu)")
+  )
+
+(defcom emacs-cli-cmd
+  {:name          "emacs-cli"
+   :one-line-desc "Passes the string to emacs."
+   :handler       (fn [_config parsed]
+                    (emacs-cli (:arguments parsed)))})
