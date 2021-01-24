@@ -15,24 +15,31 @@
 (defn create-client
   "Creates clients for a given workspace"
   [wsp]
-  (let [wsp  (cond
-               (nil? wsp)    (workspace/current-workspace)
-               (string? wsp) (workspace/for-name wsp)
-               :else         wsp)
-        exec (-> wsp :org.prop/exec)
-        ]
-    (cond
-      (-> wsp :org.prop/initial-file)
-      (emacs/open wsp)
+  (let [wsp (cond
+              (nil? wsp)    (workspace/current-workspace)
+              (string? wsp) (workspace/for-name wsp)
+              :else         wsp)
+        first-client
+        (or (:org.prop/first-client wsp)
+            (cond
+              (-> wsp :org.prop/exec)         "exec"
+              ;; IDEA check file-type for special cases
+              (-> wsp :org.prop/initial-file) "emacs"
+              :else                           "none"))]
 
-      exec
-      (do
-        (notify "Starting new client" exec)
-        (-> exec
-            (string/split #" ")
-            process
-            check)
-        (notify "New client started" exec)))))
+    (case first-client
+      "emacs" (emacs/open wsp)
+      "app"   (let [exec (-> wsp :org.prop/exec)]
+                (notify "Starting new client" (-> wsp :org.prop/exec))
+                (-> exec
+                    (string/split #" ")
+                    process
+                    check)
+                (notify "New client started" exec))
+      "none"
+      ;; NOTE maybe detect a readme in directories as well
+      (notify "New workspace has no default client."
+              "Try setting :initial-file or :exec"))))
 
 (comment
   (create-client "journal")
