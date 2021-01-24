@@ -165,15 +165,10 @@ install or jump into a shell to test it."  ]
 ;; cli/command
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn config->rofi-commands
-  [config]
-  (->> config
-       :commands
-       (filter (comp seq :name))
-       (map (fn [{:keys [name one-line-desc description] :as it}]
-              (assoc it :rofi/label
-                     ;; TODO command icons
-                     (str
+;; TODO command icons
+(defn defcom->rofi [parsed {:keys [name one-line-desc description] :as x}]
+  (assoc x
+         :rofi/label (str
                        "<span>" name " </span> "
                        (when one-line-desc
                          (str "<span color='gray'>" one-line-desc "</span> "))
@@ -182,26 +177,32 @@ install or jump into a shell to test it."  ]
                                          (map (fn [d]
                                                 (-> d
                                                     (string/replace #"\n" " ")
-                                                    (#(str "<small>" % "</small>")))))
-                                         ;; (string/join "\n")
-                                         )))))))))
+                                                    (#(str "<small>" % "</small>")))))))))
+         :rofi/on-select
+         (fn [cmd] (defcom/call-handler cmd nil parsed))))
+
+(defn config->rofi-commands
+  "VERIFY: Rofi needs commands passed in vs. relying on defcom/list-commands"
+  [parsed config]
+  (->> config
+       :commands
+       (filter (comp seq :name))
+       (map (partial defcom->rofi parsed))))
 
 (comment
   (->>
     {:commands
      (defcom/list-commands)}
-    config->rofi-commands
-    (map :rofi/label))
-  )
+    (config->rofi-commands nil)
+    (map :rofi/label)))
 
 (defn rofi-handler
   "Returns the selected xs if there is no handler."
   [config parsed]
-  (when-let [cmd (some->> config
-                          config->rofi-commands
-                          (rofi {:require-match? true
-                                 :msg            "All commands"}))]
-    (defcom/call-handler cmd config parsed)))
+  (some->> config
+           (partial config->rofi-commands parsed)
+           (rofi {:require-match? true
+                  :msg            "All commands"})))
 
 (comment
   (rofi-handler nil nil)
