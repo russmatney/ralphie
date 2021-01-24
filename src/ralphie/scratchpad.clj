@@ -87,6 +87,14 @@
       " end) do\n"
       "c.ontop = true; "
       "c.floating = true; "
+
+      ;; center and resize
+      ;; "local f = (awful.placement.scale + awful.placement.centered);"
+      ;; "f(c, {honor_padding=true, honor_workarea=true, to_percent= 0.75})"
+
+      ;; just center
+      "local f = awful.placement.centered;"
+      "f(c);"
       "_G.client.focus = c;"
       "end; ")))
 
