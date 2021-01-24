@@ -48,6 +48,7 @@
               ~(if require-match? "-no-custom" "")
               -sep "|"
               -markup-rows
+              -normal-window ;; NOTE may want this to be optional
               ;; -eh 2 ;; row height
               ;; -dynamic
               ;; -no-fixed-num-lines
