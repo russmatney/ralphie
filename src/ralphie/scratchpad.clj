@@ -66,7 +66,9 @@
 
 (defn ontop-and-focused [client]
   ;; set all ontops false
+  ;; set all floating false
   ;; set this client ontop true
+  ;; set this client floating true
   ;; focus this client
 
   (awm/awm-cli
@@ -76,6 +78,7 @@
       ;; set all ontops false
       "for c in awful.client.iterate(function (c) return c.ontop end) do\n"
       "c.ontop = false; "
+      "c.floating = false; "
       "end;"
 
       ;; set this client ontop true, and focus it
@@ -83,12 +86,10 @@
       (-> client :window awm/->lua-arg)
       " end) do\n"
       "c.ontop = true; "
+      "c.floating = true; "
       "_G.client.focus = c;"
       "end; ")))
 
-;; TODO write tests for this
-;; - this should be a ralph-level namespace
-;; - should support this as documenting an explicit feature-set
 (defn toggle-scratchpad
   ([] (toggle-scratchpad (workspace/current-workspace)))
   ([wsp]
