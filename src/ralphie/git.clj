@@ -247,31 +247,34 @@
         ^{:dir (zsh/expand repo-path)}
         ($ git status))
       (->>
-        (filter #(re-seq #"Your branch is ahead" %))
-        empty?)))
+        (filter #(re-seq #"branch is behind" %))
+        seq)
+      ))
 
 (comment
-  (needs-pull? "~/russmatney/dotfiles"))
+  (needs-pull? "~/russmatney/dotfiles")
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; status
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn status [repo-path]
-  (let [res
-        (-> {:error-message
-             (str "RALPHIE ERROR for " repo-path " in git/status")}
-            (run-proc
-              ^{:dir (zsh/expand repo-path)}
-              ($ git status --porcelain)))
-        needs-pull? (->> res
-                         (filter #(re-seq #"Your branch is ahead" %))
-                         empty?)
-        needs-push? (->> res
-                         (filter #(re-seq #"Your branch is ahead" %))
-                         empty?)
-        dirty?      (->> res empty?)]
+  (let [res         (-> {:error-message
+                         (str "RALPHIE ERROR for " repo-path " in git/status")}
+                        (run-proc
+                          ^{:dir (zsh/expand repo-path)}
+                          ($ git status))
+                        seq)
+        dirty?      (->> res (filter #(re-seq #"not staged for commit" %)) seq)
+        needs-pull? (->> res (filter #(re-seq #"branch is behind" %)) seq)
+        needs-push? (->> res (filter #(re-seq #"branch is ahead" %)) seq)]
     {:git/dirty?      dirty?
      :git/needs-pull? needs-pull?
-     :git/needs-push? needs-push?})
+     :git/needs-push? needs-push?}))
+
+(comment
+  (status "~/russmatney/dotfiles")
+  (status "~/todo")
+
   )
