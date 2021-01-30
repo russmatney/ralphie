@@ -29,6 +29,7 @@
 ;; org-workspaces
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; DEPRECATED or rename to represent it as 'org' workspaces
 (defn all-workspaces []
   (let [awm-all-tags (awm/all-tags)]
     (->>
@@ -38,6 +39,7 @@
       :org/items
       (map (fn [{:keys [org/name] :as org-wsp}]
              (merge org-wsp
+                    ;; TODO can't wait to flatten these fields
                     {:awesome/tag (awm/tag-for-name name awm-all-tags)}))))))
 
 (comment

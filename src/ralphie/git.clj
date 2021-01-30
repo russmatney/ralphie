@@ -2,6 +2,7 @@
   (:require
    [babashka.process :refer [$ check] :as process]
    [cheshire.core :as json]
+   [clojure.string :as string]
    [ralphie.notify :refer [notify]]
    [ralphie.rofi :as rofi]
    [ralphie.config :as config]
@@ -10,7 +11,7 @@
    [ralphie.re :as re]
    [ralph.defcom :refer [defcom]]
    [ralphie.zsh :as zsh]
-   [clojure.string :as string]))
+   [ralphie.fs :as fs]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; transforms
@@ -140,6 +141,17 @@
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; repo?
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn repo?
+  "Returns true if the passed path is a git repo"
+  [repo-path]
+  (fs/exists? (str (zsh/expand repo-path) "/.git")))
+
+(comment)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; fetch
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -189,7 +201,8 @@
        (str "RALPHIE ERROR for " repo-path " in git/dirty?")}
       (run-proc
         ^{:dir (zsh/expand repo-path)}
-        ($ git status --porcelain))))
+        ($ git status --porcelain))
+      empty?))
 
 (comment
   (is-clean? "~/russmatney/ralphie")
@@ -239,3 +252,26 @@
 
 (comment
   (needs-pull? "~/russmatney/dotfiles"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; status
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn status [repo-path]
+  (let [res
+        (-> {:error-message
+             (str "RALPHIE ERROR for " repo-path " in git/status")}
+            (run-proc
+              ^{:dir (zsh/expand repo-path)}
+              ($ git status --porcelain)))
+        needs-pull? (->> res
+                         (filter #(re-seq #"Your branch is ahead" %))
+                         empty?)
+        needs-push? (->> res
+                         (filter #(re-seq #"Your branch is ahead" %))
+                         empty?)
+        dirty?      (->> res empty?)]
+    {:git/dirty?      dirty?
+     :git/needs-pull? needs-pull?
+     :git/needs-push? needs-push?})
+  )
