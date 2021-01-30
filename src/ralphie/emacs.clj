@@ -33,6 +33,7 @@
   Uses the passed workspace data to direct emacs to the relevant initial file
   and named emacs workspace.
   "
+  ;; TODO refactor to support passed sexps/opts. Maybe just merge args?
   ([] (open (workspace/current-workspace)))
   ([wsp]
    (let [wsp-name     (-> wsp :org/name)
@@ -49,8 +50,10 @@
             --display=:0
             --eval
             ~(str "(progn (russ/open-workspace \"" wsp-name "\") "
-                  (if initial-file
-                    (str "(find-file \"" initial-file "\")") "") ")"))
+                  (when initial-file
+                    (str "(find-file \"" initial-file "\")") " ")
+                  ;; (when eval-sexp eval-sexp)
+                  ")"))
          check)
      (notify "Created new emacs client" (:org/name wsp)))))
 
@@ -72,8 +75,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn emacs-cli [cmd]
-  (notify cmd)
-  (println cmd)
+  ;; (notify cmd)
+  ;; (println cmd)
   (-> ^{:out :string}
       ($ emacsclient -a false -e ~cmd)
       check
@@ -81,6 +84,7 @@
 
 (comment
   (emacs-cli "(org-clock-menu)")
+  (emacs-cli "(org-clock-last)")
   )
 
 (defcom emacs-cli-cmd
