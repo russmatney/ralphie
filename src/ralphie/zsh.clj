@@ -6,6 +6,8 @@
    [clojure.string :as string]
    [ralphie.fs :as fs]))
 
+(def expand r.sh/expand)
+
 (defn ->timestamp+duration [str]
   (let [[ts dur]
         (some-> str

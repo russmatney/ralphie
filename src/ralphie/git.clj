@@ -8,7 +8,8 @@
    [ralphie.clipboard :as clipboard]
    [ralphie.browser :as browser]
    [ralphie.re :as re]
-   [ralph.defcom :refer [defcom]]))
+   [ralph.defcom :refer [defcom]]
+   [ralphie.zsh :as zsh]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; transforms
@@ -122,36 +123,82 @@
    :handler       gprom-handler})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; is-clean?
+;; run command helper
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn run-proc
+  "Runs the passed babashka process in the dir, catching errors.
+  "
+  ([proc] (run-proc proc nil))
+  ([proc {:keys [error-message
+                 dir]}]
+   (let [dir           (-> (or dir
+                               ;; TODO config for fallback dir?
+                               "~/russmatney/clawe")
+                           zsh/expand)
+         error-message (or error-message (str "Ralphie Error: "
+                                              (str proc) " " dir))]
+     (try
+       (some-> ^{:dir dir :out :string}
+               proc
+               check
+               :out
+               slurp)
+       (catch Exception e
+         (println error-message e)
+         (notify error-message e))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; dirty/is-clean?
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(declare is-clean?)
+(defn dirty? [x] (-> x is-clean? not))
 (defn is-clean?
   "Returns true if there is no local diff in the passed path.
   Expects a .git directory at <path>/.git"
   [path]
   (try
-    (some-> ^{:dir path
+    (some-> ^{:dir (zsh/expand path)
               :out :string}
             ($ git diff HEAD)
             check
             :out
-            (= ""))
+            empty?)
     (catch Exception e
       (let [msg (str "ERROR for " path " in git/is-clean?")]
         (println msg e)
         (notify msg e)))))
 
 (comment
+  (is-clean? "~/russmatney/ralphie")
+  (dirty? "~/russmatney/ralphie")
   (-> ^{:dir "/home/russ/russmatney/ralphie"}
       ($ git diff HEAD)
       check
       :out
       slurp
-      (= ""))
+      empty?)
 
   (-> ^{:dir "/home/russ/Dropbox/todo"
         :out :string}
       ($ git diff HEAD)
       check
       :out
-      (= "")))
+      empty?))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; needs-push?
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn needs-push? [repo-path]
+  (let [opts {:dir repo-path
+              :error-message
+              (str "RALPHIE ERROR for " repo-path " in git/needs-push?")}]
+    (-> (run-proc ($ git status) opts)
+        )))
+
+(comment
+  (needs-push? "~/russmatney/ralphie")
+  )
