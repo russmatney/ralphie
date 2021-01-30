@@ -1,6 +1,6 @@
 (ns ralphie.git
   (:require
-   [babashka.process :refer [$ check]]
+   [babashka.process :refer [$ check] :as process]
    [cheshire.core :as json]
    [ralphie.notify :refer [notify]]
    [ralphie.rofi :as rofi]
@@ -9,7 +9,8 @@
    [ralphie.browser :as browser]
    [ralphie.re :as re]
    [ralph.defcom :refer [defcom]]
-   [ralphie.zsh :as zsh]))
+   [ralphie.zsh :as zsh]
+   [clojure.string :as string]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; transforms
@@ -62,8 +63,7 @@
 
 (comment
   (clone {:repo-id "metosin/eines"})
-  (clone {:repo-id "russmatney/ink-mode"})
-  )
+  (clone {:repo-id "russmatney/ink-mode"}))
 
 (defn clone-from-stars []
   (->> (fetch-stars)
@@ -92,12 +92,6 @@
 ;; clone cmd, handler
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn clone-handler
-  [_config parsed]
-  (if-let [repo-id (some-> parsed :arguments first)]
-    (clone {:repo-id repo-id})
-    (clone-from-stars)))
-
 (defcom clone-cmd
   {:name          "clone"
    :one-line-desc "Clone from your Github Stars"
@@ -106,21 +100,11 @@
     "Depends on `hub` on the command line."
     "Does not support private repos."
     "If no repo-id is passed, fetches stars from github."]
-   :handler       clone-handler})
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; gprom
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn gprom-handler [_config _parsed]
-  (println "ask which repo to gprom")
-  )
-
-(defcom gprom-cmd
-  {:name          "gprom"
-   :one-line-desc "gprom"
-   :description   [""]
-   :handler       gprom-handler})
+   :handler
+   (fn [_config parsed]
+     (if-let [repo-id (some-> parsed :arguments first)]
+       (clone {:repo-id repo-id})
+       (clone-from-stars)))})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; run command helper
@@ -129,24 +113,66 @@
 (defn run-proc
   "Runs the passed babashka process in the dir, catching errors.
   "
-  ([proc] (run-proc proc nil))
-  ([proc {:keys [error-message
-                 dir]}]
-   (let [dir           (-> (or dir
-                               ;; TODO config for fallback dir?
-                               "~/russmatney/clawe")
-                           zsh/expand)
+  ([proc] (run-proc nil proc))
+  ([{:keys [error-message dir read-key]} proc]
+   (let [read-key      (or read-key :out)
          error-message (or error-message (str "Ralphie Error: "
-                                              (str proc) " " dir))]
+                                              (:cmd proc) " " dir))]
      (try
-       (some-> ^{:dir dir :out :string}
-               proc
-               check
-               :out
-               slurp)
+       (some-> proc
+               check read-key
+               slurp
+               ((fn [x]
+                  (if (re-seq #"\n" x)
+                    (string/split-lines x)
+                    (if (empty? x) nil x)))))
        (catch Exception e
          (println error-message e)
          (notify error-message e))))))
+
+(comment
+  (run-proc ^{:dir (zsh/expand "~")} ($ ls))
+  (run-proc ^{:dir (zsh/expand "~")} ($ git fetch))
+  (run-proc {:read-key :err}
+            ^{:dir (zsh/expand "~/dotfiles")}
+            ($ git "fetch" --verbose))
+  (run-proc ^{:dir (zsh/expand "~/dotfiles")} ($ git status))
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; fetch
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn fetch [repo-path]
+  (notify (str "Fetching " repo-path))
+  (-> {:read-key :err}
+      (run-proc
+        ^{:dir (zsh/expand repo-path)}
+        ($ git "fetch" --verbose))
+      (->>
+        (apply notify))))
+
+(comment
+  (fetch "~/dotfiles")
+
+  (-> ^{:dir "/home/russ/russmatney/dotfiles"}
+      ($ git "fetch" --verbose)
+      check :err slurp))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; gprom
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn gprom [repo-path]
+  (let [path (zsh/expand repo-path)]
+    ;; TODO stash/pop local changes as well
+    (println "TODO gprom in path" path)))
+
+(defcom gprom-cmd
+  {:name    "gprom"
+   :handler (fn [_ parsed]
+              (let [path (-> parsed :arguments first)]
+                (gprom path)))})
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -158,34 +184,20 @@
 (defn is-clean?
   "Returns true if there is no local diff in the passed path.
   Expects a .git directory at <path>/.git"
-  [path]
-  (try
-    (some-> ^{:dir (zsh/expand path)
-              :out :string}
-            ($ git diff HEAD)
-            check
-            :out
-            empty?)
-    (catch Exception e
-      (let [msg (str "ERROR for " path " in git/is-clean?")]
-        (println msg e)
-        (notify msg e)))))
+  [repo-path]
+  (-> {:error-message
+       (str "RALPHIE ERROR for " repo-path " in git/dirty?")}
+      (run-proc
+        ^{:dir (zsh/expand repo-path)}
+        ($ git status --porcelain))))
 
 (comment
   (is-clean? "~/russmatney/ralphie")
   (dirty? "~/russmatney/ralphie")
+
   (-> ^{:dir "/home/russ/russmatney/ralphie"}
       ($ git diff HEAD)
-      check
-      :out
-      slurp
-      empty?)
-
-  (-> ^{:dir "/home/russ/Dropbox/todo"
-        :out :string}
-      ($ git diff HEAD)
-      check
-      :out
+      check :out slurp
       empty?))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -193,12 +205,37 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn needs-push? [repo-path]
-  (let [opts {:dir repo-path
-              :error-message
-              (str "RALPHIE ERROR for " repo-path " in git/needs-push?")}]
-    (-> (run-proc ($ git status) opts)
-        )))
+  (-> {:error-message
+       (str "RALPHIE ERROR for " repo-path " in git/needs-push?")}
+      (run-proc
+        ^{:dir (zsh/expand repo-path)}
+        ($ git status))
+      (->>
+        (filter #(re-seq #"Your branch is ahead" %))
+        seq)))
 
 (comment
-  (needs-push? "~/russmatney/ralphie")
-  )
+  (needs-push? "~/russmatney/ralphie"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; needs-pull?
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn needs-pull?
+  "Returns true if git status reports that we are behind.
+  NOTE that no fetch is made in this function, it only parses
+  the current git status so the origin reference may be
+  out of date. You can use `(git/fetch repo-path)` to update the repo's ref."
+  [repo-path]
+  (-> {
+       :error-message
+       (str "RALPHIE ERROR for " repo-path " in git/needs-push?")}
+      (run-proc
+        ^{:dir (zsh/expand repo-path)}
+        ($ git status))
+      (->>
+        (filter #(re-seq #"Your branch is ahead" %))
+        empty?)))
+
+(comment
+  (needs-pull? "~/russmatney/dotfiles"))
