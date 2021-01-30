@@ -21,16 +21,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn awesome-name [item]
-  (-> item :awesome/tag :name))
+  (-> item :awesome/name))
 
 (defn awesome-index [item]
-  (-> item :awesome/tag :index))
+  (-> item :awesome/index))
 
 (defn awesome-selected [item]
-  (-> item :awesome/tag :selected))
+  (-> item :awesome/selected))
 
 (defn awesome-empty [item]
-  (-> item :awesome/tag :empty))
+  (-> item :awesome/empty))
 
 
 (defn done? [item]
