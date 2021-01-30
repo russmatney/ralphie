@@ -39,8 +39,7 @@
       :org/items
       (map (fn [{:keys [org/name] :as org-wsp}]
              (merge org-wsp
-                    ;; TODO can't wait to flatten these fields
-                    {:awesome/tag (awm/tag-for-name name awm-all-tags)}))))))
+                    (awm/workspace-for-name name awm-all-tags)))))))
 
 (comment
   (->>

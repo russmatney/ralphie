@@ -1,6 +1,9 @@
 #+TITLE: Todo
 
-* [ ] flatten awesome workspace keys into a 'bags of values'
-SCHEDULED: <2021-01-30 Sat>
+* DONE [#A] flatten awesome workspace keys into a 'bags of values'
+CLOSED: [2021-01-30 Sat 16:52] SCHEDULED: <2021-01-30 Sat>
+:LOGBOOK:
+CLOCK: [2021-01-30 Sat 16:45]--[2021-01-30 Sat 16:52] =>  0:07
+:END:
 i.e. {:awesome/tag-name "blah"}
 instead of {:awesome/tag {:name "blah"}}

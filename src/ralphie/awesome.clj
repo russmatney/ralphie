@@ -241,11 +241,33 @@ window= c.window,
   ([name all-tags]
    (some->>
      all-tags
-     (filter (comp #(= % name) :name))
+     (filter (comp #{name} :name))
      first)))
 
 (comment
   (tag-for-name "yodo-dev"))
+
+(defn workspace-for-name
+  "Same as tag-for-name, but namespaces all the keys with :awesome/ prefixes.
+  Intended to be merged into a workspace map."
+  ([name] (workspace-for-name name (all-tags)))
+  ([name all-tags]
+   (some->>
+     all-tags
+     (filter (comp #{name} :name))
+     first
+     ((fn [tag]
+        {:awesome/name     (:name tag)
+         :awesome/clients  (:clients tag)
+         :awesome/index    (:index tag)
+         :awesome/selected (:selected tag)
+         :awesome/empty    (:empty tag)
+         ;; DEPRECATED but left for now
+         :awesome/tag tag})))))
+
+(comment
+  (workspace-for-name "ralphie")
+  )
 
 (defn current-tag-name
   ""
