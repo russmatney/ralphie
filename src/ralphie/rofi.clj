@@ -4,8 +4,8 @@
    [clojure.string :as string]
    [ralphie.config :as config]
    [ralphie.util :as util]
-   [ralphie.notify :as notify]
    [ralphie.zsh :as zsh]
+   [ralphie.awesome :as awm]
    [ralph.defcom :as defcom :refer [defcom]]
    [ralphie.doctor :as doctor]))
 
@@ -33,6 +33,17 @@
   ([opts] (rofi opts (:xs opts)))
   ([{:keys [msg message on-select require-match?]} xs]
    (doctor/log "Rofi called with" (count xs) "xs.")
+
+   ;; push any floating windows into the view
+   (awm/awm-cli
+     {:parse? false :pp? false}
+     (str
+       ;; set all ontops false
+       "for c in awful.client.iterate(function (c) return c.ontop end) do\n"
+       "c.ontop = false; "
+       "c.floating = false; "
+       "end;"))
+
    (let [maps?  (-> xs first map?)
          labels (if maps? (->> xs
                                (map (some-fn :label :rofi/label))
