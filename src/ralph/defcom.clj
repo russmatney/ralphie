@@ -79,11 +79,22 @@
 (defn find-command
   "Returns the command with the matching `:defcom/name` (or deprecated `:name`)"
   [commands command-name]
-  (->> commands
-       (group-by :defcom/name)
-       (map (fn [[k v]] [k (first v)]))
-       (into {})
-       (#(get % command-name))))
+  (let [by-name (->> commands
+                     (group-by :defcom/name))]
+    (doall
+      (map (fn [[n grp]]
+             (when (> 1 (count grp))
+               (println (str "defcom/WARNING: non-unique :defcom/name detected: " n)
+                        (map :ns grp)))
+             ) by-name))
+    (->> by-name
+         (map (fn [[k v]] [k (first v)]))
+         (into {})
+         (#(% command-name)))))
+
+(comment
+  (find-command (list-commands) "example")
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cli run helper

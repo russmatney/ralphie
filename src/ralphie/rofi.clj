@@ -177,8 +177,10 @@ install or jump into a shell to test it."  ]
 ;; cli/command
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; (defmulti ->rofi-label)
+
 ;; TODO command icons
-(defn defcom->rofi [parsed {:keys [name one-line-desc description] :as x}]
+(defn defcom->rofi [parsed {:keys [defcom/name one-line-desc description] :as x}]
   (assoc x
          :rofi/label (str
                        "<span>" name " </span> "
