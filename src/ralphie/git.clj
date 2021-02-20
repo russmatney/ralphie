@@ -2,7 +2,6 @@
   (:require
    [babashka.process :refer [$ check] :as process]
    [cheshire.core :as json]
-   [clojure.string :as string]
    [ralphie.notify :refer [notify]]
    [ralphie.rofi :as rofi]
    [ralphie.config :as config]
@@ -11,7 +10,38 @@
    [ralphie.re :as re]
    [ralph.defcom :refer [defcom]]
    [ralphie.zsh :as zsh]
-   [ralphie.fs :as fs]))
+   [ralphie.fs :as fs]
+   [ralphie.bb :as bb]
+   [clojure.string :as string]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; local repos
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def local-repos-root (zsh/expand "~"))
+
+(defn local-repos
+  "Returns a list of absolute paths to local git repos"
+  []
+  (->> (bb/run-proc
+         {:error-message (str "RALPHIE ERROR fetching local repos")}
+         ^{:dir local-repos-root}
+         ($ ls -a))
+       ;; TODO run in parallel
+       ;; or just memoize?
+       (mapcat (fn [home-dir]
+                 (-> (str "~/" home-dir "/*/.git")
+                     zsh/expand
+                     (string/split #" "))))
+       ;; remove failed expansions
+       (remove (fn [path] (string/includes? path "/*/")))))
+
+(comment
+  (count
+    (local-repos)
+    )
+  )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; transforms
@@ -107,38 +137,6 @@
        (clone {:repo-id repo-id})
        (clone-from-stars)))})
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; run command helper
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn run-proc
-  "Runs the passed babashka process in the dir, catching errors.
-  "
-  ([proc] (run-proc nil proc))
-  ([{:keys [error-message dir read-key]} proc]
-   (let [read-key      (or read-key :out)
-         error-message (or error-message (str "Ralphie Error: "
-                                              (:cmd proc) " " dir))]
-     (try
-       (some-> proc
-               check read-key
-               slurp
-               ((fn [x]
-                  (if (re-seq #"\n" x)
-                    (string/split-lines x)
-                    (if (empty? x) nil x)))))
-       (catch Exception e
-         (println error-message e)
-         (notify error-message e))))))
-
-(comment
-  (run-proc ^{:dir (zsh/expand "~")} ($ ls))
-  (run-proc ^{:dir (zsh/expand "~")} ($ git fetch))
-  (run-proc {:read-key :err}
-            ^{:dir (zsh/expand "~/dotfiles")}
-            ($ git "fetch" --verbose))
-  (run-proc ^{:dir (zsh/expand "~/dotfiles")} ($ git status))
-  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; repo?
@@ -158,7 +156,7 @@
 (defn fetch [repo-path]
   (notify (str "Fetching " repo-path))
   (-> {:read-key :err}
-      (run-proc
+      (bb/run-proc
         ^{:dir (zsh/expand repo-path)}
         ($ git "fetch" --verbose))
       (->>
@@ -199,7 +197,7 @@
   [repo-path]
   (-> {:error-message
        (str "RALPHIE ERROR for " repo-path " in git/dirty?")}
-      (run-proc
+      (bb/run-proc
         ^{:dir (zsh/expand repo-path)}
         ($ git status --porcelain))
       empty?))
@@ -220,7 +218,7 @@
 (defn needs-push? [repo-path]
   (-> {:error-message
        (str "RALPHIE ERROR for " repo-path " in git/needs-push?")}
-      (run-proc
+      (bb/run-proc
         ^{:dir (zsh/expand repo-path)}
         ($ git status))
       (->>
@@ -243,7 +241,7 @@
   (-> {
        :error-message
        (str "RALPHIE ERROR for " repo-path " in git/needs-push?")}
-      (run-proc
+      (bb/run-proc
         ^{:dir (zsh/expand repo-path)}
         ($ git status))
       (->>
@@ -262,7 +260,7 @@
 (defn status [repo-path]
   (let [res         (-> {:error-message
                          (str "RALPHIE ERROR for " repo-path " in git/status")}
-                        (run-proc
+                        (bb/run-proc
                           ^{:dir (zsh/expand repo-path)}
                           ($ git status))
                         seq)
