@@ -34,6 +34,7 @@
 ;; Fetch repos from org file
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; DEPRECATED repos are now read from disk or from workspaces, not repos.org
 (defn fetch-repos []
   (->> (config/repos-file)
        (org-crud/path->flattened-items)

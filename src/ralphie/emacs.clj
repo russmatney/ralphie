@@ -36,15 +36,15 @@
   ;; TODO refactor to support passed sexps/opts. Maybe just merge args?
   ([] (open (workspace/current-workspace)))
   ([wsp]
-   (let [wsp-name     (-> wsp :org/name)
-         initial-file (-> wsp :org.prop/initial-file)]
+   (let [wsp-name     (some wsp [:org/name :clawe.defs/name])
+         initial-file (some wsp [:org.prop/initial-file :workspace/initial-file])]
 
      (when-not (emacs-server-running?)
        (notify "No emacs server running, initializing.")
        (initialize-emacs-client)
        (notify "Started emacs server"))
 
-     (notify "Attempting new emacs client" (:org/name wsp))
+     (notify "Attempting new emacs client" (str wsp-name " :: " initial-file))
      (-> ($ emacsclient --no-wait --create-frame
             -F ~(str "((name . \"" wsp-name "\"))")
             --display=:0
@@ -55,7 +55,7 @@
                   ;; (when eval-sexp eval-sexp)
                   ")"))
          check)
-     (notify "Created new emacs client" (:org/name wsp)))))
+     (notify "Created new emacs client" wsp-name))))
 
 (defn open-handler [_config parsed]
   (if-let [name (some-> parsed :arguments first)]

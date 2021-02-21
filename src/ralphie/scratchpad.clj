@@ -4,9 +4,9 @@
    [ralphie.emacs :as emacs]
    [ralphie.workspace :as workspace]
    [ralphie.awesome :as awm]
-   [ralphie.notify :refer [notify]]
    [babashka.process :refer [process check]]
-   [clojure.string :as string]))
+   [clojure.string :as string]
+   [ralphie.notify :as notify]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Create client
@@ -15,31 +15,36 @@
 (defn create-client
   "Creates clients for a given workspace"
   [wsp]
-  (let [wsp (cond
-              (nil? wsp)    (workspace/current-workspace)
-              (string? wsp) (workspace/for-name wsp)
-              :else         wsp)
+  (let [wsp       (cond
+                    (nil? wsp)    (workspace/current-workspace)
+                    (string? wsp) (workspace/for-name wsp)
+                    :else         wsp)
+        exec      (some wsp [:org.prop/exec :workspace/exec])
+        init-file (some wsp [:org.prop/initial-file :workspace/initial-file])
         first-client
         (or (:org.prop/first-client wsp)
             (cond
-              (-> wsp :org.prop/exec)         :create/exec
-              ;; IDEA check file-type for special cases
-              (-> wsp :org.prop/initial-file) :create/emacs
-              :else                           :create/none))]
+              exec      :create/exec
+              init-file :create/emacs
+              :else     (do
+                          (notify/notify
+                            "Could not determine first client for wsp" wsp)
+                          :create/none)))]
+    (println first-client init-file)
 
     (case first-client
       :create/emacs (emacs/open wsp)
-      :create/exec  (let [exec (-> wsp :org.prop/exec)]
-                      (notify "Starting new client" (-> wsp :org.prop/exec))
+      :create/exec  (do
+                      (notify/notify "Starting new client" exec)
                       (-> exec
                           (string/split #" ")
                           process
                           check)
-                      (notify "New client started" exec))
+                      (notify/notify "New client started" exec))
       :create/none
       ;; NOTE maybe detect a readme in directories as well
-      (notify "New workspace has no default client."
-              "Try setting :initial-file or :exec"))))
+      (notify/notify "New workspace has no default client."
+                     "Try setting :initial-file or :exec"))))
 
 (comment
   (create-client "journal")
