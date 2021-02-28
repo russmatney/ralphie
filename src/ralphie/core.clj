@@ -28,6 +28,7 @@
    [ralphie.rofi]
    [ralphie.screenshot]
    [ralphie.scratchpad]
+   [ralphie.spotify]
    [ralphie.story]
    [ralphie.term]
    [ralphie.tmux]
