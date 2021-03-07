@@ -1,18 +1,20 @@
 (ns ralphie.term
   (:require
    [ralphie.tmux :as tmux]
-   [ralphie.workspace :as workspace]
    [ralph.defcom :refer [defcom]]))
 
+;; TODO update to offering a more reasonable api (non-org based keys)
+;; maybe {:term/name "" :term/open-in-directory "blah"}
+;; support :term/open-hooks of some kind (e.g. print git status)
 (defn open-term
-  ([] (open-term (workspace/current-workspace)))
-  ([wsp]
-   (let [wsp  (if (string? wsp) (workspace/for-name wsp) wsp)
-         opts {:name (-> wsp :org/name)}
-         opts (if-let [dir (-> wsp :org.prop/directory)]
-                (assoc opts :directory dir)
-                opts)]
-     (tmux/open-session opts))))
+  ([] (open-term {:name "ralphie-term" :directory "~"}))
+  ([opts]
+   (let [name ((some-fn [:org/name :name]) opts)
+         dir ((some-fn [:org.prop/directory :directory]) opts)]
+     ;; TODO refactor/consume/simplify the tmux api?
+     (tmux/open-session {;; TODO namespace these keys
+                         :name name
+                         :directory dir}))))
 
 (comment
   (open-term)
