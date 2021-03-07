@@ -1,11 +1,8 @@
 (ns ralphie.awesome
   (:require
    [ralph.defcom :refer [defcom]]
-   [ralphie.config :as config]
    [ralphie.notify :as notify]
-   [ralphie.item :as item]
    [clojure.pprint]
-   [org-crud.core :as org-crud]
    [clojure.string :as string]
    [babashka.process :refer [$ check]]))
 

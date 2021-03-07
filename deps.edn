@@ -16,11 +16,7 @@
 
   borkdude/carve
   {:git/url "https://github.com/borkdude/carve"
-   :sha     "e9e2b1fbdd337b989c65a1983a1b3f72e310c970"}
-
-  russmatney/org-crud
-  {:git/url "https://github.com/russmatney/org-crud"
-   :sha     "d06b2686a6832e715d34ed5c8ce515a7a2748e32"}}
+   :sha     "e9e2b1fbdd337b989c65a1983a1b3f72e310c970"}}
 
  :aliases
  {:run {:main-opts "-m ralphie.core"}
