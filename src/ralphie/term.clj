@@ -7,14 +7,14 @@
 ;; maybe {:term/name "" :term/open-in-directory "blah"}
 ;; support :term/open-hooks of some kind (e.g. print git status)
 (defn open-term
-  ([] (open-term {:name "ralphie-term" :directory "~"}))
+  ([] (open-term {:term/name "ralphie-term" :term/directory "~"}))
   ([opts]
-   (let [name ((some-fn [:org/name :name]) opts)
-         dir ((some-fn [:org.prop/directory :directory]) opts)]
+   (let [name ((some-fn [:org/name :term/name]) opts)
+         dir ((some-fn [:org.prop/directory :term/directory]) opts)]
      ;; TODO refactor/consume/simplify the tmux api?
      (tmux/open-session {;; TODO namespace these keys
-                         :name name
-                         :directory dir}))))
+                         :tmux/name name
+                         :tmux/directory dir}))))
 
 (comment
   (open-term)

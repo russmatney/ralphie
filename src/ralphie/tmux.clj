@@ -6,8 +6,8 @@
    [ralph.defcom :refer [defcom]]
    [ralphie.sh :as r.sh]
    [ralphie.config :as config]
-   [ralphie.workspace :as workspace]
-   [clojure.string :as string]))
+   [clojure.string :as string]
+   [ralphie.awesome :as awm]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tmux create background
@@ -46,30 +46,6 @@
   (ensure-background-session {:name "mysess"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; New window
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn open-session
-  "Creates a session in a new alacritty window."
-  ([] (open-session {:name "ralphie-fallback" :directory "~"}))
-  ([{:keys [name directory] :as opts}]
-   (let [directory (if directory
-                     (r.sh/expand directory)
-                     (config/home-dir))]
-     (notify "Creating new alacritty window with tmux session" opts)
-
-     ;; NOTE `check`ing or derefing this won't release until
-     ;; the alacritty window is closed. Not sure if there's a better
-     ;; way to disown the process without skipping error handling
-     (-> ($ alacritty --title ~name -e tmux "new-session" -A
-            ~(when directory "-c") ~(when directory directory)
-            -s ~name)))))
-
-(comment
-  (open-session {:name "name"})
-  (open-session {:name "name" :directory "~/russmatney"}))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fire command
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -82,12 +58,8 @@
   - the workspace's session is usually in the expected directory already
   - commands can be fired from multiple places (emacs, a keybinding), and 'land'
   in the same place."
-  ([cmd-str] (fire cmd-str nil))
-  ([cmd-str opts]
-   (let [session-name       (:session opts)
-         {:keys [org/name]} (if session-name (workspace/for-name session-name)
-                                (workspace/current-workspace))
-         ]
+  [cmd-str]
+   (let [name (awm/current-tag-name)]
      (notify "ralphie/fire!" {:name    name
                               :cmd-str cmd-str})
 
@@ -98,7 +70,7 @@
           ;; .0 specifies the first window in the session
           ~(str name ".0")
           ~cmd-str C-m)
-       check))))
+       check)))
 
 (comment
   (fire "echo sup"))
@@ -123,15 +95,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn interrupt
-  ([] (interrupt nil))
-  ([opts]
-   (let [session-name       (:session opts)
-         {:keys [org/name]} (if session-name (workspace/for-name session-name)
-                                (workspace/current-workspace))]
-     (notify "ralphie/interrupt!" {:name name})
+  "Interrupts the command running in the first pane of the tmux session
+  matching the current awesome tag name."
+  []
+  (let [name (awm/current-tag-name)]
+    (notify "ralphie/interrupt!" {:name name})
 
-     (-> ($ tmux send-keys "-t" ~(str name ".0") C-c)
-         check))))
+    (-> ($ tmux send-keys "-t" ~(str name ".0") C-c)
+        check)))
 
 (defcom interrupt-cmd
   {:name    "interrupt"
@@ -139,3 +110,27 @@
 
 (comment
   (interrupt))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; New window
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn open-session
+  "Creates a session in a new alacritty window."
+  ([] (open-session {:tmux/name "ralphie-fallback" :tmux/directory "~"}))
+  ([{:tmux/keys [name directory] :as opts}]
+   (let [directory (if directory
+                     (r.sh/expand directory)
+                     (config/home-dir))]
+     (notify "Creating new alacritty window with tmux session" opts)
+
+     ;; NOTE `check`ing or derefing this won't release until
+     ;; the alacritty window is closed. Not sure if there's a better
+     ;; way to disown the process without skipping error handling
+     (-> ($ alacritty --title ~name -e tmux "new-session" -A
+            ~(when directory "-c") ~(when directory directory)
+            -s ~name)))))
+
+(comment
+  (open-session {:tmux/name "name"})
+  (open-session {:tmux/name "name" :tmux/directory "~/russmatney"}))

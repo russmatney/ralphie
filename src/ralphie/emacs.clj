@@ -1,6 +1,5 @@
 (ns ralphie.emacs
   (:require
-   [ralphie.workspace :as workspace]
    [ralphie.notify :refer [notify]]
    [ralphie.sh :as r.sh]
    [babashka.process :refer [$ check]]
@@ -33,11 +32,12 @@
   Uses the passed workspace data to direct emacs to the relevant initial file
   and named emacs workspace.
   "
-  ;; TODO refactor to support passed sexps/opts. Maybe just merge args?
-  ([] (open (workspace/current-workspace)))
+  ;; TODO refactor to support {:emacs/open-file "", :emacs/open-hook ""}
+  ;; or a similar api
+  ([] (open {:emacs/workspace-name "ralphie-fallback"}))
   ([wsp]
-   (let [wsp-name     (some wsp [:org/name :clawe.defs/name])
-         initial-file (some wsp [:org.prop/initial-file :workspace/initial-file])]
+   (let [wsp-name     (some wsp [:emacs/workspace-name :org/name :clawe.defs/name])
+         initial-file (some wsp [:emacs/open-file :org.prop/initial-file :workspace/initial-file])]
 
      (when-not (emacs-server-running?)
        (notify "No emacs server running, initializing.")
@@ -59,9 +59,7 @@
 
 (defn open-handler [_config parsed]
   (if-let [name (some-> parsed :arguments first)]
-    (let [wsp (workspace/for-name name)
-          wsp (or wsp (workspace/current-workspace))]
-      (open wsp))
+    (open {:emacs/workspace-name name})
     (open)))
 
 (defcom open-emacs

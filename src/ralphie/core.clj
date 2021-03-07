@@ -2,7 +2,6 @@
   (:require
    [ralph.defcom :as defcom]
 
-   [ralphie.autojump]
    [ralphie.awesome]
    [ralphie.browser]
    [ralphie.dates]
@@ -27,7 +26,6 @@
    [ralphie.repos]
    [ralphie.rofi]
    [ralphie.screenshot]
-   [ralphie.scratchpad]
    [ralphie.spotify]
    [ralphie.story]
    [ralphie.term]
@@ -35,7 +33,6 @@
    [ralphie.update]
    [ralphie.watch]
    [ralphie.window]
-   [ralphie.workspace]
    [ralphie.yodo]
    [ralphie.zsh]))
 
