@@ -60,7 +60,7 @@
   in the same place."
   [cmd-str]
    (let [name (awm/current-tag-name)]
-     (notify "ralphie/fire!" {:name    name
+     (notify "ralphie/fire!" {:workspace-name    name
                               :cmd-str cmd-str})
 
      (ensure-background-session {:name name})

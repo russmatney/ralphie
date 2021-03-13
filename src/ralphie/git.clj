@@ -12,7 +12,8 @@
    [ralphie.zsh :as zsh]
    [ralphie.fs :as fs]
    [ralphie.bb :as bb]
-   [clojure.string :as string]))
+   [clojure.string :as string]
+   [ralphie.tmux :as tmux]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; local repos
@@ -168,6 +169,38 @@
   (-> ^{:dir "/home/russ/russmatney/dotfiles"}
       ($ git "fetch" --verbose)
       check :err slurp))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; update local repos
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def local-repo-group-dirs
+  [(zsh/expand "~/russmatney")
+   (zsh/expand "~/teknql")])
+
+(defn update-local-repos
+  "Updates local repo refs using git-summary.
+
+  git-summary repo: https://github.com/MirkoLedda/git-summary
+  Expects git-summary to exist on the PATH.
+
+  If run in directory `parent-dir`, git-summary runs a fetch in all children,
+  effectively a git fetch in all `parent-dir/*`.
+
+  See `local-repo-group-dirs` for parent-dirs that this command runs in.
+
+  This function uses tmux-fire rather than clojure/shell or bb/process to let
+  the running shell/tmux-session handle the auth.
+  "
+  []
+  (notify "Updating local repo refs via git-summary" local-repo-group-dirs)
+  (for [dir local-repo-group-dirs]
+    (tmux/fire (str "cd " dir " && git-summary"))))
+
+(defcom update-local-repos-cmd
+  {:defcom/name    "update-local-repos-cmd"
+   :defcom/handler
+   (fn [_ _] (update-local-repos))})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; gprom
