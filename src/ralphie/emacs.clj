@@ -36,8 +36,12 @@
   ;; or a similar api
   ([] (open {:emacs/workspace-name "ralphie-fallback"}))
   ([wsp]
-   (let [wsp-name     (some wsp [:emacs/workspace-name :org/name :clawe.defs/name])
-         initial-file (some wsp [:emacs/open-file :org.prop/initial-file :workspace/initial-file])]
+   (let [wsp-name     (some wsp [:emacs/workspace-name :workspace/title :org/name :clawe.defs/name])
+         initial-file (some wsp [:emacs/open-file :workspace/initial-file :org.prop/initial-file])
+         eval-str     (str "(progn (russ/open-workspace \"" wsp-name "\") "
+                           (when initial-file
+                             (str "(find-file \"" initial-file "\")" " "))
+                           ")")]
 
      (when-not (emacs-server-running?)
        (notify "No emacs server running, initializing.")
@@ -48,12 +52,7 @@
      (-> ($ emacsclient --no-wait --create-frame
             -F ~(str "((name . \"" wsp-name "\"))")
             --display=:0
-            --eval
-            ~(str "(progn (russ/open-workspace \"" wsp-name "\") "
-                  (when initial-file
-                    (str "(find-file \"" initial-file "\")") " ")
-                  ;; (when eval-sexp eval-sexp)
-                  ")"))
+            --eval ~eval-str)
          check)
      (notify "Created new emacs client" wsp-name))))
 
