@@ -10,6 +10,11 @@
 
 (defn clear-registry [] (reset! registry* {}))
 
+(defn add-command [key opts]
+  (let [cmd (-> opts
+                (assoc ::registry-key key))]
+    (swap! registry* assoc key cmd)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; defcom
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -40,11 +45,10 @@
              name#    ~(or (:name opts) (:defcom/name opts))
              opts#    (assoc ~opts
                              :defcom/name name#
-                             ::registry-key key#
                              :defcom/handler-name fn-name#
                              :ns ns#)]
 
-         (swap! registry* assoc key# opts#)
+         (add-command key# opts#)
 
          ;; returns the created command map
          opts#))))

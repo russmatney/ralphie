@@ -48,13 +48,14 @@
        (initialize-emacs-client)
        (notify "Started emacs server"))
 
-     (notify "Attempting new emacs client" (str wsp-name " :: " initial-file))
+     ;; (notify "Attempting new emacs client" (str wsp-name " :: " initial-file))
      (-> ($ emacsclient --no-wait --create-frame
             -F ~(str "((name . \"" wsp-name "\"))")
             --display=:0
             --eval ~eval-str)
          check)
-     (notify "Created new emacs client" wsp-name))))
+     ;; (notify "Created new emacs client" wsp-name)
+     )))
 
 (defn open-handler [_config parsed]
   (if-let [name (some-> parsed :arguments first)]
