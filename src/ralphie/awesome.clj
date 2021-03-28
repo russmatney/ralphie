@@ -213,7 +213,9 @@ geometry= s.geometry})")))
   (->> (awm-cli
          {:parse? true
           :pp?    false}
-         (str "return view(lume.map(root.tags(), "
+         (str
+           "local f = client.focus;\n"
+           "return view(lume.map(root.tags(), "
               "function (t) return {
 name= t.name,
 selected= t.selected,
@@ -223,6 +225,7 @@ function (c) return {
 name= c.name,
 ontop=c.ontop,
 window= c.window,
+focused= f.window == c.window,
 } end),
 } end))"))
        (map (fn [t]
