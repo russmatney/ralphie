@@ -215,24 +215,28 @@ geometry= s.geometry})")))
           :pp?    false}
          (str
            "local f = client.focus;\n"
+           "local mwindow = awful.client.getmaster().window;\n"
            "return view(lume.map(root.tags(), "
-              "function (t) return {
+           "function (t) return {\n
 name= t.name,
 selected= t.selected,
+layout= t.layout.name,
 index= t.index,
-clients= lume.map(t:clients(),
-function (c) return {
+\n
+clients= lume.map(t:clients(),\n
+function (c) return {\n
 name= c.name,
 ontop=c.ontop,
 window= c.window,
+master= mwindow == c.window,
 focused= f.window == c.window,
 type= c.type,
 class= c.class,
 instance= c.instance,
 pid= c.pid,
 role= c.role,
-} end),
-} end))"))
+\n} end),
+\n} end)\n)"))
        (map (fn [t]
               (-> t
                   (update :clients #(into [] %))
