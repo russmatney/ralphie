@@ -215,32 +215,45 @@ geometry= s.geometry})")))
           :pp?    false}
          (str
            "local f = client.focus;\n"
-           "local mwindow = awful.client.getmaster().window;\n"
+           "local fwindow = false;\n"
+           "if f then
+  fwindow = f.window;
+end;\n"
+           "local mwindow = false;\n"
+           "local mclient = awful.client.getmaster();\n"
+           "if mclient then
+  mwindow = mclient.window;
+end;\n"
            "return view(lume.map(root.tags(), "
-           "function (t) return {\n
-name= t.name,
-selected= t.selected,
-layout= t.layout.name,
-index= t.index,
-\n
-clients= lume.map(t:clients(),\n
-function (c) return {\n
-name= c.name,
-ontop=c.ontop,
-window= c.window,
-master= mwindow == c.window,
-focused= f.window == c.window,
-type= c.type,
-class= c.class,
-instance= c.instance,
-pid= c.pid,
-role= c.role,
-\n} end),
-\n} end)\n)"))
+           "function (t)
+local l = t.layout;
+local lname = false;
+if l then
+  lname = l.name
+end;\n
+           return {
+                   name=     t.name,
+                   selected= t.selected,
+                   layout=   lname,
+                   index=    t.index,
+                   clients=  lume.map (t:clients(),
+function (c) return {
+   ontop=c.ontop,
+   window=   c.window,
+   master=   mwindow  == c.window,
+   focused=  fwindow == c.window,
+   type=     c.type,
+   class=    c.class,
+   instance= c.instance,
+   pid=      c.pid,
+   role=     c.role,
+  } end),
+} end))"))
        (map (fn [t]
               (-> t
                   (update :clients #(into [] %))
                   (assoc :empty (zero? (count (:clients t)))))))))
+
 (comment
   (->> (all-tags)
        (map #(dissoc % :clients))))
@@ -258,7 +271,7 @@ role= c.role,
 
 (defn workspace-for-name
   "Same as tag-for-name, but namespaces all the keys with :awesome/ prefixes.
-  Intended to be merged into a workspace map."
+       Intended to be merged into a workspace map."
   ([name] (workspace-for-name name (all-tags)))
   ([name all-tags]
    (some->>
@@ -292,7 +305,7 @@ role= c.role,
   (->> (awm-cli
          {:parse? true}
          (str "return view(lume.map(s.selected_tags,
-function (t) return {name= t.name} end))"))
+                                     function (t) return {name= t.name} end))"))
        (map :name)))
 
 (comment
@@ -313,17 +326,17 @@ function (t) return {name= t.name} end))"))
     {:parse? true}
     (str "return view(lume.map(client.get(), "
          "function (c) return {
-name= c.name,
-geometry= c:geometry(),
-window= c.window,
-type= c.type,
-class= c.class,
-instance= c.instance,
-pid= c.pid,
-role= c.role,
-tags= lume.map(c:tags(), function (t) return {name= t.name} end),
-first_tag= c.first_tag.name,
-} end))")))
+                               name=      c.name,
+                               geometry=  c:geometry (),
+                               window=    c.window,
+                               type=      c.type,
+                               class=     c.class,
+                               instance=  c.instance,
+                               pid=       c.pid,
+                               role=      c.role,
+                               tags=      lume.map   (c:tags(), function (t) return {name= t.name} end),
+                               first_tag= c.first_tag.name,
+                               } end))")))
 
 (comment
   (->> (all-clients)
@@ -340,9 +353,9 @@ first_tag= c.first_tag.name,
   (->
     (str "return view({name= "
          (awful-tag-add
-           "new-tag" {})
-         ".name});")
-    awm-cli))
+           "                 new-tag " {})
+         "                   .name});")
+       awm-cli))
 
 ;; Test to ensure that these all pass tag-name through
 (defn create-tag! [tag-name]
