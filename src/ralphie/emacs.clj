@@ -36,8 +36,8 @@
   ;; or a similar api
   ([] (open {:emacs/workspace-name "ralphie-fallback"}))
   ([wsp]
-   (let [wsp-name     (some wsp [:emacs/workspace-name :workspace/title :org/name :clawe.defs/name])
-         initial-file (some wsp [:emacs/open-file :workspace/initial-file :org.prop/initial-file])
+   (let [wsp-name     (some wsp [:emacs.open/workspace :emacs/workspace-name :workspace/title :org/name :clawe.defs/name])
+         initial-file (some wsp [:emacs.open/file :emacs/open-file :workspace/initial-file :org.prop/initial-file])
          eval-str     (str "(progn (russ/open-workspace \"" wsp-name "\") "
                            (when initial-file
                              (str "(find-file \"" initial-file "\")" " "))
