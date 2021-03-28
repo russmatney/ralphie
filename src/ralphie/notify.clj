@@ -7,22 +7,22 @@
    (cond (string? notice) (notify notice nil)
 
          (map? notice)
-         (let [{:keys [subject body] :as opts} notice]
-           (notify subject body opts))
+         (let [subject (some notice [:subject :notify/subject])
+               body    (some notice [:body :notify/body])]
+           (notify subject body notice))
 
          :else
-         (notify "Malformed notify call" "Expected string or map.")
-         ))
+         (notify "Malformed ralphie.notify/notify call"
+                 "Expected string or map.")))
 
   ([subject body & args]
-   (let [{:keys [replaces-process]}
-         (some-> args first)
-         exec-strs (cond-> ["notify-send.py" subject]
-                     body (conj body)
-                     replaces-process
-                     (conj "--replaces-process" replaces-process))
-         proc      (process/process (conj exec-strs) {:out :string})]
-     (println exec-strs)
+   (let [opts             (or (some-> args first) {})
+         replaces-process (some opts [:replaces-process :notify/replaces-process])
+         exec-strs        (cond-> ["notify-send.py" subject]
+                            body (conj body)
+                            replaces-process
+                            (conj "--replaces-process" replaces-process))
+         proc             (process/process (conj exec-strs) {:out :string})]
      ;; we only check when --replaces-process is not passed
      ;; ... skips error messages if bad data is passed
      ;; ... also not sure when these get dealt with. is this a memory leak?
@@ -34,6 +34,8 @@
   (notify "subj" "body\nbody\nbody")
   (notify {:subject "subj"})
   (notify "subj" "body\nbodybodddd" {:replaces-process "blah"})
+
+  (some {:blah "nope" :notify/subject 3} [:notify/subject :subject])
 
   (notify {:subject "subj" :body {:value "v" :label "laaaa"}})
   (notify {:subject "subj" :body "BODY"})

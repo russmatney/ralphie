@@ -34,28 +34,37 @@
   "
   ;; TODO refactor to support {:emacs/open-file "", :emacs/open-hook ""}
   ;; or a similar api
-  ([] (open {:emacs/workspace-name "ralphie-fallback"}))
+  ([] (open nil))
   ([wsp]
-   (let [wsp-name     (some wsp [:emacs.open/workspace :emacs/workspace-name :workspace/title :org/name :clawe.defs/name])
-         initial-file (some wsp [:emacs.open/file :emacs/open-file :workspace/initial-file :org.prop/initial-file])
-         eval-str     (str "(progn (russ/open-workspace \"" wsp-name "\") "
-                           (when initial-file
-                             (str "(find-file \"" initial-file "\")" " "))
-                           ")")]
+   (let [wsp          (or wsp {})
+         wsp-name
+         (or (some wsp [:emacs.open/workspace :emacs/workspace-name
+                        :workspace/title :org/name :clawe.defs/name])
+             "ralphie-fallback")
+         initial-file (some wsp [:emacs.open/file :emacs/open-file
+                                 :workspace/initial-file :org.prop/initial-file])
+         elisp-hook   (:emacs.open/elisp-hook wsp)
+         eval-str     (str
+                        "(progn "
+                        (when wsp-name
+                          (str " (russ/open-workspace \"" wsp-name "\") "))
+                        (when initial-file
+                          (str " (find-file \"" initial-file "\") " " "))
+                        (when elisp-hook elisp-hook)
+                        " )")]
 
      (when-not (emacs-server-running?)
-       (notify "No emacs server running, initializing.")
+       (notify {:notify/subject          "Initializing Emacs Server, initializing."
+                :notify/replaces-process "init-emacs-server"})
        (initialize-emacs-client)
-       (notify "Started emacs server"))
+       (notify {:notify/subject          "Started Emacs Server"
+                :notify/replaces-process "init-emacs-server"}))
 
-     ;; (notify "Attempting new emacs client" (str wsp-name " :: " initial-file))
      (-> ($ emacsclient --no-wait --create-frame
             -F ~(str "((name . \"" wsp-name "\"))")
             --display=:0
             --eval ~eval-str)
-         check)
-     ;; (notify "Created new emacs client" wsp-name)
-     )))
+         check))))
 
 (defn open-handler [_config parsed]
   (if-let [name (some-> parsed :arguments first)]
@@ -73,8 +82,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn emacs-cli [cmd]
-  ;; (notify cmd)
-  ;; (println cmd)
   (-> ^{:out :string}
       ($ emacsclient -a false -e ~cmd)
       check
