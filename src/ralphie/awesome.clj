@@ -226,6 +226,11 @@ name= c.name,
 ontop=c.ontop,
 window= c.window,
 focused= f.window == c.window,
+type= c.type,
+class= c.class,
+instance= c.instance,
+pid= c.pid,
+role= c.role,
 } end),
 } end))"))
        (map (fn [t]
