@@ -230,7 +230,7 @@ focused= f.window == c.window,
 } end))"))
        (map (fn [t]
               (-> t
-                  (update t :clients #(into [] %))
+                  (update :clients #(into [] %))
                   (assoc :empty (zero? (count (:clients t)))))))))
 (comment
   (->> (all-tags)
