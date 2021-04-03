@@ -120,11 +120,19 @@
                            :spotify-input spotify-input}))
          (do
            (println "adjusting spotify-volume" {:arg arg :volume volume-str})
-           (notify/notify "adjusting spotify-volume" {:arg arg :volume volume-str})
-           (pactl-set-sink-input-volume spotify-input volume-str)))))})
+           (pactl-set-sink-input-volume spotify-input volume-str)
+           (notify/notify
+             {:notify/subject "adjusted spotify-volume"
+              :notify/body (str "new volume: " (:volume spotify-input))
+              :notify/id "spotify-volume"})))))})
 
 (comment
+  (notify/notify
+    {:notify/subject "adjusting spotify-volume"
+     :notify/body    "bod"
+     :notify/id "spotify-volume"
+     })
+
   (spotify-volume nil {:arguments ["up"]})
   (spotify-volume nil {:arguments ["down"]})
-  (spotify-volume nil nil)
-  )
+  (spotify-volume nil nil))

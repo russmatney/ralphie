@@ -17,7 +17,7 @@
 
   ([subject body & args]
    (let [opts             (or (some-> args first) {})
-         replaces-process (some opts [:replaces-process :notify/replaces-process])
+         replaces-process (some opts [:notify/id :replaces-process :notify/replaces-process])
          exec-strs        (cond-> ["notify-send.py" subject]
                             body (conj body)
                             replaces-process
