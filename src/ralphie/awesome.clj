@@ -238,7 +238,8 @@ end;\n
                    index=    t.index,
                    clients=  lume.map (t:clients(),
 function (c) return {
-   ontop=c.ontop,
+   name=     c.name,
+   ontop=    c.ontop,
    window=   c.window,
    master=   mwindow  == c.window,
    focused=  fwindow == c.window,
