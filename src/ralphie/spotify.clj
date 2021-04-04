@@ -54,7 +54,6 @@
     (->sink-data strs)
     {:properties (->sink-input-props strs)}))
 
-
 (defn pacmd-sink-inputs []
   (->
     ^{:out :string}
@@ -79,10 +78,8 @@
   []
   (some->>
     (pacmd-sink-inputs)
-    (filter
-      (fn [{:keys [state properties]}]
-        (and (#{"RUNNING"} state)
-             (#{"spotify"} (:application.process.binary properties)))))
+    (filter (comp #{"RUNNING"} :state))
+    (filter #(#{"spotify"} (-> % :properties :application.name)))
     first))
 
 ;; pactl set-sink-input-volume $spotify +${step}%
@@ -130,8 +127,7 @@
   (notify/notify
     {:notify/subject "adjusting spotify-volume"
      :notify/body    "bod"
-     :notify/id "spotify-volume"
-     })
+     :notify/id "spotify-volume"})
 
   (spotify-volume nil {:arguments ["up"]})
   (spotify-volume nil {:arguments ["down"]})
