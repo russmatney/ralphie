@@ -122,7 +122,7 @@
    (let [directory (if directory
                      (r.sh/expand directory)
                      (config/home-dir))]
-     (notify "Creating new alacritty window with tmux session" opts)
+     ;; (notify "Creating new alacritty window with tmux session" opts)
 
      ;; NOTE `check`ing or derefing this won't release until
      ;; the alacritty window is closed. Not sure if there's a better

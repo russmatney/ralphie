@@ -257,7 +257,9 @@ function (c) return {
 
 (comment
   (->> (all-tags)
-       (map #(dissoc % :clients))))
+       (map :clients)
+       ;; (map #(dissoc % :clients))
+       ))
 
 (defn tag-for-name
   ([name] (tag-for-name name (all-tags)))
@@ -360,7 +362,7 @@ function (c) return {
 
 ;; Test to ensure that these all pass tag-name through
 (defn create-tag! [tag-name]
-  (notify/notify (str "creating new awesome tag: " tag-name))
+  ;; (notify/notify (str "creating new awesome tag: " tag-name))
   (awm-cli
     {:pp? false}
     (str "awful.tag.add(\"" tag-name "\"," "{layout=awful.layout.suit.tile});"))
@@ -370,7 +372,7 @@ function (c) return {
   (create-tag! "new-tag"))
 
 (defn focus-tag! [tag-name]
-  (notify/notify (str "focusing awesome tag: " tag-name))
+  ;; (notify/notify (str "focusing awesome tag: " tag-name))
   (awm-cli
     {:pp? false}
     (str "local tag = awful.tag.find_by_name(nil, \"" tag-name "\");
