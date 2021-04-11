@@ -9,9 +9,49 @@
    [clojure.string :as string]
    [ralphie.awesome :as awm]))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Tmux create background
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn list-windows
+  "Parses `tmux list-windows -a` output into clojure maps.
+
+  Fills:
+  - :tmux.window/session-name
+  - :tmux.window/index
+  - :tmux.window/name
+  "
+  []
+  (->
+    ^{:out :string}
+    ($ tmux list-windows -a)
+    check :out string/split-lines
+    (->>
+      (map (fn [window-str]
+             (-> window-str
+                 (string/split #":" 3)
+                 ((fn [[sesh-name window-idx rest]]
+                    (let [name-str
+                          (some-> rest
+                                  string/trim
+                                  (string/split #" " 2)
+                                  first)
+                          active?
+                          (some->> name-str
+                                   reverse
+                                   (take 1)
+                                   first
+                                   #{\*}
+                                   boolean)
+                          window-name
+                          (->> name-str
+                               reverse
+                               (drop 1)
+                               reverse
+                               (apply str))]
+                      {:tmux.window/session-name sesh-name
+                       :tmux.window/index        (read-string window-idx)
+                       :tmux.window/name         window-name
+                       :tmux.window/active?      active?})))))))))
+
+(comment
+  (list-windows))
 
 (defn has-session? [name]
   (-> @($ tmux has-session -t ~name)
@@ -21,6 +61,35 @@
 (comment
   (has-session? "new")
   (has-session? "ralphie"))
+
+(defn get-window
+  [desc]
+  (some->> (list-windows)
+           (filter (fn
+                     [{:tmux.window/keys [session-name name index]}]
+                     (cond
+                       (or
+                         (and
+                           (= (:tmux.window/session-name desc) session-name)
+                           (= (:tmux.window/name desc) name))
+                         (and
+                           (= (:tmux.window/session-name desc) session-name)
+                           (= (:tmux.window/index desc) index)))
+                       true
+
+                       :else false)))
+           first))
+
+(comment
+  (get-window {:tmux.window/session-name "clawe"
+               :tmux.window/name         "clawe"})
+  (get-window {:tmux.window/session-name "clawe"
+               :tmux.window/index        1})
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; new session
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn new-session [{:keys [name dir] :as opts}]
   (notify "Attempt to create new tmux session" opts)
@@ -45,6 +114,34 @@
 (comment
   (ensure-background-session {:name "mysess"}))
 
+(defn create-window
+  "You should probably call `ensure-window`, which checks if the window
+  already exists before creating."
+  [{:keys [tmux.window/name
+           tmux.window/session-name
+           tmux.window/directory]}]
+
+  (ensure-background-session {:name session-name :dir directory})
+  (let [proc ($ tmux new-window
+                -ad
+                -c ~(if directory directory "~")
+                -t ~session-name
+                -n ~name)]
+    (-> proc check :out slurp)))
+
+(defn ensure-window [desc]
+  (when-not (get-window desc)
+    (create-window desc)))
+
+(comment
+  (get-window {:tmux.window/session-name "clawe"
+               :tmux.window/name         "clawe"})
+  (get-window {:tmux.window/session-name "clover"
+               :tmux.window/index        1})
+  (ensure-window {:tmux.window/session-name "clawe"
+                  :tmux.window/name         "some-window"
+                  :tmux.window/directory    "~/russmatney/clawe"}))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fire command
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -58,22 +155,35 @@
   - the workspace's session is usually in the expected directory already
   - commands can be fired from multiple places (emacs, a keybinding), and 'land'
   in the same place."
-  [cmd-str]
-   (let [name (awm/current-tag-name)]
-     (notify "ralphie/fire!" {:workspace-name    name
-                              :cmd-str cmd-str})
+  ([cmd-str]
+   (fire cmd-str nil))
+  ([cmd-str opts]
+   (let [opts         (or opts {})
+         ;; should be a safe, default wm fallback
+         current-tag  (awm/current-tag-name)
+         session-name (or (some opts [:tmux/session-name]) current-tag)
+         window-name  (or (some opts [:tmux/window-name]) current-tag)]
+     (notify "ralphie/fire!" {:tmux/session-name session-name
+                              :tmux/window-name  window-name
+                              :tmux/cmd-str      cmd-str})
 
-     (ensure-background-session {:name name})
+     ;; TODO not sure if this actually focuses the session before firing
+     (ensure-window {:tmux.window/session-name session-name
+                     :tmux.window/name         window-name})
      (->
        ;; could specify the directory here
-       ($ tmux send-keys "-t"
+       ($ tmux send-keys
           ;; .0 specifies the first window in the session
-          ~(str name ".0")
+          -t ~(str session-name ":" window-name ".0")
           ~cmd-str C-m)
-       check)))
+       check))))
 
 (comment
-  (fire "echo sup"))
+  (fire "echo sup")
+  (fire "echo sup"
+        {:tmux/session-name "clawe"
+         :tmux/window-name  "my-window"})
+  )
 
 (defn fire-handler [_config parsed]
   (let [cmd (or (->> parsed :arguments (string/join " "))
