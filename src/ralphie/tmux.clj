@@ -13,9 +13,9 @@
   "Parses `tmux list-windows -a` output into clojure maps.
 
   Fills:
-  - :tmux.window/session-name
-  - :tmux.window/index
-  - :tmux.window/name
+  - :tmux/session-name
+  - :tmux/window-index
+  - :tmux/window-name
   "
   []
   (->
@@ -39,16 +39,26 @@
                                    first
                                    #{\*}
                                    boolean)
+                          last?
+                          (some->> name-str
+                                   reverse
+                                   (take 1)
+                                   first
+                                   #{\-}
+                                   boolean)
                           window-name
-                          (->> name-str
-                               reverse
-                               (drop 1)
-                               reverse
-                               (apply str))]
-                      {:tmux.window/session-name sesh-name
-                       :tmux.window/index        (read-string window-idx)
-                       :tmux.window/name         window-name
-                       :tmux.window/active?      active?})))))))))
+                          (if (re-seq #"(-|\*)$" name-str)
+                            (->> name-str
+                                 reverse
+                                 (drop 1)
+                                 reverse
+                                 (apply str))
+                            name-str)]
+                      {:tmux/session-name   sesh-name
+                       :tmux/window-index   (read-string window-idx)
+                       :tmux/window-name    window-name
+                       :tmux/window-active? active?
+                       :tmux/window-last?   last?})))))))))
 
 (comment
   (list-windows))
@@ -66,25 +76,25 @@
   [desc]
   (some->> (list-windows)
            (filter (fn
-                     [{:tmux.window/keys [session-name name index]}]
+                     [{:tmux/keys [session-name window-name window-index]}]
                      (cond
                        (or
                          (and
-                           (= (:tmux.window/session-name desc) session-name)
-                           (= (:tmux.window/name desc) name))
+                           (= (:tmux/session-name desc) session-name)
+                           (= (:tmux/window-name desc) window-name))
                          (and
-                           (= (:tmux.window/session-name desc) session-name)
-                           (= (:tmux.window/index desc) index)))
+                           (= (:tmux/session-name desc) session-name)
+                           (= (:tmux/window-index desc) window-index)))
                        true
 
                        :else false)))
            first))
 
 (comment
-  (get-window {:tmux.window/session-name "clawe"
-               :tmux.window/name         "clawe"})
-  (get-window {:tmux.window/session-name "clawe"
-               :tmux.window/index        1})
+  (get-window {:tmux/session-name "clawe"
+               :tmux/window-name  "clawe"})
+  (get-window {:tmux/session-name "clawe"
+               :tmux/window-index 1})
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -107,8 +117,7 @@
 (defn ensure-background-session
   "Creates a tmux session in the background."
   [{:keys [name] :as opts}]
-  (if (has-session? name)
-    (println (str "Found session " name "."))
+  (when-not (has-session? name)
     (new-session opts)))
 
 (comment
@@ -117,16 +126,16 @@
 (defn create-window
   "You should probably call `ensure-window`, which checks if the window
   already exists before creating."
-  [{:keys [tmux.window/name
-           tmux.window/session-name
-           tmux.window/directory]}]
+  [{:keys [tmux/window-name
+           tmux/session-name
+           tmux/directory]}]
 
   (ensure-background-session {:name session-name :dir directory})
   (let [proc ($ tmux new-window
                 -ad
                 -c ~(if directory directory "~")
                 -t ~session-name
-                -n ~name)]
+                -n ~window-name)]
     (-> proc check :out slurp)))
 
 (defn ensure-window [desc]
@@ -134,13 +143,13 @@
     (create-window desc)))
 
 (comment
-  (get-window {:tmux.window/session-name "clawe"
-               :tmux.window/name         "clawe"})
-  (get-window {:tmux.window/session-name "clover"
-               :tmux.window/index        1})
-  (ensure-window {:tmux.window/session-name "clawe"
-                  :tmux.window/name         "some-window"
-                  :tmux.window/directory    "~/russmatney/clawe"}))
+  (get-window {:tmux/session-name "clawe"
+               :tmux/window-name  "clawe"})
+  (get-window {:tmux/session-name "clover"
+               :tmux/window-index 1})
+  (ensure-window {:tmux/session-name "clawe"
+                  :tmux/window-name  "some-window"
+                  :tmux/directory    "~/russmatney/clawe"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fire command
@@ -168,12 +177,12 @@
                               :tmux/cmd-str      cmd-str})
 
      ;; TODO not sure if this actually focuses the session before firing
-     (ensure-window {:tmux.window/session-name session-name
-                     :tmux.window/name         window-name})
+     (ensure-window {:tmux/session-name session-name
+                     :tmux/window-name  window-name})
      (->
        ;; could specify the directory here
        ($ tmux send-keys
-          ;; .0 specifies the first window in the session
+          ;; .0 specifies the first pane in the window
           -t ~(str session-name ":" window-name ".0")
           ~cmd-str C-m)
        check))))
@@ -182,8 +191,7 @@
   (fire "echo sup")
   (fire "echo sup"
         {:tmux/session-name "clawe"
-         :tmux/window-name  "my-window"})
-  )
+         :tmux/window-name  "my-window"}))
 
 (defn fire-handler [_config parsed]
   (let [cmd (or (->> parsed :arguments (string/join " "))
@@ -228,18 +236,21 @@
 (defn open-session
   "Creates a session in a new alacritty window."
   ([] (open-session {:tmux/name "ralphie-fallback" :tmux/directory "~"}))
-  ([{:tmux/keys [name directory] :as opts}]
-   (let [directory (if directory
-                     (r.sh/expand directory)
-                     (config/home-dir))]
-     ;; (notify "Creating new alacritty window with tmux session" opts)
+  ([{:tmux/keys [name session-name directory]}]
+   (let [directory    (if directory
+                        (r.sh/expand directory)
+                        (config/home-dir))
+         session-name (or session-name name)
+         ;; window-name  (or window-name name)
+         ]
 
      ;; NOTE `check`ing or derefing this won't release until
      ;; the alacritty window is closed. Not sure if there's a better
      ;; way to disown the process without skipping error handling
-     (-> ($ alacritty --title ~name -e tmux "new-session" -A
+     (-> ($ alacritty --title ~session-name -e tmux "new-session" -A
             ~(when directory "-c") ~(when directory directory)
-            -s ~name)))))
+            -s ~session-name)
+         check))))
 
 (comment
   (open-session {:tmux/name "name"})
