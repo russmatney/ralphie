@@ -79,7 +79,7 @@
   (some->>
     (pacmd-sink-inputs)
     (filter (comp #{"RUNNING"} :state))
-    (filter (comp #{"spotify"} :application.name :properties))
+    (filter (comp #{"Spotify" "spotify"} :application.name :properties))
     first))
 
 ;; pactl set-sink-input-volume $spotify +${step}%
