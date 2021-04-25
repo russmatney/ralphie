@@ -4,10 +4,12 @@
    [ralphie.sh :as r.sh]
    [babashka.process :refer [$ check]]
    [ralph.defcom :refer [defcom]]
-   [clojure.string :as string]))
+   [clojure.string :as string]
+   [babashka.fs :as fs]
+   ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
+;; emacs server/client fns
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn emacs-server-running? []
@@ -26,14 +28,46 @@
 ;; Open emacs client for passed workspace
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(def fallback-default-files
+  ["readme.md"
+   "readme.org"
+   "deps.edn"
+   "shadow-cljs.edn"
+   "package.json"])
+
+(defn determine-initial-file
+  "Initial-file should be a file in the workspace repo's root.
+  If it exists, it is returned.
+  If it does not exist, sibling `fallback-default-files` are sought out.
+  The first to exist is used.
+  "
+  [initial-file]
+  (when initial-file
+    (if (fs/exists? initial-file)
+        initial-file
+        (let [dir (fs/parent initial-file)
+              lower-case-f->f (->> (fs/list-dir dir)
+                                (map str)
+                                (map (fn [f] [(string/lower-case f) f]))
+                                (into {}))
+              does-exist (->> fallback-default-files
+                              (map #(str dir "/" %))
+                              (filter lower-case-f->f)
+                              first
+                              lower-case-f->f)]
+          does-exist))))
+
+(comment
+  (determine-initial-file "/home/russ/russmatney/ralphie/some.blah")
+  (determine-initial-file "/home/russ/borkdude/babashka/readme.org")
+  )
+
 (defn open
   "Opens a new emacs client in the passed workspace.
 
   Uses the passed workspace data to direct emacs to the relevant initial file
   and named emacs workspace.
   "
-  ;; TODO refactor to support {:emacs/open-file "", :emacs/open-hook ""}
-  ;; or a similar api
   ([] (open nil))
   ([wsp]
    (let [wsp          (or wsp {})
@@ -43,6 +77,7 @@
              "ralphie-fallback")
          initial-file (some wsp [:emacs.open/file :emacs/open-file
                                  :workspace/initial-file :org.prop/initial-file])
+         initial-file (determine-initial-file initial-file)
          elisp-hook   (:emacs.open/elisp-hook wsp)
          eval-str     (str
                         "(progn "

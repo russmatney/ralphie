@@ -1,6 +1,8 @@
 (ns ralphie.fs
   "Subset of me.raynes.fs (clj-commons.fs) ripped one func at a time,
-  for bb compatibility."
+  for bb compatibility.
+  ;; TODO remove completely in favor of babashka/fs.
+  "
   (:refer-clojure :exclude [name parents])
   (:require [clojure.java.io :as io])
   (:import [java.io File]))

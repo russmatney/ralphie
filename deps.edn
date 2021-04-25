@@ -1,7 +1,8 @@
 {:paths ["src"]
 
  :deps
- {cheshire/cheshire {:mvn/version "5.10.0"}}
+ {cheshire/cheshire {:mvn/version "5.10.0"}
+  babashka/process {:mvn/version "0.0.2"}}
 
  :aliases
  {:dev
