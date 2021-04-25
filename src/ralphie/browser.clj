@@ -4,7 +4,8 @@
             [clojure.string :as string]
             [ralphie.rofi :as rofi]
             [ralphie.notify :as notify]
-            [ralphie.clipboard :as clipboard]))
+            [ralphie.clipboard :as clipboard]
+            [babashka.process :as process]))
 
 (defn line->tab [s]
   (->>
@@ -72,3 +73,19 @@
   {:name          "copy-all-tabs"
    :one-line-desc "Copies all open urls to the clipboard, seperated by newlines."
    :handler       copy-all-tabs-handler})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Open
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn open
+  "Opens the passed url"
+  [opts]
+  (let [url (some opts [:url :browser.open/url])]
+    (->
+      (process/$ xdg-open ~url)
+      process/check :out slurp)))
+
+(comment
+  (open {:url "https://github.com"})
+  )

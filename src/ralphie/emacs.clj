@@ -101,6 +101,10 @@
             --eval ~eval-str)
          check))))
 
+(comment
+  (open {:emacs.open/workspace "ralphie"
+         :emacs.open/file      "/home/russ/russmatney/ralphie/readme.org"}))
+
 (defn open-handler [_config parsed]
   (if-let [name (some-> parsed :arguments first)]
     (open {:emacs/workspace-name name})
