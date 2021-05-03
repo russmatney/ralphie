@@ -134,3 +134,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn input-muted?
+  "Returns true if the input microphone is muted."
+  []
+  (let [capture-output (-> ^{:out :string}
+                           (process/$ amixer get Capture)
+                           process/check :out)
+        output-lines   (string/split capture-output #"\n")
+        output-lines   (some->>
+                         output-lines
+                         (map string/trim)
+                         (filter #(or
+                                    (string/includes? % "[on]")
+                                    (string/includes? % "[off]"))))]
+    (some->
+      output-lines
+      first
+      (string/includes? "[off]"))))
