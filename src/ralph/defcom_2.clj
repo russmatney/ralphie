@@ -39,9 +39,16 @@
           (symbol? f)
           `(do
              (let [arglists# (:arglists (meta (var ~f)))]
-               (if (and (-> arglists# count #{1})
-                        (-> arglists# first count zero?))
+               (cond
+                 ;; named function with only zero arity
+                 (and (-> arglists# count #{1}) (-> arglists# first count zero?))
                  ~(list 'fn '[& _rest] (list f))
+
+                 ;; named function with only two arity
+                 (and (-> arglists# count #{1}) (-> arglists# first count #{2}))
+                 ~(list 'fn '[cmd & rst] (list f 'cmd 'rst))
+
+                 :else
                  ~f)))
 
           ;; anonymous function, use it as-is
@@ -54,6 +61,7 @@
            (conj xorfs {:defcom/fn command-fn}))))
 
 (comment
+  ;; TODO convert to suite of tests
   (defcom example-cmd
     (fn [cmd & x]
       (println "adding 2 to passed x" x "in" (:name cmd))
@@ -65,17 +73,31 @@
     (fn [& _rest] (println "no args!")))
   (exec cmd-no-args)
 
+  (defcom cmd-one-arg
+    (fn [cmd] (println "one arg!" cmd)))
+  (exec cmd-one-arg)
+
   (defcom cmd-no-args-2
     (println "no args!"))
   (exec cmd-no-args-2)
 
   (defn named-fn [] (println "named fn"))
-  (defcom cmd-named-fn
-    named-fn)
+  (defcom cmd-named-fn named-fn)
   (exec cmd-named-fn)
+  (exec cmd-named-fn "blah")
 
-  (defn named-fn-with-args [arg1] (println "named fn args" arg1))
+  (defn named-fn-with-arg [arg1] (println "named fn args" arg1))
+
+  (defcom cmd-named-one-arg named-fn-with-arg)
+  (exec cmd-named-one-arg)
+
   (defcom cmd-anon-fn-shorthand-wrapper
-    #(named-fn-with-args (rest %&)))
+    #(named-fn-with-arg (rest %&)))
+  (exec cmd-anon-fn-shorthand-wrapper)
   (exec cmd-anon-fn-shorthand-wrapper "hiargs")
+
+  (defn named-fn-with-two-args [arg1 arg2] (println "named fn two args" arg2 arg1))
+  (defcom cmd-named-two-args named-fn-with-two-args)
+  (exec cmd-named-two-args "hiargs")
+  (exec cmd-named-two-args)
   )
