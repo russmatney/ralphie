@@ -20,9 +20,9 @@
    :one-line-desc "Prints the date"
    :handler       date-cmd})
 
-(d2/defcom now-cmd
-  (now))
-(d2/exec now-cmd)
-(d2/defcom date
-  date-cmd)
-(d2/exec date)
+;; (d2/defcom now-cmd
+;;   (now))
+;; (d2/exec now-cmd)
+;; (d2/defcom date
+;;   date-cmd)
+;; (d2/exec date)

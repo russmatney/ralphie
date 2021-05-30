@@ -3,7 +3,8 @@
  :deps
  {cheshire/cheshire {:mvn/version "5.10.0"}
   babashka/process {:mvn/version "0.0.2"}
-  russmatney/defthing {:local/root "../defthing"}}
+  russmatney/defthing {:local/root "../defthing"}
+  org.clojure/tools.cli {:mvn/version "1.0.206"}}
 
  :aliases
  {:dev
