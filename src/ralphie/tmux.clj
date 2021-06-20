@@ -198,6 +198,7 @@
                 (rofi/rofi {:msg "Command to fire"} (rofi/zsh-history)))]
     (fire cmd)))
 
+;; TODO will run into same symbol collision as in rofi/rofi when we move to new defcom
 (defcom fire-cmd
   {:name          "fire"
    :one-line-desc "Fires a command in the nearest tmux shell."

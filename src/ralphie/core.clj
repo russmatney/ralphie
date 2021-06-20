@@ -23,7 +23,6 @@
    [ralphie.term]
    [ralphie.tmux]
    [ralphie.update]
-   [ralphie.watch]
    [ralphie.window]
    [ralphie.zsh]
    [clojure.string :as string]))

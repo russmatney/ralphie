@@ -101,6 +101,7 @@
 
 
 (comment
+  ;; TODO convert to tests
   (->
     ^{:in "11  iiii\n22 IIIIII\n33 33333"}
     ($ rofi -i -dmenu -mesg "Select bookmark to open" -sync -p *)
