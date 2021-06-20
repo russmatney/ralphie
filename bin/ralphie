@@ -1,0 +1,2 @@
+#!/bin/sh
+exec bb /home/russ/russmatney/ralphie/ralphie.jar $@

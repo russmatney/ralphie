@@ -1,12 +1,9 @@
 (ns ralphie.rofi
   (:require
-   [babashka.process :refer [$ process check]]
+   [babashka.process :refer [$ check]]
    [clojure.string :as string]
-   [ralphie.config :as config]
-   [ralphie.util :as util]
    [ralphie.zsh :as zsh]
    [ralphie.awesome :as awm]
-   [ralph.defcom :as defcom :refer [defcom]]
    [ralphie.doctor :as doctor]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -94,7 +91,11 @@
          (if selected-x
            (if-let [on-select (or ((some-fn :rofi/on-select :on-select)
                                    selected-x) on-select)]
-             (on-select selected-x)
+             (do
+               ;; TODO support zero-arity on-select here
+               ;; (println "on-select found" on-select)
+               ;; (println "argslists" (-> on-select meta :arglists))
+               (on-select selected-x))
              selected-x)
            selected-label))))))
 
@@ -126,6 +127,7 @@
 ;; Suggestion helpers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; TODO move to zsh namespace
 (defn zsh-history
   "Zsh history as rofi-xs.
   TODO cache/speed up/trim allowed entries
@@ -136,102 +138,3 @@
        (map (fn [{:keys [line]}]
               {:label line :on-select :label}))))
 
-(comment
-  (zsh-history)
-  (rofi {:msg "zsh history"} (zsh-history)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ralphie dev
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn rofi-dev-handler
-  ([] (rofi-dev-handler nil nil))
-  ([_config _parsed]
-   (let [cp (util/get-cp (config/project-dir))]
-     (->
-       (process ["bb" "-cp" cp "-m" "ralphie.core" "rofi"]
-                {:dir (config/project-dir)})
-       check
-       :out
-       slurp))))
-
-(comment
-  (let [foo "bar"]
-    (-> (process ["echo" foo])
-        check
-        :out
-        slurp)))
-
-(defcom rofi-dev-cmd
-  {:name          "rofi-dev"
-   :one-line-desc "Runs a dev version of rofi, using the local source code."
-   :description   ["Runs rofi via ralphie's local code."
-                   "Allows you to run code as you write it, without needing to
-install or jump into a shell to test it."  ]
-   :handler       rofi-dev-handler})
-
-(comment)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; cli/command
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; (defmulti ->rofi-label)
-
-;; TODO command icons
-(defn defcom->rofi [parsed {:keys [defcom/name one-line-desc description] :as x}]
-  (assoc x
-         :rofi/label (str
-                       "<span>" name " </span> "
-                       (when one-line-desc
-                         (str "<span color='gray'>" one-line-desc "</span> "))
-                       (when description
-                         (apply str (->> description
-                                         (map (fn [d]
-                                                (-> d
-                                                    (string/replace #"\n" " ")
-                                                    (#(str "<small>" % "</small>")))))))))
-         :rofi/on-select
-         (fn [cmd] (defcom/call-handler cmd nil parsed))))
-
-(defn config->rofi-commands
-  "VERIFY: Rofi needs commands passed in vs. relying on defcom/list-commands
-  Feels like this could be rewritten to pull from defcom/list-commands,
-  so we stop passing this config around.
-  That's probably where the config got it, anyway.
-  "
-  [parsed config]
-  (->> config
-       :commands
-       (filter (comp seq :defcom/name))
-       (map (partial defcom->rofi parsed))))
-
-(comment
-  (->>
-    {:commands (defcom/list-commands)}
-    (config->rofi-commands nil)
-    (rofi {:msg "hi"})
-    ;; (map :rofi/label)
-    ))
-
-(defn rofi-handler
-  "Returns the selected xs if there is no handler."
-  [config parsed]
-  (some->> config
-           (config->rofi-commands parsed)
-           (rofi {:require-match? true
-                  :msg            "All commands"})))
-
-(comment
-  (rofi-handler nil nil)
-  (rofi-handler {:commands (defcom/list-commands)} nil)
-  )
-
-(defcom select-command-via-rofi
-  {:name          "rofi"
-   :one-line-desc "Select a command to run via rofi."
-   :description   ["Open Rofi for each command."
-                   "Fires the selected command."
-                   "Expects rofi to exist on the path."]
-   :handler       rofi-handler})

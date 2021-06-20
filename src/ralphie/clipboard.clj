@@ -43,6 +43,7 @@
 
 (comment
   (set-clip "hello\ngoodbye")
+  (set-clip "siyanora")
   (get-clip "primary")
   (sh/sh "xclip" "-o" "-selection" "primary")
   (get-all)

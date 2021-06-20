@@ -1,11 +1,11 @@
 (ns ralphie.browser
-  (:require [babashka.process :as p]
-            [ralph.defcom :refer [defcom]]
-            [clojure.string :as string]
-            [ralphie.rofi :as rofi]
-            [ralphie.notify :as notify]
-            [ralphie.clipboard :as clipboard]
-            [babashka.process :as process]))
+  (:require
+   [babashka.process :as p]
+   [defthing.defcom :refer [defcom] :as defcom]
+   [clojure.string :as string]
+   [ralphie.rofi :as rofi]
+   [ralphie.notify :as notify]
+   [ralphie.clipboard :as clipboard]))
 
 (defn line->tab [s]
   (->>
@@ -31,48 +31,42 @@
 ;; List open tabs
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn list-open-tabs-handler
-  ([] (list-open-tabs-handler nil nil))
-  ([_config _parsed]
-   (->> (tabs)
-        (map #(assoc % :rofi/label
-                     ;; TODO pango markup
-                     (str (:tab/url %) ": " (:tab/title %))))
-        (rofi/rofi {:msg "Open tabs"})
-        ((fn [t]
-           (rofi/rofi {:msg (str "Selected: " (:tab/url t))}
-                      [;; TODO filter options based on url (is this a git url?)
-                       {:rofi/label     "Clone repo"
-                        :rofi/on-select (fn [_] (notify/notify
-                                                  "Clone repo not implemented" t))}
-                       {:rofi/label     "Copy to clipboard"
-                        :rofi/on-select (fn [_] (notify/notify
-                                                  "Copy not implemented" t))}]))))))
-
-(defcom list-open-tabs-cmd
-  {:name    "list-open-tabs"
-   :one-line-desc
-   "Lists currently open tabs via Rofi. Select to clone, copy, or other options."
-   :handler list-open-tabs-handler})
+(defcom list-open-tabs
+  "Lists whatever tabs you have open.
+Depends on `brotab`."
+  {:doctor/depends-on ["bt"]}
+  (->> (tabs)
+       (map #(assoc % :rofi/label
+                    ;; TODO pango markup
+                    (str (:tab/url %) ": " (:tab/title %))))
+       (rofi/rofi {:msg "Open tabs"})
+       ((fn [{:tab/keys [url] :as t}]
+          (if url
+            (rofi/rofi {:msg (str "Selected: " url)}
+                       [ ;; TODO filter options based on url (is this a git url?)
+                        {:rofi/label     "Clone repo"
+                         :rofi/on-select (fn [_]
+                                           (notify/notify "Clone repo not implemented" t))}
+                        {:rofi/label     "Copy to clipboard"
+                         :rofi/on-select (fn [_]
+                                           (println "selected!" url)
+                                           (clipboard/set-clip url)
+                                           (println "set!" url)
+                                           (notify/notify "Copied url to clipboard: " url))}])
+            (println "no url in " t))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Copy all open tabs to clipboard
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn copy-all-tabs-handler
-  ([] (copy-all-tabs-handler nil nil))
-  ([_config _parsed]
-   (let [ts (tabs)]
-     (->> ts
-          (map :tab/url)
-          (string/join "\n")
-          clipboard/set-clip)
-     (notify/notify (str "Copied " (count ts) " tabs to the clipboard")))))
-
-(defcom copy-all-tabs-cmd
-  {:name          "copy-all-tabs"
-   :one-line-desc "Copies all open urls to the clipboard, seperated by newlines."
-   :handler       copy-all-tabs-handler})
+(defcom copy-all-tabs
+  "Copies all open urls to the clipboard, seperated by newlines."
+  (let [ts (tabs)]
+    (->> ts
+         (map :tab/url)
+         (string/join "\n")
+         clipboard/set-clip)
+    (notify/notify (str "Copied " (count ts) " tabs to the clipboard"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Open
@@ -83,8 +77,8 @@
   [opts]
   (let [url (some opts [:url :browser.open/url])]
     (->
-      (process/$ xdg-open ~url)
-      process/check :out slurp)))
+      (p/$ xdg-open ~url)
+      p/check :out slurp)))
 
 (comment
   (open {:url "https://github.com"})
