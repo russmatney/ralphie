@@ -1,6 +1,7 @@
 (ns ralphie.git
   (:require
    [babashka.process :refer [$ check] :as process]
+   [babashka.fs :as fs]
    [cheshire.core :as json]
    [defthing.defcom :refer [defcom] :as defcom]
    [ralphie.notify :refer [notify]]
@@ -10,7 +11,6 @@
    [ralphie.browser :as browser]
    [ralphie.re :as re]
    [ralphie.zsh :as zsh]
-   [ralphie.fs :as fs]
    [ralphie.bb :as bb]
    [clojure.string :as string]
    [ralphie.tmux :as tmux]))

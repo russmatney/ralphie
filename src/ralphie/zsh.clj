@@ -4,7 +4,7 @@
    [ralphie.sh :as r.sh]
    [clojure.edn :as edn]
    [clojure.string :as string]
-   [ralphie.fs :as fs]))
+   [babashka.fs :as fs]))
 
 (def expand r.sh/expand)
 
