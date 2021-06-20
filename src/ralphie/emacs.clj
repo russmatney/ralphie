@@ -3,10 +3,9 @@
    [ralphie.notify :refer [notify]]
    [ralphie.sh :as r.sh]
    [babashka.process :refer [$ check]]
-   [ralph.defcom :refer [defcom]]
+   [defthing.defcom :refer [defcom] :as defcom]
    [clojure.string :as string]
-   [babashka.fs :as fs]
-   ))
+   [babashka.fs :as fs]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; emacs server/client fns
@@ -105,39 +104,12 @@
   (open {:emacs.open/workspace "ralphie"
          :emacs.open/file      "/home/russ/russmatney/ralphie/readme.org"}))
 
-(defn open-handler [_config parsed]
-  (if-let [name (some-> parsed :arguments first)]
-    (open {:emacs/workspace-name name})
-    (open)))
-
 (defcom open-emacs
-  {:name          "open-emacs"
-   :one-line-desc "Opens emacs in the current workspace"
-   :handler       open-handler})
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; cli
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn emacs-cli [cmd]
-  (-> ^{:out :string}
-      ($ emacsclient -a false -e ~cmd)
-      check
-      :out))
+  "Opens emacs in the current workspace"
+  (fn [_cmd & [n & _]]
+    (if n
+      (open {:emacs/workspace-name n})
+      (open))))
 
 (comment
-  (emacs-cli "(org-clock-menu)")
-  (emacs-cli "(org-clock-last)")
-  )
-
-(defcom emacs-cli-cmd
-  {:name          "emacs-cli"
-   :one-line-desc "Passes the string to emacs."
-   :handler
-   (fn [_config parsed]
-     (let [cmd (some-> parsed :arguments first)]
-       (if cmd
-         (emacs-cli cmd)
-         (notify "Emacs cli called without a command"
-                 "Expected an expression to pass to emacsclient via -e."))))})
+  (defcom/exec open-emacs))

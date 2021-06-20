@@ -1,6 +1,6 @@
 (ns ralphie.fzf
   (:require
-   [ralph.defcom :refer [defcom] :as defcom]
+   [defthing.defcom :refer [defcom] :as defcom]
    [babashka.process :refer [process]]
    [clojure.string :as string]))
 
@@ -16,19 +16,10 @@
                (filter (comp #{selected-label} :fzf/label))
                first))))
 
-(defn fzf-handler
-  ([] (fzf-handler nil nil))
-  ([config parsed]
-   (when-let [cmd (->> config
-                       :commands
-                       (filter (comp seq :name))
-                       (map (fn [cmd] (assoc cmd :fzf/label (:name cmd))))
-                       fzf)]
-     ;; TODO trim parsed to remove fzf argument
-     (defcom/call-handler cmd config parsed))))
-
 (defcom fzf-cmd
-  {:name          "fzf"
-   :one-line-desc "Select a ralphie command via fzf."
-   :description   "Expects to be called on the command line."
-   :handler       fzf-handler})
+  (fn [_cmd args]
+    (when-let [cmd (->> (defcom/list-commands)
+                        (filter (comp seq :name))
+                        (map (fn [cmd] (assoc cmd :fzf/label (:name cmd))))
+                        fzf)]
+      (defcom/exec cmd (rest args)))))

@@ -3,7 +3,7 @@
    [babashka.process :refer [$ check]]
    [ralphie.rofi :as rofi]
    [ralphie.notify :refer [notify]]
-   [ralph.defcom :refer [defcom]]
+   [defthing.defcom :refer [defcom] :as defcom]
    [ralphie.sh :as r.sh]
    [ralphie.config :as config]
    [clojure.string :as string]
@@ -193,21 +193,21 @@
         {:tmux/session-name "clawe"
          :tmux/window-name  "my-window"}))
 
-(defn fire-handler [_config parsed]
-  (let [cmd (or (->> parsed :arguments (string/join " "))
-                (rofi/rofi {:msg "Command to fire"} (rofi/zsh-history)))]
-    (fire cmd)))
-
-;; TODO will run into same symbol collision as in rofi/rofi when we move to new defcom
 (defcom fire-cmd
-  {:name          "fire"
-   :one-line-desc "Fires a command in the nearest tmux shell."
-   :description   [""]
-   :handler       fire-handler})
+  "Fires a command in the nearest tmux shell."
+  (fn [_cmd & args]
+    (let [cmd (if (seq args)
+                (first args)
+                (rofi/rofi {:msg "Command to fire"} (rofi/zsh-history)))]
+      (fire cmd))))
 
 (comment
-  (println "here")
-  )
+  ;; TODO ideally these would build the same cmd...
+  (defcom/exec fire-cmd "echo here")
+  (->
+    ($ ralphie fire-cmd "echo hi")
+    check))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; fire C-c
@@ -224,10 +224,6 @@
         check)))
 
 (defcom interrupt-cmd
-  {:name    "interrupt"
-   :handler (fn [_ _] (interrupt))})
-
-(comment
   (interrupt))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

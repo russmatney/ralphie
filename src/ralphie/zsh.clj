@@ -1,6 +1,6 @@
 (ns ralphie.zsh
   (:require
-   [ralph.defcom :refer [defcom]]
+   [defthing.defcom :refer [defcom] :as defcom]
    [ralphie.sh :as r.sh]
    [clojure.edn :as edn]
    [clojure.string :as string]
@@ -167,26 +167,11 @@
 (comment
   (clean-up-zsh-history))
 
-(defn clean-up-zsh-handler
-  ([] (clean-up-zsh-handler nil nil))
-  ([_config _parsed]
-   (update-full-zsh-history)
-   (clean-up-zsh-history)
-   nil))
+(defcom clean-up-zsh-history-cmd
+  "Cleans up old, long zsh history commands"
+  "Maintains a 'full' history, which may be used for later analysis."
+  "Removes long and duplicate commands."
+  (clean-up-zsh-history))
 
-(defcom clean-up-zsh-cmd
-  {:name          "clean-up-zsh-history"
-   :one-line-desc "Cleans up old, long zsh history commands"
-   :description   ["Maintains a 'full' history, which may be used for later analysis."
-                   "Removes long and duplicate commands."]
-   :handler       clean-up-zsh-handler})
-
-(defn clean-up-zsh-handler-dry-run
-  ([] (clean-up-zsh-handler-dry-run nil nil))
-  ([_config _parsed]
-   (clean-up-zsh-history {:dry-run true})
-   nil))
-
-(defcom clean-up-zsh-dry-run-cmd
-  {:name    "clean-up-zsh-history-dry-run"
-   :handler clean-up-zsh-handler-dry-run})
+(defcom clean-up-zsh-history-dry-run-cmd
+  (clean-up-zsh-history {:dry-run true}))

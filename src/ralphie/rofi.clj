@@ -135,7 +135,10 @@
   "
   []
   (->> (zsh/history)
-       (sort-by :timestamp >)
+       reverse
+       ;; (sort-by :timestamp >)
        (map (fn [{:keys [line]}]
               {:label line :on-select :label}))))
 
+(comment
+  (take 3 (zsh-history)))

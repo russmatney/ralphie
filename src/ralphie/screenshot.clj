@@ -1,6 +1,6 @@
 (ns ralphie.screenshot
   (:require
-   [ralph.defcom :refer [defcom]]
+   [defthing.defcom :refer [defcom] :as defcom]
    [ralphie.rofi :as rofi]
    [ralphie.notify :refer [notify]]
    [babashka.process :refer [$ check]]))
@@ -23,32 +23,24 @@
       check)
   (notify "Fullscreen screenshot captured"))
 
-(defn take-screenshot [_config parsed]
-  (let [arg (some-> parsed :arguments first)]
-    (prn "Taking screenshot with arg" arg)
-    (cond
-      (= arg "full")
-      (full-screen)
+(defcom take-screenshot
+  {:doctor/depends-on ["screenshot" "screenshot-region"]}
+  (fn [_cmd & args]
+    (let [arg (some-> args first)]
+      (prn "Taking screenshot with arg" arg)
+      (cond
+        (= arg "full")
+        (full-screen)
 
-      (= arg "region")
-      (select-region)
+        (= arg "region")
+        (select-region)
 
-      :else
-      (rofi/rofi {:msg "Full screen or select region?"}
-                 [{:label     "full screen"
-                   :on-select (fn [_arg] (full-screen))}
-                  {:label     "select region"
-                   :on-select (fn [_arg] (select-region))}]))))
-
-(comment
-  (take-screenshot nil nil))
-
-(defcom take-screenshot-command
-  {:name          "screenshot"
-   :one-line-desc "Take Screenshot"
-   :description   ["Takes a screenshot."
-                   "Not yet implemented."]
-   :handler       take-screenshot})
+        :else
+        (rofi/rofi {:msg "Full screen or select region?"}
+                   [{:label     "full screen"
+                     :on-select (fn [_arg] (full-screen))}
+                    {:label     "select region"
+                     :on-select (fn [_arg] (select-region))}])))))
 
 (comment
-  (println "sup"))
+  (defcom/exec take-screenshot))

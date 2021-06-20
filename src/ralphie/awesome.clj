@@ -1,6 +1,6 @@
 (ns ralphie.awesome
   (:require
-   [ralph.defcom :refer [defcom]]
+   [defthing.defcom :refer [defcom] :as defcom]
    [ralphie.notify :as notify]
    [clojure.pprint]
    [clojure.string :as string]
@@ -144,56 +144,26 @@
 ;; Set layout
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn set-layout-handler
-  ([] (set-layout-handler nil nil))
-  ([_config _parsed]
-   (awm-cli {:parse? false
-             :pp?    true}
-            "awful.layout.set(awful.layout.suit.tile);"
-            ;; "awful.layout.set(lain.layout.centerwork);"
-            )))
-
-(comment
-
+(defcom set-layout
+  "Sets the awesome layout"
   (awm-cli {:parse? false
             :pp?    true}
-           ;; "awful.layout.set(awful.layout.suit.tile);"
+           "awful.layout.set(awful.layout.suit.tile);"
            ;; "awful.layout.set(lain.layout.centerwork);"
-
-           "awful.layout.set(awful.layout.suit.spiral.dwindle)")
-
-  (awm-cli
-    (str
-      "return print(" (awm-fn "inspect" {:hello "world"}) ");")))
-
-
-(defcom set-layout-cmd
-  {:name          "set-layout"
-   :one-line-desc "Sets the awesome layout"
-   :description   [""]
-   :handler       set-layout-handler})
-
+           ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Set above and ontop
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn set-above-and-ontop []
-  (notify/notify "Setting above and ontop")
-  (awm-cli {:parse? false
-            :pp?    false}
-           "
+(defcom set-above-and-ontop
+  (do
+    (notify/notify "Setting above and ontop")
+    (awm-cli {:parse? false
+              :pp?    false}
+             "
 _G.client.focus.ontop = true;
-_G.client.focus.above = true;"))
-
-
-(defcom set-above-and-ontop-cmd
-  {:name    "set-above-and-ontop"
-   :handler (fn [_config _parsed]
-              (set-above-and-ontop))})
-
-(comment
-  (set-above-and-ontop))
+_G.client.focus.above = true;")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -401,31 +371,6 @@ tag:delete(); ")))
     {:pp? false}
     "s.selected_tag:delete()"))
 
-(comment
-  (delete-current-tag!))
-
-(defn delete-current-tag-handler [_ _]
-  (delete-current-tag!))
-
 (defcom awesome-delete-current-tag
-  {:name          "awesome-delete-current-tag"
-   :one-line-desc "Deletes the current focused tag."
-   :description
-   ["Deletes current tag if there are no clients exclusively attached."]
-   :handler       delete-current-tag-handler})
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Reapply rules to all clients
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn reapply-rules-handler [_config _parsed]
-  (awm-cli "reapply_rules();"))
-
-(defcom reapply-rules-cmd
-  {:name          "reapply-rules"
-   :one-line-desc "Reapplies rules to all clients"
-   :description   ["Reapplies rules to clients."
-                   "When tags are re-created without metadata, clients get lost."
-                   "This should re-run the rules, so they get reattached."]
-   :handler       reapply-rules-handler})
-
+  "Deletes the current focused tag."
+  delete-current-tag!)

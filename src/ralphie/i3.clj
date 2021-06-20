@@ -5,7 +5,8 @@
    [ralphie.config :as config]
    [ralphie.rofi :as rofi]
    [clojure.java.shell :as sh]
-   [clojure.set :as set]))
+   [clojure.set :as set]
+   [defthing.defcom :as defcom :refer [defcom]]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; i3-msg
@@ -247,4 +248,27 @@
 ;;                    "Restarts i3."]
 ;;    :handler       rebuild-and-restart!})
 
-(comment)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; resize window
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def window-size-options
+  [{:label  "small-centered"
+    :i3-cmd "floating enable, resize set width 50 ppt height 50 ppt, move position center"}
+   {:label  "large-centered"
+    :i3-cmd "floating enable, resize set width 90 ppt height 90 ppt, move position center"}
+   {:label  "tall-centered"
+    :i3-cmd "floating enable, resize set width 40 ppt height 80 ppt, move position center"}
+   ;; TODO handle position on multiple monitors
+   ;; {:label  "right-side"
+   ;;  :i3-cmd "floating enable, resize set width 45 ppt height 90 ppt, move position center"}
+   ;; {:label  "left-side"
+   ;;  :i3-cmd "floating enable, resize set width 40 ppt height 80 ppt, move position center"}
+   ])
+
+(defcom resize-window
+  {:doctor/depends-on ["i3-msg"]}
+  (->> window-size-options
+       (rofi/rofi {:msg "Choose window layout type"})
+       :i3-cmd
+       (i3-msg!)))

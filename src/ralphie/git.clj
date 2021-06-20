@@ -2,13 +2,13 @@
   (:require
    [babashka.process :refer [$ check] :as process]
    [cheshire.core :as json]
+   [defthing.defcom :refer [defcom] :as defcom]
    [ralphie.notify :refer [notify]]
    [ralphie.rofi :as rofi]
    [ralphie.config :as config]
    [ralphie.clipboard :as clipboard]
    [ralphie.browser :as browser]
    [ralphie.re :as re]
-   [ralph.defcom :refer [defcom]]
    [ralphie.zsh :as zsh]
    [ralphie.fs :as fs]
    [ralphie.bb :as bb]
@@ -125,19 +125,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defcom clone-cmd
-  {:name          "clone"
-   :one-line-desc "Clone from your Github Stars"
-   :description
-   ["When passed a repo-id, copies it into ~/repo-id."
-    "Depends on `hub` on the command line."
-    "Does not support private repos."
-    "If no repo-id is passed, fetches stars from github."]
-   :handler
-   (fn [_config parsed]
-     (if-let [repo-id (some-> parsed :arguments first)]
-       (clone {:repo-id repo-id})
-       (clone-from-stars)))})
-
+  "Clone from your Github Stars"
+  "When passed a repo-id, copies it into ~/repo-id."
+  "Depends on `hub` on the command line."
+  "Does not support private repos."
+  "If no repo-id is passed, fetches stars from github."
+  (fn [_cmd & args]
+    (if-let [repo-id (some-> args first)]
+      (clone {:repo-id repo-id})
+      (clone-from-stars))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; repo?
@@ -147,8 +143,6 @@
   "Returns true if the passed path is a git repo"
   [repo-path]
   (fs/exists? (str (zsh/expand repo-path) "/.git")))
-
-(comment)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; fetch
@@ -198,25 +192,8 @@
     (tmux/fire (str "cd " dir " && git-summary"))))
 
 (defcom update-local-repos-cmd
-  {:defcom/name    "update-local-repos-cmd"
-   :defcom/handler
-   (fn [_ _] (update-local-repos))})
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; gprom
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn gprom [repo-path]
-  (let [path (zsh/expand repo-path)]
-    ;; TODO stash/pop local changes as well
-    (println "TODO gprom in path" path)))
-
-(defcom gprom-cmd
-  {:name    "gprom"
-   :handler (fn [_ parsed]
-              (let [path (-> parsed :arguments first)]
-                (gprom path)))})
-
+  "Updates local repo refs using git-summary."
+  (update-local-repos))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; dirty/is-clean?
@@ -283,8 +260,7 @@
       ))
 
 (comment
-  (needs-pull? "~/russmatney/dotfiles")
-  )
+  (needs-pull? "~/russmatney/dotfiles"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; status
@@ -306,6 +282,4 @@
 
 (comment
   (status "~/russmatney/dotfiles")
-  (status "~/todo")
-
-  )
+  (status "~/todo"))
