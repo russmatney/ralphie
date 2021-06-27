@@ -7,7 +7,6 @@
    [ralphie.fzf]
    [ralphie.git]
    [ralphie.install]
-   [ralphie.item]
    [ralphie.monitor]
    [ralphie.notify]
    [ralphie.org]
