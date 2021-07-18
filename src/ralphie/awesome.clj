@@ -206,6 +206,7 @@ end;\n
                    selected= t.selected,
                    layout=   lname,
                    index=    t.index,
+                   urgent=   t.urgent,
                    clients=  lume.map (t:clients(),
 function (c) return {
    name=     c.name,
@@ -213,6 +214,7 @@ function (c) return {
    window=   c.window,
    master=   mwindow  == c.window,
    focused=  fwindow == c.window,
+   urgent=   c.urgent,
    type=     c.type,
    class=    c.class,
    instance= c.instance,
@@ -227,8 +229,9 @@ function (c) return {
 
 (comment
   (->> (all-tags)
-       (map :clients)
-       ;; (map #(dissoc % :clients))
+       ;; (mapcat :clients)
+       (filter :urgent)
+       first
        ))
 
 (defn tag-for-name
@@ -253,12 +256,14 @@ function (c) return {
      first
      ((fn [tag]
         {:awesome/name     (:name tag)
+         ;; TODO namespace these client keys!
          :awesome/clients  (:clients tag)
          :awesome/index    (:index tag)
          :awesome/selected (:selected tag)
          :awesome/empty    (:empty tag)
+         :awesome/urgent   (:urgent tag)
          ;; DEPRECATED but left for now
-         :awesome/tag tag})))))
+         :awesome/tag      tag})))))
 
 (comment
   (workspace-for-name "ralphie")
