@@ -33,7 +33,7 @@
 
    ;; push any floating windows into the view
    (awm/awm-cli
-     {:parse? false :pp? false}
+     {:quiet? true}
      (str
        ;; set all ontops false
        "for c in awful.client.iterate(function (c) return c.ontop end) do\n"
