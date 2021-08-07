@@ -14,14 +14,16 @@
          :else
          (notify "Malformed ralphie.notify/notify call"
                  "Expected string or map.")))
-
   ([subject body & args]
    (let [opts             (or (some-> args first) {})
+         print?           (:notify/print? opts)
          replaces-process (some opts [:notify/id :replaces-process :notify/replaces-process])
          exec-strs        (cond-> ["notify-send.py" subject]
                             body (conj body)
                             replaces-process
                             (conj "--replaces-process" replaces-process))
+         _                (when print?
+                            (println subject (when body (str "\n" body))))
          proc             (process/process (conj exec-strs) {:out :string})]
      ;; we only check when --replaces-process is not passed
      ;; ... skips error messages if bad data is passed
