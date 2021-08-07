@@ -580,6 +580,17 @@ function (c) return {
            (str "awful.tag.add(\"" tag-name "\"," "{layout=awful.layout.suit.tile});"))
   tag-name)
 
+(defn ensure-tag [tag-name]
+  (awm-fnl
+    {:quiet? true}
+    (str
+      "(if (awful.tag.find_by_name (awful.screen.focused) \"" tag-name "\")"
+      " nil (awful.tag.add \"" tag-name "\" {:layout awful.layout.suit.tile}))")))
+
+(comment
+  (ensure-tag "web"))
+
+
 (comment (create-tag! "new-tag"))
 
 (defn focus-tag! [tag-name]
@@ -801,21 +812,6 @@ _G.client.focus.above = true;")))
   (->> (concat widget-filenames)
        (hotswap-module-names))
   (rebuild-bar))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; keybindings
-
-;; TODO fix to not always append on all keybindings - maybe by leaving awm completely
-(defn reload-keybindings []
-  ;; commented out b/c this doesn't actually work - it adds extra calls to each kbd, but does not replace
-  ;; whatever was already in-place
-  ;; (hotswap-module-names ["bindings"])
-  ;; (awm-cli
-  ;;   {:quiet? true}
-  ;;   "require('bindings'); set_global_keys();")
-  )
-
-(comment (awm-cli "awful.keyboard.remove_global_keybinding();"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; misc
