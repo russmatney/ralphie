@@ -1,8 +1,7 @@
 (ns ralphie.emacs
   (:require
    [ralphie.notify :refer [notify]]
-   [ralphie.sh :as r.sh]
-   [babashka.process :refer [$ check]]
+   [babashka.process :as process :refer [$ check]]
    [defthing.defcom :refer [defcom] :as defcom]
    [clojure.string :as string]
    [babashka.fs :as fs]))
@@ -18,10 +17,14 @@
     (catch Exception _e
       false)))
 
-(defn initialize-emacs-client []
-  (r.sh/zsh
-    (str "emacsclient --alternate-editor='' --no-wait --create-frame"
-         " -e '(delete-frame)'")))
+(defn initialize-emacs-server []
+  (->
+    (process/$ systemctl restart --user emacs)
+    (process/check))
+  ;; (r.sh/zsh
+  ;;   (str "emacsclient --alternate-editor='' --no-wait --create-frame"
+  ;;        " -e '(delete-frame)'"))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Open emacs client for passed workspace
@@ -90,7 +93,7 @@
      (when-not (emacs-server-running?)
        (notify {:notify/subject          "Initializing Emacs Server, initializing."
                 :notify/replaces-process "init-emacs-server"})
-       (initialize-emacs-client)
+       (initialize-emacs-server)
        (notify {:notify/subject          "Started Emacs Server"
                 :notify/replaces-process "init-emacs-server"}))
 
