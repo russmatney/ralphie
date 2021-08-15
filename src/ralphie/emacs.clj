@@ -26,6 +26,12 @@
   ;;        " -e '(delete-frame)'"))
   )
 
+(defn eval-form
+  "Expects a string."
+  [form]
+  (-> ($ emacsclient --eval ~form)
+      check))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Open emacs client for passed workspace
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
