@@ -114,6 +114,9 @@
            last
            :Volume))
 
+(defn default-sink-volume-label []
+  (some->> (default-sink-volume) (re-seq #"\d?\d\d%") first))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; pactl set-sink-input-volume $spotify +${step}%
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

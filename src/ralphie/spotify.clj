@@ -2,7 +2,9 @@
   (:require
    [defthing.defcom :refer [defcom] :as defcom]
    [ralphie.notify :as notify]
-   [ralphie.pulseaudio :as pulseaudio]))
+   [ralphie.pulseaudio :as pulseaudio]
+   [babashka.process :as process]
+   [clojure.string :as string]))
 
 
 (defn spotify-sync-input
@@ -16,12 +18,17 @@
     (filter (comp #{"Spotify" "spotify"} :application.name :properties))
     first))
 
+(defn spotify-volume-label
+  ([] (spotify-volume-label (spotify-sync-input)))
+  ([x] (some->> x :volume (re-seq #"\d?\d\d%") first)))
+
 (defn adjust-spotify-volume [arg]
   (let [volume-str    (cond
                         (= "up" arg)   "+10"
                         (= "down" arg) "-10"
                         :else          nil)
-        spotify-input (spotify-sync-input)]
+        spotify-input (spotify-sync-input)
+        ]
     (if-not (and spotify-input volume-str)
       (do
         (println "spotify-volume missing params"
@@ -35,7 +42,7 @@
         (pulseaudio/pactl-set-sink-input-volume spotify-input volume-str)
         (notify/notify
           {:notify/subject "adjusted spotify-volume"
-           :notify/body    (str "new volume: " (:volume spotify-input))
+           :notify/body    (str "new volume: " (spotify-volume-label spotify-input))
            :notify/id      "spotify-volume"})))))
 
 (defcom spotify-volume
@@ -51,3 +58,21 @@
 
   (defcom/exec spotify-volume "up")
   (adjust-spotify-volume "up"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; spotifycli wrapper
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn spotifycli [arg]
+  (->
+    ^{:out :string}
+    (process/$ spotifycli ~arg)
+    (process/check)
+    :out
+    string/trim-newline))
+
+(defn spotify-current-song []
+  {:spotify/song      (spotifycli "--song")
+   :spotify/artist    (spotifycli "--artist")
+   :spotify/album     (spotifycli "--album")
+   :spotify/album-url (spotifycli "--arturl")})
