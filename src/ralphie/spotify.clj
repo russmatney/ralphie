@@ -63,13 +63,30 @@
 ;; spotifycli wrapper
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn spotifycli [arg]
-  (->
-    ^{:out :string}
-    (process/$ spotifycli ~arg)
-    (process/check)
-    :out
-    string/trim-newline))
+(defn spotifycli
+  "Passes the passed arg to spotifycli: https://github.com/pwittchen/spotify-cli-linux
+
+  Ex: {:spotify/song      (spotifycli \"--song\")
+       :spotify/artist    (spotifycli \"--artist\")
+       :spotify/album     (spotifycli \"--album\")
+       :spotify/album-url (spotifycli \"--arturl\")}
+  "
+  [arg]
+  (try
+    (->
+      ^{:out :string}
+      (process/$ spotifycli ~arg)
+      process/check
+      :out
+      string/trim-newline)
+    (catch Exception e
+      (println "[ralphie/spotifycli] ERROR")
+      (println (ex-message e))
+      (println :cmd (-> e ex-data :cmd)))))
+
+(comment
+  (spotifycli "--song")
+  )
 
 (defn spotify-current-song []
   {:spotify/song      (spotifycli "--song")
