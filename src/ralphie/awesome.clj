@@ -796,21 +796,9 @@ _G.client.focus.above = true;")))
     {:quiet? true}
     "require('bar'); init_bar();"))
 
-(def widget-filenames
-  ;; TODO generate this from the awesome/widgets/* dir
-  (concat
-    (map (partial str "widgets.")
-         ["workspaces"
-          "workspace-meta"
-          "workrave"
-          "focus"
-          "dirty-repos"])
-    ["bar"]))
-
 (defn reload-bar-and-widgets []
   (assert (= (check-for-errors) "No Errors."))
-  (->> (concat widget-filenames)
-       (hotswap-module-names))
+  (hotswap-module-names ["bar"])
   (rebuild-bar))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
