@@ -1,3 +1,14 @@
+# Deprecated
+
+This repository's code has been completely consumed (and improved) in
+[russmatney/clawe](https://github.com/russmatney/clawe), where it has evolved
+along with that monorepo. See the [ralphie namespaces
+there](https://github.com/russmatney/clawe/tree/master/src/ralphie), especially
+if you're looking for babashka-based OS namespaces (e.g. emacs, tmux, browser,
+git, etc).
+
+---
+
 # Ralphie
 
 A set of commands for the command line, keybindings, and rofi,
